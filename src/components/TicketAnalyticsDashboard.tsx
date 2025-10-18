@@ -66,12 +66,22 @@ export default function TicketAnalyticsDashboard() {
     return days[date.getDay()];
   };
 
+  const isWeekday = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = date.getDay();
+    return day !== 0 && day !== 6;
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return `${date.getDate()}.${date.getMonth() + 1}`;
   };
 
-  const maxDaily = Math.max(...dailyStats.map(d => d.created_count), 1);
+  const workdayStats = dailyStats.filter(d => isWeekday(d.date));
+  const maxDaily = Math.max(
+    ...workdayStats.map(d => Math.max(d.created_count, d.resolved_count)),
+    1
+  );
 
   if (loading) {
     return (
@@ -154,60 +164,85 @@ export default function TicketAnalyticsDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="TrendingUp" size={20} />
-            Динамика тикетов (30 дней)
+            Статистика по рабочим дням (последние 30 дней)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {dailyStats.length === 0 ? (
+          {workdayStats.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
-              Нет данных за последние 30 дней
+              Нет данных за последние 30 рабочих дней
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex gap-4 text-sm mb-4">
+            <div className="space-y-6">
+              <div className="flex gap-6 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                  <span>Создано</span>
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-muted-foreground">Создано</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Решено</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  <span>Срочных</span>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-muted-foreground">Решено</span>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                {dailyStats.map((day, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex items-center gap-3 text-sm">
-                      <span className="w-16 text-muted-foreground">
-                        {getDayName(day.date)} {formatDate(day.date)}
-                      </span>
-                      <div className="flex-1 flex gap-2 items-center">
-                        <div 
-                          className="bg-blue-500/20 h-8 rounded flex items-center justify-center text-blue-400 font-semibold"
-                          style={{ width: `${(day.created_count / maxDaily) * 100}%`, minWidth: day.created_count > 0 ? '40px' : '0' }}
-                        >
-                          {day.created_count > 0 && day.created_count}
+              <div className="relative h-64 flex items-end justify-between gap-2 border-b border-border pb-2">
+                <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
+                  {[maxDaily, Math.floor(maxDaily * 0.75), Math.floor(maxDaily * 0.5), Math.floor(maxDaily * 0.25), 0].map((val, i) => (
+                    <div key={i} className="flex items-center">
+                      <span className="text-xs text-muted-foreground w-8">{val}</span>
+                      <div className="flex-1 border-t border-border/30"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {workdayStats.map((day, idx) => {
+                  const createdHeight = (day.created_count / maxDaily) * 100;
+                  const resolvedHeight = (day.resolved_count / maxDaily) * 100;
+                  
+                  return (
+                    <div key={idx} className="flex-1 flex flex-col items-center gap-2 relative z-10">
+                      <div className="flex-1 w-full flex items-end justify-center gap-1">
+                        <div className="relative group flex-1 max-w-[20px]">
+                          <div 
+                            className="bg-blue-500 rounded-t hover:bg-blue-400 transition-colors cursor-pointer"
+                            style={{ height: `${createdHeight}%`, minHeight: day.created_count > 0 ? '4px' : '0' }}
+                          />
+                          {day.created_count > 0 && (
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                              Создано: {day.created_count}
+                            </div>
+                          )}
                         </div>
-                        <div 
-                          className="bg-green-500/20 h-8 rounded flex items-center justify-center text-green-400 font-semibold"
-                          style={{ width: `${(day.resolved_count / maxDaily) * 100}%`, minWidth: day.resolved_count > 0 ? '40px' : '0' }}
-                        >
-                          {day.resolved_count > 0 && day.resolved_count}
+                        
+                        <div className="relative group flex-1 max-w-[20px]">
+                          <div 
+                            className="bg-green-500 rounded-t hover:bg-green-400 transition-colors cursor-pointer"
+                            style={{ height: `${resolvedHeight}%`, minHeight: day.resolved_count > 0 ? '4px' : '0' }}
+                          />
+                          {day.resolved_count > 0 && (
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                              Решено: {day.resolved_count}
+                            </div>
+                          )}
                         </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-medium text-foreground">
+                          {getDayName(day.date)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(day.date)}
+                        </span>
                         {day.urgent_count > 0 && (
-                          <div className="bg-red-500/20 h-8 px-3 rounded flex items-center justify-center text-red-400 font-semibold">
-                            🔥 {day.urgent_count}
-                          </div>
+                          <span className="text-xs bg-red-500/20 text-red-400 px-1 rounded">
+                            🔥{day.urgent_count}
+                          </span>
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
