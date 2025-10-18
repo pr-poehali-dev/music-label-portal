@@ -41,6 +41,10 @@ export default function ArtistView({
   onMessagesOpenChange,
   onLogout
 }: ArtistViewProps) {
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('artist_active_tab') || 'stats';
+  });
+
   const [unreadCounts, setUnreadCounts] = useState({
     tickets: 0,
     tasks: 0,
@@ -101,7 +105,13 @@ export default function ArtistView({
           userRole="artist"
         />
 
-        <Tabs defaultValue="stats" className="w-full">
+        <Tabs 
+          value={activeTab}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            localStorage.setItem('artist_active_tab', value);
+          }}
+          className="w-full">
           <div className="w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="stats">📊 Статистика</TabsTrigger>

@@ -97,6 +97,10 @@ export default function DirectorTabs({
   onDeleteTicket,
   onUpdateUser
 }: DirectorTabsProps) {
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('director_active_tab') || 'home';
+  });
+
   const [unreadCounts, setUnreadCounts] = useState({
     tickets: 0,
     tasks: 0,
@@ -161,7 +165,13 @@ export default function DirectorTabs({
   };
 
   return (
-    <Tabs defaultValue="tickets" className="w-full">
+    <Tabs 
+      value={activeTab} 
+      onValueChange={(value) => {
+        setActiveTab(value);
+        localStorage.setItem('director_active_tab', value);
+      }} 
+      className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
         <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">

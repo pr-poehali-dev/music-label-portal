@@ -43,6 +43,10 @@ export default function ManagerView({
   onMessagesOpenChange,
   onLogout
 }: ManagerViewProps) {
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('manager_active_tab') || 'tasks';
+  });
+
   const [unreadCounts, setUnreadCounts] = useState({
     tickets: 0,
     tasks: 0,
@@ -105,7 +109,13 @@ export default function ManagerView({
 
         <ManagerStats userId={user.id} />
 
-        <Tabs defaultValue="tasks" className="w-full">
+        <Tabs 
+          value={activeTab}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            localStorage.setItem('manager_active_tab', value);
+          }}
+          className="w-full">
           <div className="w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="tasks">✅ Мои задачи<Badge count={unreadCounts.tasks} /></TabsTrigger>
