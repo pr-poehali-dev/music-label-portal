@@ -87,88 +87,127 @@ export default function TicketManagement({
 
   const stats = getTicketStats();
 
+  const openTickets = tickets.filter(t => t.status === 'open');
+  const inProgressTickets = tickets.filter(t => t.status === 'in_progress');
+  const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Всего тикетов</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Открыто</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.open}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Открыто</CardTitle>
+            <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">В работе</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{stats.open}</div>
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.inProgress}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">В работе</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Решено</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">{stats.inProgress}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Решено</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">{stats.resolved}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.resolved}</div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Управление тикетами</CardTitle>
-          <CardDescription>Просмотр и управление всеми тикетами</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все тикеты</SelectItem>
-                <SelectItem value="open">Открытые</SelectItem>
-                <SelectItem value="in_progress">В работе</SelectItem>
-                <SelectItem value="resolved">Решённые</SelectItem>
-                <SelectItem value="closed">Закрытые</SelectItem>
-              </SelectContent>
-            </Select>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
+          <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 border-2 border-blue-300 dark:border-blue-700">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
+              <Icon name="Circle" size={16} />
+              Открыто ({openTickets.length})
+            </h3>
           </div>
+          {openTickets.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Нет открытых тикетов</p>
+            </div>
+          ) : (
+            openTickets.map(ticket => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                user={user}
+                managers={managers}
+                onUpdateStatus={onUpdateStatus}
+                onAssign={onAssignTicket}
+                onDelete={onDeleteTicket}
+                getPriorityColor={getPriorityColor}
+                getStatusColor={getStatusColor}
+              />
+            ))
+          )}
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-gray-500">
-                <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
-                <p>Тикетов не найдено</p>
-              </div>
-            ) : (
-              tickets.map(ticket => (
-                <TicketCard
-                  key={ticket.id}
-                  ticket={ticket}
-                  user={user}
-                  managers={managers}
-                  onUpdateStatus={onUpdateStatus}
-                  onAssign={onAssignTicket}
-                  onDelete={onDeleteTicket}
-                  getPriorityColor={getPriorityColor}
-                  getStatusColor={getStatusColor}
-                />
-              ))
-            )}
+        <div className="space-y-4">
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg p-3 border-2 border-yellow-300 dark:border-yellow-700">
+            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+              <Icon name="Clock" size={16} />
+              В работе ({inProgressTickets.length})
+            </h3>
           </div>
-        </CardContent>
-      </Card>
+          {inProgressTickets.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Нет тикетов в работе</p>
+            </div>
+          ) : (
+            inProgressTickets.map(ticket => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                user={user}
+                managers={managers}
+                onUpdateStatus={onUpdateStatus}
+                onAssign={onAssignTicket}
+                onDelete={onDeleteTicket}
+                getPriorityColor={getPriorityColor}
+                getStatusColor={getStatusColor}
+              />
+            ))
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border-2 border-green-300 dark:border-green-700">
+            <h3 className="font-semibold text-green-800 dark:text-green-200 flex items-center gap-2">
+              <Icon name="CheckCircle" size={16} />
+              Решено ({resolvedTickets.length})
+            </h3>
+          </div>
+          {resolvedTickets.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Нет решённых тикетов</p>
+            </div>
+          ) : (
+            resolvedTickets.map(ticket => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                user={user}
+                managers={managers}
+                onUpdateStatus={onUpdateStatus}
+                onAssign={onAssignTicket}
+                onDelete={onDeleteTicket}
+                getPriorityColor={getPriorityColor}
+                getStatusColor={getStatusColor}
+              />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
