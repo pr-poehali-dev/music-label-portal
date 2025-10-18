@@ -10,8 +10,7 @@ import HomePage from '@/components/HomePage';
 import ReportsUploader from '@/components/ReportsUploader';
 import SubmissionsManager from '@/components/SubmissionsManager';
 import TaskAssignment from '@/components/TaskAssignment';
-import TaskAnalyticsDashboard from '@/components/TaskAnalyticsDashboard';
-import TicketAnalyticsDashboard from '@/components/TicketAnalyticsDashboard';
+import AnalyticsView from '@/components/AnalyticsView';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 
@@ -158,20 +157,7 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="analytics">
-        <Tabs defaultValue="tasks" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="tasks">Аналитика задач</TabsTrigger>
-            <TabsTrigger value="tickets">Аналитика заявок</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="tasks">
-            <TaskAnalyticsDashboard />
-          </TabsContent>
-          
-          <TabsContent value="tickets">
-            <TicketAnalyticsDashboard />
-          </TabsContent>
-        </Tabs>
+        <AnalyticsView />
       </TabsContent>
 
       <TabsContent value="team">
