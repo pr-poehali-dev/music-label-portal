@@ -253,12 +253,21 @@ def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -
         start_ticket_creation(bot_token, chat_id, message_id, user)
     elif data == 'cancel_ticket':
         cancel_ticket_creation(bot_token, chat_id, message_id)
+    elif data.startswith('priority_new_'):
+        priority = data.split('_')[2]
+        set_ticket_priority_in_creation(bot_token, chat_id, message_id, priority, user, db_url)
     elif data == 'deadline_today':
         complete_ticket_creation(bot_token, chat_id, message_id, 0, user, db_url)
     elif data == 'deadline_tomorrow':
         complete_ticket_creation(bot_token, chat_id, message_id, 1, user, db_url)
     elif data == 'deadline_3days':
         complete_ticket_creation(bot_token, chat_id, message_id, 3, user, db_url)
+    elif data.startswith('assign_new_'):
+        if data == 'assign_new_skip':
+            finalize_ticket_creation(bot_token, chat_id, message_id, None, user, db_url)
+        else:
+            manager_id = int(data.split('_')[2])
+            finalize_ticket_creation(bot_token, chat_id, message_id, manager_id, user, db_url)
     elif data.startswith('ticket_'):
         ticket_id = int(data.split('_')[1])
         show_ticket_details(bot_token, chat_id, message_id, ticket_id, user, db_url)
@@ -268,6 +277,9 @@ def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -
     elif data.startswith('assign_'):
         ticket_id = int(data.split('_')[1])
         show_assign_menu(bot_token, chat_id, message_id, ticket_id, db_url)
+    elif data.startswith('unassign_'):
+        ticket_id = int(data.split('_')[1])
+        unassign_ticket(bot_token, chat_id, message_id, ticket_id, db_url)
     elif data.startswith('assignto_'):
         parts = data.split('_')
         ticket_id, user_id = int(parts[1]), int(parts[2])
@@ -609,12 +621,28 @@ def show_assign_menu(bot_token: str, chat_id: int, message_id: int, ticket_id: i
     text = f'👤 Выберите менеджера для тикета #{ticket_id}:'
     keyboard = []
     
+    keyboard.append([{'text': '🚫 Снять назначение', 'callback_data': f'unassign_{ticket_id}'}])
+    
     for manager_id, name in managers:
         keyboard.append([{'text': name, 'callback_data': f'assignto_{ticket_id}_{manager_id}'}])
     
     keyboard.append([{'text': '🔙 Назад', 'callback_data': f'ticket_{ticket_id}'}])
     
     edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def unassign_ticket(bot_token: str, chat_id: int, message_id: int, ticket_id: int, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("UPDATE tickets SET assigned_to = NULL, status = 'open' WHERE id = %s", (ticket_id,))
+    conn.commit()
+    
+    cur.close()
+    release_db_connection(conn)
+    
+    edit_message(bot_token, chat_id, message_id, 
+                f'✅ Назначение тикета #{ticket_id} снято',
+                [[{'text': '🔙 К тикету', 'callback_data': f'ticket_{ticket_id}'}]])
 
 def assign_ticket(bot_token: str, chat_id: int, message_id: int, ticket_id: int, user_id: int, db_url: str):
     conn = get_db_connection(db_url)
@@ -1077,15 +1105,39 @@ def handle_ticket_creation_step(text: str, chat_id: int, bot_token: str, db_url:
     
     elif step == 'description':
         state['data']['description'] = text
-        state['step'] = 'deadline'
+        state['step'] = 'priority'
         keyboard = [
-            [{'text': 'Сегодня', 'callback_data': 'deadline_today'}],
-            [{'text': 'Завтра', 'callback_data': 'deadline_tomorrow'}],
-            [{'text': '3 дня', 'callback_data': 'deadline_3days'}],
+            [{'text': '🔥 Срочный', 'callback_data': 'priority_new_urgent'}],
+            [{'text': '⚠️ Высокий', 'callback_data': 'priority_new_high'}],
+            [{'text': '📌 Средний', 'callback_data': 'priority_new_medium'}],
+            [{'text': '📋 Низкий', 'callback_data': 'priority_new_low'}],
             [{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}]
         ]
         send_message_with_keyboard(bot_token, chat_id, 
-                                  '✅ Описание принято!\n\nВыберите дедлайн:', keyboard)
+                                  '✅ Описание принято!\n\n⚡ Выберите приоритет:', keyboard)
+
+def set_ticket_priority_in_creation(bot_token: str, chat_id: int, message_id: int, priority: str, user: Dict, db_url: str):
+    global user_states
+    
+    if chat_id not in user_states:
+        return
+    
+    state = user_states[chat_id]
+    state['data']['priority'] = priority
+    state['step'] = 'deadline'
+    
+    keyboard = [
+        [{'text': 'Сегодня', 'callback_data': 'deadline_today'}],
+        [{'text': 'Завтра', 'callback_data': 'deadline_tomorrow'}],
+        [{'text': '3 дня', 'callback_data': 'deadline_3days'}],
+        [{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}]
+    ]
+    
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    
+    edit_message(bot_token, chat_id, message_id,
+                f'✅ Приоритет установлен: {priority_emoji.get(priority, "📌")} {priority}\n\n'
+                f'⏰ Выберите дедлайн:', keyboard)
 
 def complete_ticket_creation(bot_token: str, chat_id: int, message_id: int, deadline_days: int, user: Dict, db_url: str):
     global user_states
@@ -1095,29 +1147,74 @@ def complete_ticket_creation(bot_token: str, chat_id: int, message_id: int, dead
     
     state = user_states[chat_id]
     data = state['data']
+    data['deadline_days'] = deadline_days
     
-    deadline = datetime.now() + timedelta(days=deadline_days)
+    state['step'] = 'assign'
     
     conn = get_db_connection(db_url)
     cur = conn.cursor()
     
     cur.execute(
-        """INSERT INTO tickets (title, description, creator_id, deadline, status, priority, created_at) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
-        (data['title'], data['description'], user['id'], deadline, 'open', 'medium', datetime.now())
+        "SELECT id, full_name, username FROM users WHERE role = 'manager' ORDER BY full_name"
+    )
+    managers = cur.fetchall()
+    cur.close()
+    release_db_connection(conn)
+    
+    keyboard = []
+    for manager_id, full_name, username in managers:
+        keyboard.append([{'text': f'👤 {full_name}', 'callback_data': f'assign_new_{manager_id}'}])
+    
+    keyboard.append([{'text': '⏭ Пропустить (назначить позже)', 'callback_data': 'assign_new_skip'}])
+    keyboard.append([{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}])
+    
+    edit_message(bot_token, chat_id, message_id, 
+                '✅ Дедлайн установлен!\n\n'
+                '👥 <b>Выберите менеджера для назначения:</b>', keyboard)
+
+def finalize_ticket_creation(bot_token: str, chat_id: int, message_id: int, manager_id: int | None, user: Dict, db_url: str):
+    global user_states
+    
+    if chat_id not in user_states:
+        return
+    
+    state = user_states[chat_id]
+    data = state['data']
+    deadline = datetime.now() + timedelta(days=data['deadline_days'])
+    priority = data.get('priority', 'medium')
+    
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute(
+        """INSERT INTO tickets (title, description, created_by, deadline, status, priority, created_at, assigned_to) 
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+        (data['title'], data['description'], user['id'], deadline, 'open', priority, datetime.now(), manager_id)
     )
     
     ticket_id = cur.fetchone()[0]
+    
+    assigned_name = None
+    if manager_id:
+        cur.execute("SELECT full_name FROM users WHERE id = %s", (manager_id,))
+        result = cur.fetchone()
+        if result:
+            assigned_name = result[0]
+    
     conn.commit()
     cur.close()
     release_db_connection(conn)
     
     del user_states[chat_id]
     
+    assigned_text = f'\n👨‍💼 Назначен: {assigned_name}' if assigned_name else '\n⏭ Без назначения'
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    
     edit_message(bot_token, chat_id, message_id, 
                 f'✅ <b>Тикет #{ticket_id} создан!</b>\n\n'
                 f'📌 <b>{data["title"]}</b>\n'
                 f'📄 {data["description"]}\n'
-                f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y")}')
+                f'{priority_emoji.get(priority, "📌")} Приоритет: {priority}\n'
+                f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y")}{assigned_text}')
     
     show_main_menu(bot_token, chat_id, user)
