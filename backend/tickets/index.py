@@ -62,6 +62,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ''', (int(user_id),))
             tickets_result = cur.fetchone()
             
+            cur.execute('''
+                SELECT DATE(completed_at) as date, COUNT(*) as count 
+                FROM tasks 
+                WHERE assigned_to = %s AND status = 'completed' 
+                AND completed_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(completed_at) 
+                ORDER BY date ASC
+            ''', (int(user_id),))
+            tasks_activity = cur.fetchall()
+            
+            cur.execute('''
+                SELECT DATE(updated_at) as date, COUNT(*) as count 
+                FROM tickets 
+                WHERE assigned_to = %s AND status = 'closed'
+                AND updated_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(updated_at) 
+                ORDER BY date ASC
+            ''', (int(user_id),))
+            tickets_activity = cur.fetchall()
+            
             cur.close()
             conn.close()
             
@@ -71,8 +91,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False,
                 'body': json.dumps({
                     'completed_tasks': tasks_result['completed_tasks'] if tasks_result else 0,
-                    'answered_tickets': tickets_result['answered_tickets'] if tickets_result else 0
-                })
+                    'answered_tickets': tickets_result['answered_tickets'] if tickets_result else 0,
+                    'tasks_activity': [dict(r) for r in tasks_activity],
+                    'tickets_activity': [dict(r) for r in tickets_activity]
+                }, default=str)
             }
         
         if task_type == 'tasks':
