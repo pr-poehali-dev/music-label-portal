@@ -136,6 +136,63 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
     }
   };
 
+  const downloadCSV = async (file: ArtistFile) => {
+    try {
+      toast({
+        title: 'Загрузка...',
+        description: `Скачиваем отчёт для ${file.artist_full_name}...`,
+      });
+
+      const response = await fetch(`https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264?file_id=${file.id}`);
+      const data = await response.json();
+
+      if (!data.files || !data.files[0] || !data.files[0].data) {
+        throw new Error('Нет данных для экспорта');
+      }
+
+      const rows = data.files[0].data;
+      
+      if (rows.length === 0) {
+        throw new Error('Отчёт пустой');
+      }
+
+      const headers = Object.keys(rows[0]);
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((row: any) => 
+          headers.map(header => {
+            const value = row[header] ?? '';
+            const stringValue = String(value).replace(/"/g, '""');
+            return stringValue.includes(',') || stringValue.includes('\n') || stringValue.includes('"')
+              ? `"${stringValue}"`
+              : stringValue;
+          }).join(',')
+        )
+      ].join('\n');
+
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `отчет_${file.artist_full_name.replace(/\s+/g, '_')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Готово!',
+        description: `Отчёт скачан: ${file.artist_full_name}`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось скачать',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const exportAndSend = async (file: ArtistFile) => {
     try {
       if (!file.sent_to_artist_id) {
@@ -293,15 +350,25 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
                         />
                       </div>
 
-                      <Button
-                        onClick={() => exportAndSend(file)}
-                        disabled={!!file.sent_at || !file.sent_to_artist_id}
-                        className="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold mt-5 disabled:opacity-50"
-                        title={!file.sent_to_artist_id ? 'Сначала привяжите к артисту' : ''}
-                      >
-                        <Icon name="Download" size={16} className="mr-2" />
-                        {file.sent_at ? 'Отправлено' : 'Экспорт и отправить'}
-                      </Button>
+                      <div className="flex gap-2 mt-5">
+                        <Button
+                          onClick={() => downloadCSV(file)}
+                          variant="outline"
+                          className="border-yellow-600 text-yellow-300 hover:bg-yellow-600/10"
+                        >
+                          <Icon name="Download" size={16} className="mr-1" />
+                          CSV
+                        </Button>
+                        <Button
+                          onClick={() => exportAndSend(file)}
+                          disabled={!!file.sent_at || !file.sent_to_artist_id}
+                          className="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold disabled:opacity-50"
+                          title={!file.sent_to_artist_id ? 'Сначала привяжите к артисту' : ''}
+                        >
+                          <Icon name="Send" size={16} className="mr-1" />
+                          {file.sent_at ? 'Отправлено' : 'PDF + ЛК'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
