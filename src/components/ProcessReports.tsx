@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,6 +25,7 @@ interface ProcessReportsProps {
 export default function ProcessReports({ uploadedReportId, onClose }: ProcessReportsProps) {
   const [files, setFiles] = useState<ArtistFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedArtist, setSelectedArtist] = useState<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,31 +65,12 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
       });
 
       const response = await fetch(`https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264?file_id=${file.id}`);
-      const data = await response.json();
-
-      if (!data.files || !data.files[0] || !data.files[0].data) {
-        throw new Error('Нет данных для экспорта');
-      }
-
-      const rows = data.files[0].data;
       
-      if (rows.length === 0) {
-        throw new Error('Отчёт пустой');
+      if (!response.ok) {
+        throw new Error(`Ошибка ${response.status}`);
       }
 
-      const headers = Object.keys(rows[0]);
-      const csvContent = [
-        headers.join(','),
-        ...rows.map((row: any) => 
-          headers.map(header => {
-            const value = row[header] ?? '';
-            const stringValue = String(value).replace(/"/g, '""');
-            return stringValue.includes(',') || stringValue.includes('\n') || stringValue.includes('"')
-              ? `"${stringValue}"`
-              : stringValue;
-          }).join(',')
-        )
-      ].join('\n');
+      const csvContent = await response.text();
 
       const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
@@ -151,33 +134,54 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
             <p>Нет файлов для обработки</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {files.map((file) => (
-              <Card key={file.id} className="bg-black/40 border-yellow-700/20">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon name="User" size={16} className="text-yellow-400" />
-                        <span className="font-semibold text-yellow-100">{file.artist_full_name}</span>
-                      </div>
-                      <div className="text-sm text-yellow-300/70">
-                        {file.rows_count} записей
-                      </div>
-                    </div>
+          <div className="space-y-4">
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-yellow-100 mb-2">
+                  Выберите исполнителя
+                </label>
+                <Select value={selectedArtist} onValueChange={setSelectedArtist}>
+                  <SelectTrigger className="bg-black/20 border-yellow-700/30 text-yellow-100">
+                    <SelectValue placeholder="Выберите исполнителя..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {files.map((file) => (
+                      <SelectItem key={file.id} value={String(file.id)}>
+                        {file.artist_full_name} ({file.rows_count} записей)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={() => {
+                  const file = files.find(f => String(f.id) === selectedArtist);
+                  if (file) downloadCSV(file);
+                }}
+                disabled={!selectedArtist}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                <Icon name="Download" size={16} className="mr-2" />
+                Скачать CSV
+              </Button>
+            </div>
 
-                    <Button
-                      onClick={() => downloadCSV(file)}
-                      variant="outline"
-                      className="border-yellow-600 text-yellow-300 hover:bg-yellow-600/10"
-                    >
-                      <Icon name="Download" size={16} className="mr-2" />
-                      Скачать CSV
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="space-y-2">
+              <p className="text-sm text-yellow-300/70">Доступные исполнители:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {files.map((file) => (
+                  <Card key={file.id} className="bg-black/40 border-yellow-700/20">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Icon name="User" size={14} className="text-yellow-400" />
+                        <span className="text-sm text-yellow-100">{file.artist_full_name}</span>
+                        <span className="text-xs text-yellow-300/50 ml-auto">{file.rows_count} записей</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
