@@ -92,40 +92,15 @@ export default function TicketManagement({
   const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Открыто</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.open}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">В работе</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.inProgress}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Решено</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.resolved}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="space-y-6">
+    <div className="space-y-5">
         <div className="space-y-3">
-          <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-2.5 border-2 border-blue-300 dark:border-blue-700">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2 text-sm">
-              <Icon name="Circle" size={14} />
-              Открыто ({openTickets.length})
+          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border border-blue-200 dark:border-blue-700">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Icon name="Circle" size={16} />
+                Открыто
+              </span>
+              <span className="text-2xl">{openTickets.length}</span>
             </h3>
           </div>
           {openTickets.length === 0 ? (
@@ -153,10 +128,13 @@ export default function TicketManagement({
         </div>
 
         <div className="space-y-3">
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg p-2.5 border-2 border-yellow-300 dark:border-yellow-700">
-            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2 text-sm">
-              <Icon name="Clock" size={14} />
-              В работе ({inProgressTickets.length})
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-3 border border-yellow-200 dark:border-yellow-700">
+            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Icon name="Clock" size={16} />
+                В работе
+              </span>
+              <span className="text-2xl">{inProgressTickets.length}</span>
             </h3>
           </div>
           {inProgressTickets.length === 0 ? (
@@ -184,10 +162,13 @@ export default function TicketManagement({
         </div>
 
         <div className="space-y-3">
-          <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-2.5 border-2 border-green-300 dark:border-green-700">
-            <h3 className="font-semibold text-green-800 dark:text-green-200 flex items-center gap-2 text-sm">
-              <Icon name="CheckCircle" size={14} />
-              Решено ({resolvedTickets.length})
+          <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
+            <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Icon name="CheckCircle" size={16} />
+                Решено
+              </span>
+              <span className="text-2xl">{resolvedTickets.length}</span>
             </h3>
           </div>
           {resolvedTickets.length === 0 ? (
@@ -213,7 +194,6 @@ export default function TicketManagement({
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }
