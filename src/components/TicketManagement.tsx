@@ -95,13 +95,13 @@ export default function TicketManagement({
     <div className="space-y-5">
         <div className="space-y-3">
           <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border border-blue-200 dark:border-blue-700">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center justify-between">
-              <span className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
                 <Icon name="Circle" size={16} />
                 Открыто
-              </span>
-              <span className="text-2xl">{openTickets.length}</span>
-            </h3>
+              </h3>
+              <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">{openTickets.length}</span>
+            </div>
           </div>
           {openTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
@@ -129,13 +129,13 @@ export default function TicketManagement({
 
         <div className="space-y-3">
           <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-3 border border-yellow-200 dark:border-yellow-700">
-            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center justify-between">
-              <span className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center gap-2">
                 <Icon name="Clock" size={16} />
                 В работе
-              </span>
-              <span className="text-2xl">{inProgressTickets.length}</span>
-            </h3>
+              </h3>
+              <span className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressTickets.length}</span>
+            </div>
           </div>
           {inProgressTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
@@ -163,13 +163,13 @@ export default function TicketManagement({
 
         <div className="space-y-3">
           <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
-            <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center justify-between">
-              <span className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center gap-2">
                 <Icon name="CheckCircle" size={16} />
                 Решено
-              </span>
-              <span className="text-2xl">{resolvedTickets.length}</span>
-            </h3>
+              </h3>
+              <span className="text-2xl font-bold text-green-900 dark:text-green-100">{resolvedTickets.length}</span>
+            </div>
           </div>
           {resolvedTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
