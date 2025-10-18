@@ -3,6 +3,7 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
 import UserManagement from '@/components/UserManagement';
 import ReminderSetup from '@/components/ReminderSetup';
+import TelegramBotSettings from '@/components/TelegramBotSettings';
 
 import UserActivityMonitor from '@/components/UserActivityMonitor';
 import HomePage from '@/components/HomePage';
@@ -200,7 +201,20 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="settings">
-        <ReminderSetup />
+        <Tabs defaultValue="reminders" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="reminders">Напоминания</TabsTrigger>
+            <TabsTrigger value="telegram">Telegram бот</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="reminders">
+            <ReminderSetup />
+          </TabsContent>
+          
+          <TabsContent value="telegram">
+            <TelegramBotSettings />
+          </TabsContent>
+        </Tabs>
       </TabsContent>
     </Tabs>
   );
