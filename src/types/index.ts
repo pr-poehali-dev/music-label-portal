@@ -30,6 +30,8 @@ export interface Ticket {
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
+  tasks_total?: number;
+  tasks_completed?: number;
 }
 
 export interface NewTicket {

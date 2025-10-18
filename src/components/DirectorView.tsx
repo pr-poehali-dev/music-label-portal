@@ -2,12 +2,14 @@ import DirectorTabs from '@/components/DirectorTabs';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import { User, Ticket, NewTicket, NewUser } from '@/types';
+import { Task } from '@/components/useTasks';
 
 interface DirectorViewProps {
   user: User;
   tickets: Ticket[];
   managers: User[];
   allUsers: User[];
+  tasks: Task[];
   statusFilter: string;
   newTicket: NewTicket;
   newUser: NewUser;
@@ -23,6 +25,9 @@ interface DirectorViewProps {
   onLoadAllUsers: () => void;
   onDeleteTicket: (ticketId: number) => void;
   onUpdateUser: (userId: number, userData: Partial<User>) => void;
+  onCreateTask: (task: any) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onDeleteTask: (taskId: number) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onLogout: () => void;
 }
@@ -32,6 +37,7 @@ export default function DirectorView({
   tickets,
   managers,
   allUsers,
+  tasks,
   statusFilter,
   newTicket,
   newUser,
@@ -47,6 +53,9 @@ export default function DirectorView({
   onLoadAllUsers,
   onDeleteTicket,
   onUpdateUser,
+  onCreateTask,
+  onUpdateTaskStatus,
+  onDeleteTask,
   onMessagesOpenChange,
   onLogout
 }: DirectorViewProps) {
@@ -72,6 +81,7 @@ export default function DirectorView({
           tickets={tickets}
           managers={managers}
           allUsers={allUsers}
+          tasks={tasks}
           statusFilter={statusFilter}
           newTicket={newTicket}
           newUser={newUser}
@@ -86,6 +96,9 @@ export default function DirectorView({
           onLoadAllUsers={onLoadAllUsers}
           onDeleteTicket={onDeleteTicket}
           onUpdateUser={onUpdateUser}
+          onCreateTask={onCreateTask}
+          onUpdateTaskStatus={onUpdateTaskStatus}
+          onDeleteTask={onDeleteTask}
         />
       </div>
     </div>

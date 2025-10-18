@@ -1,0 +1,185 @@
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import Icon from '@/components/ui/icon';
+import { Task } from '@/components/useTasks';
+
+interface ManagerTasksViewProps {
+  tasks: Task[];
+  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+}
+
+export default function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'destructive';
+      case 'high': return 'default';
+      case 'medium': return 'secondary';
+      case 'low': return 'outline';
+      default: return 'secondary';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'default';
+      case 'in_progress': return 'secondary';
+      case 'open': return 'outline';
+      default: return 'outline';
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'Flame';
+      case 'high': return 'AlertTriangle';
+      case 'medium': return 'AlertCircle';
+      case 'low': return 'Info';
+      default: return 'AlertCircle';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return 'CheckCircle2';
+      case 'in_progress': return 'Clock';
+      case 'open': return 'Circle';
+      default: return 'Circle';
+    }
+  };
+
+  const activeTasks = tasks.filter(t => t.status !== 'completed');
+  const completedTasks = tasks.filter(t => t.status === 'completed');
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Мои задачи</h2>
+        <div className="flex gap-2">
+          <Badge variant="secondary">{activeTasks.length} активных</Badge>
+          <Badge variant="outline">{completedTasks.length} выполнено</Badge>
+        </div>
+      </div>
+
+      {activeTasks.length === 0 && completedTasks.length === 0 ? (
+        <Card className="p-8 text-center text-muted-foreground">
+          <Icon name="ListTodo" size={48} className="mx-auto mb-4 opacity-50" />
+          <p className="text-lg">У вас пока нет задач</p>
+        </Card>
+      ) : (
+        <>
+          {activeTasks.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Активные задачи</h3>
+              <div className="grid gap-4">
+                {activeTasks.map(task => (
+                  <Card key={task.id} className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="text-lg font-semibold">#{task.id} {task.title}</h3>
+                          <Badge variant={getPriorityColor(task.priority)}>
+                            <Icon name={getPriorityIcon(task.priority)} size={12} className="mr-1" />
+                            {task.priority}
+                          </Badge>
+                          <Badge variant={getStatusColor(task.status)}>
+                            <Icon name={getStatusIcon(task.status)} size={12} className="mr-1" />
+                            {task.status}
+                          </Badge>
+                        </div>
+
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground">{task.description}</p>
+                        )}
+
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                          {task.ticket_id && task.ticket_title && (
+                            <div className="flex items-center gap-1">
+                              <Icon name="Ticket" size={14} />
+                              <span>Тикет #{task.ticket_id}: {task.ticket_title}</span>
+                            </div>
+                          )}
+                          {task.creator_name && (
+                            <div className="flex items-center gap-1">
+                              <Icon name="UserCircle" size={14} />
+                              <span>Создал: {task.creator_name}</span>
+                            </div>
+                          )}
+                          {task.deadline && (
+                            <div className="flex items-center gap-1">
+                              <Icon name="Calendar" size={14} />
+                              <span>{new Date(task.deadline).toLocaleString('ru-RU')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        {task.status === 'open' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onUpdateTaskStatus(task.id, 'in_progress')}
+                          >
+                            <Icon name="Play" size={14} className="mr-1" />
+                            Начать
+                          </Button>
+                        )}
+                        {task.status === 'in_progress' && (
+                          <Button
+                            size="sm"
+                            onClick={() => onUpdateTaskStatus(task.id, 'completed')}
+                          >
+                            <Icon name="Check" size={14} className="mr-1" />
+                            Завершить
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {completedTasks.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-muted-foreground">Выполненные задачи</h3>
+              <div className="grid gap-4">
+                {completedTasks.map(task => (
+                  <Card key={task.id} className="p-6 opacity-60">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="text-lg font-semibold line-through">#{task.id} {task.title}</h3>
+                          <Badge variant="default">
+                            <Icon name="CheckCircle2" size={12} className="mr-1" />
+                            Выполнено
+                          </Badge>
+                        </div>
+
+                        {task.ticket_id && task.ticket_title && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Icon name="Ticket" size={14} />
+                            <span>Тикет #{task.ticket_id}: {task.ticket_title}</span>
+                          </div>
+                        )}
+
+                        {task.completed_at && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Icon name="CheckCircle2" size={14} />
+                            <span>Завершено: {new Date(task.completed_at).toLocaleString('ru-RU')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

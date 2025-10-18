@@ -124,6 +124,12 @@ export default function TicketCard({
               <span>{ticket.assigned_name}</span>
             </div>
           )}
+          {ticket.tasks_total !== undefined && ticket.tasks_total > 0 && (
+            <div className="flex items-center gap-1 text-primary font-medium">
+              <Icon name="CheckSquare" size={12} />
+              <span>Задачи: {ticket.tasks_completed}/{ticket.tasks_total}</span>
+            </div>
+          )}
           {ticket.deadline && (
             <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-medium' : ''}`}>
               <Icon name="Calendar" size={12} />

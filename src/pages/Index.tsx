@@ -6,6 +6,7 @@ import DirectorView from '@/components/DirectorView';
 import { useAuth } from '@/components/useAuth';
 import { useTickets } from '@/components/useTickets';
 import { useUsers } from '@/components/useUsers';
+import { useTasks } from '@/components/useTasks';
 
 export default function Index() {
   const { user, login, logout } = useAuth();
@@ -18,6 +19,7 @@ export default function Index() {
 
   const { tickets, loadTickets, createTicket, updateTicketStatus, assignTicket, deleteTicket } = useTickets(user, statusFilter);
   const { managers, allUsers, loadAllUsers, createUser, updateUser } = useUsers(user);
+  const { tasks, createTask, updateTaskStatus, deleteTask } = useTasks(user);
 
   const handleCreateTicket = async () => {
     const success = await createTicket(newTicket, selectedTicketFile, setUploadingTicket);
@@ -65,6 +67,7 @@ export default function Index() {
         user={user}
         tickets={tickets}
         managers={managers}
+        tasks={tasks}
         statusFilter={statusFilter}
         messagesOpen={messagesOpen}
         onStatusFilterChange={setStatusFilter}
@@ -72,6 +75,7 @@ export default function Index() {
         onAssignTicket={assignTicket}
         onLoadTickets={loadTickets}
         onDeleteTicket={deleteTicket}
+        onUpdateTaskStatus={updateTaskStatus}
         onMessagesOpenChange={setMessagesOpen}
         onLogout={logout}
       />
@@ -84,6 +88,7 @@ export default function Index() {
       tickets={tickets}
       managers={managers}
       allUsers={allUsers}
+      tasks={tasks}
       statusFilter={statusFilter}
       newTicket={newTicket}
       newUser={newUser}
@@ -99,6 +104,9 @@ export default function Index() {
       onLoadAllUsers={loadAllUsers}
       onDeleteTicket={deleteTicket}
       onUpdateUser={updateUser}
+      onCreateTask={createTask}
+      onUpdateTaskStatus={updateTaskStatus}
+      onDeleteTask={deleteTask}
       onMessagesOpenChange={setMessagesOpen}
       onLogout={logout}
     />

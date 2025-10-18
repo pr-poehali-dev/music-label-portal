@@ -138,10 +138,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                    u.full_name as creator_name, 
                    u.username as creator_username,
                    m.full_name as assigned_name,
-                   m.username as assigned_username
+                   m.username as assigned_username,
+                   COALESCE(task_counts.total_tasks, 0) as tasks_total,
+                   COALESCE(task_counts.completed_tasks, 0) as tasks_completed
             FROM tickets t
             JOIN users u ON t.created_by = u.id
             LEFT JOIN users m ON t.assigned_to = m.id
+            LEFT JOIN (
+                SELECT ticket_id,
+                       COUNT(*) as total_tasks,
+                       SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_tasks
+                FROM tasks
+                WHERE ticket_id IS NOT NULL
+                GROUP BY ticket_id
+            ) task_counts ON t.id = task_counts.ticket_id
             WHERE 1=1
         '''
         params = []

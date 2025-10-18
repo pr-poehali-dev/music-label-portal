@@ -3,14 +3,17 @@ import TicketManagement from '@/components/TicketManagement';
 import SubmissionsManager from '@/components/SubmissionsManager';
 import ManagerTasks from '@/components/ManagerTasks';
 import ManagerStats from '@/components/ManagerStats';
+import ManagerTasksView from '@/components/ManagerTasksView';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import { User, Ticket } from '@/types';
+import { Task } from '@/components/useTasks';
 
 interface ManagerViewProps {
   user: User;
   tickets: Ticket[];
   managers: User[];
+  tasks: Task[];
   statusFilter: string;
   messagesOpen: boolean;
   onStatusFilterChange: (filter: string) => void;
@@ -18,6 +21,7 @@ interface ManagerViewProps {
   onAssignTicket: (ticketId: number, managerId: number | null, deadline?: string) => void;
   onLoadTickets: () => void;
   onDeleteTicket: (ticketId: number) => void;
+  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onLogout: () => void;
 }
@@ -26,6 +30,7 @@ export default function ManagerView({
   user,
   tickets,
   managers,
+  tasks,
   statusFilter,
   messagesOpen,
   onStatusFilterChange,
@@ -33,6 +38,7 @@ export default function ManagerView({
   onAssignTicket,
   onLoadTickets,
   onDeleteTicket,
+  onUpdateTaskStatus,
   onMessagesOpenChange,
   onLogout
 }: ManagerViewProps) {
@@ -57,14 +63,22 @@ export default function ManagerView({
 
         <Tabs defaultValue="tasks" className="w-full">
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="tasks">✅ Мои задачи</TabsTrigger>
+              <TabsTrigger value="old-tasks">📋 Старые задачи</TabsTrigger>
               <TabsTrigger value="tickets">🎫 Тикеты</TabsTrigger>
               <TabsTrigger value="submissions">🎵 Послушайте мой трек</TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="tasks">
+            <ManagerTasksView 
+              tasks={tasks}
+              onUpdateTaskStatus={onUpdateTaskStatus}
+            />
+          </TabsContent>
+
+          <TabsContent value="old-tasks">
             <ManagerTasks userId={user.id} />
           </TabsContent>
 

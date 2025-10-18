@@ -12,6 +12,8 @@ import SubmissionsManager from '@/components/SubmissionsManager';
 import TaskAssignment from '@/components/TaskAssignment';
 import TaskAnalyticsDashboard from '@/components/TaskAnalyticsDashboard';
 import TicketAnalyticsDashboard from '@/components/TicketAnalyticsDashboard';
+import { Task } from '@/components/useTasks';
+import TasksTab from '@/components/TasksTab';
 
 interface User {
   id: number;
@@ -52,6 +54,10 @@ interface DirectorTabsProps {
   statusFilter: string;
   newTicket: { title: string; description: string; priority: string };
   newUser: { username: string; full_name: string; role: string };
+  tasks: Task[];
+  onCreateTask: (task: any) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onDeleteTask: (taskId: number) => Promise<boolean>;
   onStatusFilterChange: (status: string) => void;
   onNewTicketChange: (ticket: { title: string; description: string; priority: string }) => void;
   onCreateTicket: () => void;
@@ -73,6 +79,10 @@ export default function DirectorTabs({
   statusFilter,
   newTicket,
   newUser,
+  tasks,
+  onCreateTask,
+  onUpdateTaskStatus,
+  onDeleteTask,
   onStatusFilterChange,
   onNewTicketChange,
   onCreateTicket,
@@ -120,37 +130,49 @@ export default function DirectorTabs({
         <SubmissionsManager userId={user.id} />
       </TabsContent>
 
-      <TabsContent value="tasks">
-        <Tabs defaultValue="assignment" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="assignment">Назначение задач</TabsTrigger>
-            <TabsTrigger value="tickets">Заявки техподдержки</TabsTrigger>
-            <TabsTrigger value="create">Создать тикет</TabsTrigger>
+      <TabsContent value="tasks" className="space-y-4">
+        <Tabs defaultValue="manager-tasks">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="manager-tasks">
+              <span className="hidden md:inline">Задачи менеджеров</span>
+              <span className="md:hidden">Задачи</span>
+            </TabsTrigger>
+            <TabsTrigger value="assignment">
+              <span className="hidden md:inline">Назначение задач</span>
+              <span className="md:hidden">Назначение</span>
+            </TabsTrigger>
+            <TabsTrigger value="create">
+              <span className="hidden md:inline">Создать тикет</span>
+              <span className="md:hidden">Создать</span>
+            </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="assignment">
-            <TaskAssignment managers={managers} directorId={user.id} />
-          </TabsContent>
-          
-          <TabsContent value="tickets">
-            <TicketManagement
-              user={user}
+
+          <TabsContent value="manager-tasks">
+            <TasksTab
+              tasks={tasks}
               tickets={tickets}
               managers={managers}
-              statusFilter={statusFilter}
-              onStatusFilterChange={onStatusFilterChange}
-              onUpdateStatus={onUpdateStatus}
-              onAssignTicket={onAssignTicket}
-              onLoadTickets={onLoadTickets}
-              onDeleteTicket={onDeleteTicket}
+              onCreateTask={onCreateTask}
+              onUpdateTaskStatus={onUpdateTaskStatus}
+              onDeleteTask={onDeleteTask}
             />
           </TabsContent>
-          
+
+          <TabsContent value="assignment">
+            <TaskAssignment
+              tickets={tickets}
+              managers={managers}
+              onAssignTicket={onAssignTicket}
+              onLoadTickets={onLoadTickets}
+            />
+          </TabsContent>
+
           <TabsContent value="create">
             <CreateTicketForm
               newTicket={newTicket}
-              onNewTicketChange={onNewTicketChange}
+              onTicketChange={onNewTicketChange}
               onCreateTicket={onCreateTicket}
+              onLoadTickets={onLoadTickets}
             />
           </TabsContent>
         </Tabs>
