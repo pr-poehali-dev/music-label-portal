@@ -8,12 +8,14 @@ interface Task {
   title: string;
   description: string;
   assigned_to: number;
-  assigned_name: string;
+  assigned_name?: string;
+  assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed';
   created_at: string;
-  created_by_name: string;
+  created_by_name?: string;
+  creator_name?: string;
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
@@ -94,11 +96,13 @@ export default function TaskCard({
         )}
 
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <Icon name="User" size={14} className="text-primary" />
-            <span className="font-medium text-foreground">Менеджер:</span>
-            <span className="text-muted-foreground">{task.assigned_name}</span>
-          </div>
+          {task.assigned_name && (
+            <div className="flex items-center gap-2">
+              <Icon name="User" size={14} className="text-primary" />
+              <span className="font-medium text-foreground">Менеджер:</span>
+              <span className="text-muted-foreground">{task.assigned_name}</span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 text-muted-foreground">
             <Icon name="Calendar" size={14} className="text-primary" />

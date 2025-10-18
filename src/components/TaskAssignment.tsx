@@ -26,12 +26,14 @@ interface Task {
   title: string;
   description: string;
   assigned_to: number;
-  assigned_name: string;
+  assigned_name?: string;
+  assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed';
   created_at: string;
-  created_by_name: string;
+  created_by_name?: string;
+  creator_name?: string;
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
@@ -87,7 +89,14 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         }
       });
       const data = await response.json();
-      setTasks(data.tasks || []);
+      console.log('Raw tasks from backend:', data.tasks);
+      const normalizedTasks = (data.tasks || []).map((task: any) => ({
+        ...task,
+        assigned_name: task.assignee_name || task.assigned_name,
+        created_by_name: task.creator_name || task.created_by_name
+      }));
+      console.log('Normalized tasks:', normalizedTasks);
+      setTasks(normalizedTasks);
     } catch (error) {
       console.error('Failed to load tasks:', error);
     }

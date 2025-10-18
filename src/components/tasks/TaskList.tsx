@@ -7,12 +7,14 @@ interface Task {
   title: string;
   description: string;
   assigned_to: number;
-  assigned_name: string;
+  assigned_name?: string;
+  assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed';
   created_at: string;
-  created_by_name: string;
+  created_by_name?: string;
+  creator_name?: string;
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
