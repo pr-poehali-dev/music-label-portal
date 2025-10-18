@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 
 interface User {
@@ -182,15 +183,32 @@ export default function TaskForm({
                       </label>
                     </div>
                     {taskCount && (
-                      <div className="flex gap-1">
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                          <Icon name="Clock" size={10} className="mr-0.5" />
-                          {taskCount.active}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs px-1.5 py-0">
-                          {taskCount.total}
-                        </Badge>
-                      </div>
+                      <TooltipProvider>
+                        <div className="flex gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="secondary" className="text-xs px-1.5 py-0 cursor-help">
+                                <Icon name="Clock" size={10} className="mr-0.5" />
+                                {taskCount.active}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Активных задач (не завершённые)</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="outline" className="text-xs px-1.5 py-0 cursor-help">
+                                {taskCount.total}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Всего задач за всё время</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
                     )}
                   </div>
                 );
