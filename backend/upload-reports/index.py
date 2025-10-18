@@ -61,20 +61,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 workbook = openpyxl.load_workbook(io.BytesIO(decoded_bytes))
                 sheet = workbook.active
                 
-                header_row_index = 1
-                headers = None
-                for row_idx, row in enumerate(sheet.iter_rows(min_row=1, max_row=10, values_only=True), start=1):
-                    if any(cell is not None and str(cell).strip() for cell in row):
-                        headers = [str(cell).strip() if cell is not None else f'col_{i}' for i, cell in enumerate(row)]
-                        header_row_index = row_idx
-                        print(f"DEBUG: Found headers at row {header_row_index}: {headers[:5]}...")
-                        break
+                header_row_index = 34
+                data_start_row = 35
                 
-                if not headers:
-                    headers = [f'col_{i}' for i in range(30)]
+                header_row = list(sheet.iter_rows(min_row=header_row_index, max_row=header_row_index, values_only=True))[0]
+                headers = [str(cell).strip() if cell is not None and str(cell).strip() else f'col_{i}' for i, cell in enumerate(header_row)]
+                
+                print(f"DEBUG: Found headers at row {header_row_index}: {headers[:5]}... total {len(headers)} columns")
+                print(f"DEBUG: Column W (index 22): {headers[22] if len(headers) > 22 else 'N/A'}")
                 
                 rows = []
-                for row_cells in sheet.iter_rows(min_row=header_row_index + 1, values_only=True):
+                for row_cells in sheet.iter_rows(min_row=data_start_row, values_only=True):
                     if any(cell is not None for cell in row_cells):
                         row_dict = {}
                         for i, header in enumerate(headers):
