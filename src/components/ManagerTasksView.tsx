@@ -102,6 +102,12 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                               <span>Тикет #{task.ticket_id}: {task.ticket_title}</span>
                             </div>
                           )}
+                          {task.assignee_name && (
+                            <div className="flex items-center gap-1">
+                              <Icon name="User" size={14} />
+                              <span>Менеджер: {task.assignee_name}</span>
+                            </div>
+                          )}
                           {task.creator_name && (
                             <div className="flex items-center gap-1">
                               <Icon name="UserCircle" size={14} />
@@ -161,12 +167,20 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                           </Badge>
                         </div>
 
-                        {task.ticket_id && task.ticket_title && (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Icon name="Ticket" size={14} />
-                            <span>Тикет #{task.ticket_id}: {task.ticket_title}</span>
-                          </div>
-                        )}
+                        <div className="space-y-1">
+                          {task.ticket_id && task.ticket_title && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Icon name="Ticket" size={14} />
+                              <span>Тикет #{task.ticket_id}: {task.ticket_title}</span>
+                            </div>
+                          )}
+                          {task.assignee_name && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Icon name="User" size={14} />
+                              <span>Менеджер: {task.assignee_name}</span>
+                            </div>
+                          )}
+                        </div>
 
                         {task.completed_at && (
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
