@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET without auth returns 401",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401
+    },
+    {
+      "name": "GET with auth returns report",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1",
+        "X-Auth-Token": "director-token"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}

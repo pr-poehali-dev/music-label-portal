@@ -29,6 +29,13 @@ interface TaskFormProps {
   onToggleManager: (managerId: number) => void;
 }
 
+const TASK_TEMPLATES = [
+  { id: 1, title: 'Проверить отчёты артистов', description: 'Проверить загруженные отчёты за неделю', priority: 'high' },
+  { id: 2, title: 'Связаться с артистами', description: 'Обзвонить артистов по списку', priority: 'medium' },
+  { id: 3, title: 'Обработать заявки', description: 'Разобрать новые заявки от артистов', priority: 'medium' },
+  { id: 4, title: 'Подготовить отчёт', description: 'Сформировать еженедельный отчёт', priority: 'high' },
+];
+
 export default function TaskForm({
   newTask,
   managers,
@@ -39,9 +46,48 @@ export default function TaskForm({
   onSubmit,
   onToggleManager
 }: TaskFormProps) {
+  const selectAllManagers = () => {
+    const allIds = managers.map(m => m.id);
+    onTaskChange({ ...newTask, assigned_to: allIds });
+  };
+
+  const clearAllManagers = () => {
+    onTaskChange({ ...newTask, assigned_to: [] });
+  };
+
+  const applyTemplate = (template: typeof TASK_TEMPLATES[0]) => {
+    onTaskChange({
+      ...newTask,
+      title: template.title,
+      description: template.description,
+      priority: template.priority
+    });
+  };
+
   return (
     <Card>
       <CardContent className="space-y-4 pt-6">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Шаблоны задач</label>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {TASK_TEMPLATES.map(template => (
+              <Button
+                key={template.id}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => applyTemplate(template)}
+                className="text-xs"
+              >
+                <Icon name="FileText" size={14} className="mr-1" />
+                {template.title}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         <div>
           <label className="text-sm font-medium mb-1 block">Название задачи *</label>
           <Input
@@ -91,7 +137,29 @@ export default function TaskForm({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm font-medium mb-1 block">Менеджеры * (можно выбрать несколько)</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-sm font-medium">Менеджеры * (можно выбрать несколько)</label>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectAllManagers}
+                  className="text-xs h-6 px-2"
+                >
+                  Все
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllManagers}
+                  className="text-xs h-6 px-2"
+                >
+                  Очистить
+                </Button>
+              </div>
+            </div>
             <div className="border rounded-md p-3 space-y-2 max-h-[200px] overflow-y-auto">
               {managers.map((manager) => (
                 <div key={manager.id} className="flex items-center space-x-2">

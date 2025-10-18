@@ -11,6 +11,7 @@ import ReportsUploader from '@/components/ReportsUploader';
 import SubmissionsManager from '@/components/SubmissionsManager';
 import TaskAssignment from '@/components/TaskAssignment';
 import AnalyticsView from '@/components/AnalyticsView';
+import WeeklyReport from '@/components/WeeklyReport';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 
@@ -97,10 +98,14 @@ export default function DirectorTabs({
   return (
     <Tabs defaultValue="tickets" className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-        <TabsList className="grid w-full grid-cols-7 md:grid-cols-7 min-w-[700px] md:min-w-0">
+        <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">📊 Аналитика</span>
             <span className="md:hidden">📊</span>
+          </TabsTrigger>
+          <TabsTrigger value="weekly" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">📅 Отчёт</span>
+            <span className="md:hidden">📅</span>
           </TabsTrigger>
           <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">🎫 Тикеты</span>
@@ -158,6 +163,10 @@ export default function DirectorTabs({
 
       <TabsContent value="analytics">
         <AnalyticsView />
+      </TabsContent>
+
+      <TabsContent value="weekly">
+        <WeeklyReport />
       </TabsContent>
 
       <TabsContent value="team">
