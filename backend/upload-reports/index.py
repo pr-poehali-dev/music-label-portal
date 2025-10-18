@@ -96,7 +96,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
-            performer_column = None
+            performer_columns = []
             possible_names = ['Исполнитель', 'исполнитель', 'Performer', 'performer', 'Artist', 'artist', 'Артист', 'артист']
             
             print(f"DEBUG: Total rows parsed: {len(rows)}")
@@ -106,15 +106,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 for name in possible_names:
                     if name in rows[0]:
-                        performer_column = name
-                        print(f"DEBUG: Found performer column by name: {performer_column}")
-                        break
+                        performer_columns.append(name)
+                        print(f"DEBUG: Found performer column by name: {name}")
                 
-                if not performer_column:
+                if performer_columns:
+                    print(f"DEBUG: Using columns for performers: {performer_columns}")
+                
+                if not performer_columns:
                     print(f"DEBUG: Column name not found, analyzing data patterns...")
                     
-                    best_column = None
-                    max_unique_ratio = 0
+                    candidates = []
                     
                     for col_name in all_columns:
                         values = [str(row.get(col_name, '')).strip() 
@@ -132,28 +133,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         
                         avg_length = sum(len(v) for v in non_empty) / len(non_empty) if non_empty else 0
                         
-                        if unique_ratio > max_unique_ratio and avg_length > 5 and avg_length < 150:
-                            max_unique_ratio = unique_ratio
-                            best_column = col_name
+                        if unique_ratio > 0.3 and avg_length > 5 and avg_length < 150:
+                            candidates.append((col_name, unique_ratio, unique_count, total_count))
                             print(f"DEBUG: Candidate {col_name}: {unique_count} unique / {total_count} total = {unique_ratio:.2%}, avg_len={avg_length:.0f}")
                     
-                    if best_column and max_unique_ratio > 0.3:
-                        performer_column = best_column
-                        sample = [str(row.get(best_column, '')).strip() for row in rows[:5] if row.get(best_column)]
-                        print(f"DEBUG: Auto-detected performer column: {best_column} (unique ratio: {max_unique_ratio:.2%})")
-                        print(f"DEBUG: Sample values: {sample[:3]}")
+                    if candidates:
+                        candidates.sort(key=lambda x: x[1], reverse=True)
+                        performer_columns = [c[0] for c in candidates[:2]]
+                        print(f"DEBUG: Auto-detected performer columns: {performer_columns}")
             
-            if not performer_column:
-                print(f"DEBUG: Performer column not found! All data will go to 'Без исполнителя'")
+            if not performer_columns:
+                print(f"DEBUG: Performer columns not found! All data will go to 'Без исполнителя'")
             
             artist_data = defaultdict(list)
             
             for row in rows:
-                performer = ''
-                if performer_column:
-                    performer = str(row.get(performer_column, '')).strip()
+                performers = []
                 
-                if performer and performer.lower() not in ['none', 'null', '']:
+                for col in performer_columns:
+                    value = str(row.get(col, '')).strip()
+                    if value and value.lower() not in ['none', 'null', '']:
+                        performers.append(value)
+                
+                performer = ' & '.join(performers) if performers else ''
+                
+                if performer:
                     artist_data[performer].append(row)
                 else:
                     artist_data['Без исполнителя'].append(row)
