@@ -30,40 +30,55 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   const handleVkLogin = async () => {
-    setVkLoading(true);
-    try {
-      const response = await fetch('https://functions.poehali.dev/70e60d29-836e-455c-8052-691174ca7a7a?action=login');
-      const data = await response.json();
-      
-      if (data.auth_url) {
-        window.location.href = data.auth_url;
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось подключиться к ВКонтакте',
-        variant: 'destructive'
-      });
-      setVkLoading(false);
-    }
+    const VK_APP_ID = '54140994';
+    const REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
+    
+    const authUrl = `https://oauth.vk.com/authorize?client_id=${VK_APP_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&display=page&scope=email&response_type=code&v=5.131`;
+    
+    window.location.href = authUrl;
   };
 
   const handleVkCallback = async (code: string) => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/70e60d29-836e-455c-8052-691174ca7a7a?action=callback&code=${code}`);
-      const data = await response.json();
+      const VK_APP_ID = '54140994';
+      const VK_APP_SECRET = '2Gw0H0HLXeoBGteY5Edi';
+      const REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
       
-      if (data.vk_id) {
-        const vkUsername = `vk_${data.vk_id}`;
-        onLogin(vkUsername, '', data);
-        
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } else {
+      const tokenUrl = `https://oauth.vk.com/access_token?client_id=${VK_APP_ID}&client_secret=${VK_APP_SECRET}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&code=${code}`;
+      
+      const tokenResponse = await fetch(tokenUrl);
+      const tokenData = await tokenResponse.json();
+      
+      if (tokenData.error) {
         toast({
-          title: 'Ошибка',
-          description: data.error || 'Не удалось войти через ВКонтакте',
+          title: 'Ошибка VK',
+          description: tokenData.error_description || 'Ошибка авторизации',
           variant: 'destructive'
         });
+        return;
+      }
+      
+      const { access_token, user_id, email } = tokenData;
+      
+      const userInfoUrl = `https://api.vk.com/method/users.get?user_ids=${user_id}&fields=photo_200&access_token=${access_token}&v=5.131`;
+      const userResponse = await fetch(userInfoUrl);
+      const userData = await userResponse.json();
+      
+      if (userData.response && userData.response[0]) {
+        const user = userData.response[0];
+        const vkData = {
+          vk_id: user_id.toString(),
+          first_name: user.first_name,
+          last_name: user.last_name,
+          photo: user.photo_200,
+          email: email || '',
+          access_token
+        };
+        
+        const vkUsername = `vk_${user_id}`;
+        onLogin(vkUsername, '', vkData);
+        
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     } catch (error) {
       toast({
