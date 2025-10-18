@@ -36,6 +36,9 @@ interface Task {
   attachment_name?: string;
   attachment_size?: number;
   completion_report?: string;
+  completion_attachment_url?: string;
+  completion_attachment_name?: string;
+  completion_attachment_size?: number;
 }
 
 interface TaskAssignmentProps {
