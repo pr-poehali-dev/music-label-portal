@@ -340,6 +340,22 @@ def show_ticket_analytics(bot_token: str, chat_id: int, message_id: int, db_url:
     """)
     priorities = dict(cur.fetchall())
     
+    cur.execute("""
+        SELECT AVG(EXTRACT(EPOCH FROM (completed_at - created_at))/3600) 
+        FROM tickets 
+        WHERE completed_at IS NOT NULL
+    """)
+    avg_hours_result = cur.fetchone()[0]
+    avg_time_text = ''
+    if avg_hours_result:
+        avg_hours = int(avg_hours_result)
+        if avg_hours >= 24:
+            days = avg_hours // 24
+            hours = avg_hours % 24
+            avg_time_text = f'\n⏱ Среднее время: {days}д {hours}ч'
+        else:
+            avg_time_text = f'\n⏱ Среднее время: {avg_hours}ч'
+    
     cur.close()
     release_db_connection(conn)
     
@@ -355,7 +371,7 @@ def show_ticket_analytics(bot_token: str, chat_id: int, message_id: int, db_url:
         f'🆕 Открытых: {open_count}\n'
         f'⚙️ В работе: {in_progress}\n'
         f'✅ Закрытых: {closed}\n'
-        f'🔥 Просрочено: {overdue}\n\n'
+        f'🔥 Просрочено: {overdue}{avg_time_text}\n\n'
         f'<b>По приоритетам:</b>\n{priority_text}'
     )
     
@@ -368,7 +384,10 @@ def show_team_analytics(bot_token: str, chat_id: int, message_id: int, db_url: s
     
     cur.execute("""
         SELECT u.full_name, COUNT(t.id) as total,
-               SUM(CASE WHEN t.status = 'closed' THEN 1 ELSE 0 END) as closed
+               SUM(CASE WHEN t.status = 'closed' THEN 1 ELSE 0 END) as closed,
+               AVG(CASE WHEN t.completed_at IS NOT NULL 
+                   THEN EXTRACT(EPOCH FROM (t.completed_at - t.created_at))/3600 
+                   ELSE NULL END) as avg_hours
         FROM users u
         LEFT JOIN tickets t ON t.assigned_to = u.id
         WHERE u.role = 'manager'
@@ -383,9 +402,16 @@ def show_team_analytics(bot_token: str, chat_id: int, message_id: int, db_url: s
     
     if managers:
         text = '👥 <b>Топ менеджеров:</b>\n\n'
-        for i, (name, total, closed) in enumerate(managers, 1):
+        for i, (name, total, closed, avg_hours) in enumerate(managers, 1):
             medal = ['🥇', '🥈', '🥉'][i-1] if i <= 3 else f'{i}.'
-            text += f'{medal} {name}\n   └ Всего: {total} | Закрыто: {closed}\n\n'
+            time_text = ''
+            if avg_hours:
+                hours = int(avg_hours)
+                if hours >= 24:
+                    time_text = f' | ⏱ {hours//24}д {hours%24}ч'
+                else:
+                    time_text = f' | ⏱ {hours}ч'
+            text += f'{medal} {name}\n   └ Всего: {total} | Закрыто: {closed}{time_text}\n\n'
     else:
         text = '👥 Нет данных по команде'
     
@@ -500,7 +526,7 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
     
     cur.execute("""
         SELECT t.title, t.description, t.priority, t.status, t.deadline,
-               u1.full_name as creator, u2.full_name as assignee, t.created_at
+               u1.full_name as creator, u2.full_name as assignee, t.created_at, t.completed_at
         FROM tickets t
         LEFT JOIN users u1 ON t.created_by = u1.id
         LEFT JOIN users u2 ON t.assigned_to = u2.id
@@ -516,7 +542,7 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
                     [[{'text': '🔙 Назад', 'callback_data': 'tickets_list'}]])
         return
     
-    title, desc, priority, status, deadline, creator, assignee, created = ticket
+    title, desc, priority, status, deadline, creator, assignee, created, completed = ticket
     
     priority_emoji = {'low': '📋', 'medium': '📌', 'high': '⚠️', 'urgent': '🔥'}
     status_emoji = {'open': '🆕', 'in_progress': '⚙️', 'resolved': '✅', 'closed': '✅'}
@@ -528,13 +554,29 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
         if deadline_dt < datetime.now():
             deadline_text += ' 🔥 ПРОСРОЧЕН'
     
+    time_spent_text = ''
+    if completed and created:
+        created_dt = created if isinstance(created, datetime) else datetime.fromisoformat(str(created))
+        completed_dt = completed if isinstance(completed, datetime) else datetime.fromisoformat(str(completed))
+        time_diff = completed_dt - created_dt
+        
+        hours = int(time_diff.total_seconds() // 3600)
+        minutes = int((time_diff.total_seconds() % 3600) // 60)
+        
+        if time_diff.days > 0:
+            time_spent_text = f'\n⏱ <b>Время выполнения:</b> {time_diff.days}д {hours % 24}ч {minutes}м'
+        elif hours > 0:
+            time_spent_text = f'\n⏱ <b>Время выполнения:</b> {hours}ч {minutes}м'
+        else:
+            time_spent_text = f'\n⏱ <b>Время выполнения:</b> {minutes}м'
+    
     text = (
         f'🎫 <b>Тикет #{ticket_id}</b>\n\n'
         f'📝 <b>Название:</b> {title}\n'
         f'📄 <b>Описание:</b> {desc or "Не указано"}\n\n'
         f'{priority_emoji.get(priority, "📌")} <b>Приоритет:</b> {priority}\n'
         f'{status_emoji.get(status, "📌")} <b>Статус:</b> {status}\n'
-        f'⏰ <b>Дедлайн:</b> {deadline_text}\n\n'
+        f'⏰ <b>Дедлайн:</b> {deadline_text}{time_spent_text}\n\n'
         f'👤 <b>Создал:</b> {creator}\n'
         f'👨‍💼 <b>Назначен:</b> {assignee or "Не назначен"}'
     )
@@ -625,7 +667,8 @@ def close_ticket(bot_token: str, chat_id: int, message_id: int, ticket_id: int, 
     conn = get_db_connection(db_url)
     cur = conn.cursor()
     
-    cur.execute("UPDATE tickets SET status = 'closed' WHERE id = %s", (ticket_id,))
+    cur.execute("UPDATE tickets SET status = 'closed', completed_at = %s WHERE id = %s", 
+                (datetime.now(), ticket_id))
     conn.commit()
     
     cur.close()

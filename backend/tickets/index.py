@@ -419,6 +419,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if status:
             updates.append('status = %s')
             params.append(status)
+            if status == 'closed':
+                updates.append('completed_at = CURRENT_TIMESTAMP')
         
         if assigned_to is not None:
             updates.append('assigned_to = %s')

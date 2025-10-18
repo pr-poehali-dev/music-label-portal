@@ -27,6 +27,7 @@ interface Ticket {
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
+  completed_at?: string | null;
 }
 
 interface TicketCardProps {
@@ -54,6 +55,22 @@ export default function TicketCard({
 }: TicketCardProps) {
   const effectiveRole = userRole || user?.role;
   const isOverdue = ticket.deadline && new Date(ticket.deadline) < new Date() && ticket.status !== 'closed';
+  
+  const getTimeSpent = () => {
+    if (!ticket.completed_at || !ticket.created_at) return null;
+    
+    const start = new Date(ticket.created_at);
+    const end = new Date(ticket.completed_at);
+    const diffMs = end.getTime() - start.getTime();
+    
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (days > 0) return `${days}д ${hours}ч ${minutes}м`;
+    if (hours > 0) return `${hours}ч ${minutes}м`;
+    return `${minutes}м`;
+  };
 
   return (
     <Card className={`border-primary/20 bg-card/95 hover:border-primary/40 transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
@@ -124,6 +141,12 @@ export default function TicketCard({
               >
                 {ticket.attachment_name}
               </a>
+            </div>
+          )}
+          {ticket.status === 'closed' && getTimeSpent() && (
+            <div className="flex items-center gap-1 text-green-600 font-medium">
+              <Icon name="Timer" size={12} />
+              <span>Выполнено за: {getTimeSpent()}</span>
             </div>
           )}
         </div>
