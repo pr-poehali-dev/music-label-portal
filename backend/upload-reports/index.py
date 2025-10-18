@@ -82,32 +82,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
+            artist_data = defaultdict(list)
+            
+            for row in rows:
+                performer = row.get('Исполнитель', '').strip()
+                if performer:
+                    artist_data[performer].append(row)
+                else:
+                    artist_data['Без исполнителя'].append(row)
+            
             cursor.execute(
                 "INSERT INTO t_p35759334_music_label_portal.uploaded_reports (file_name, uploaded_by, total_rows, processed) VALUES (%s, %s, %s, %s) RETURNING id",
                 (file_name, uploaded_by, len(rows), True)
             )
             uploaded_report_id = cursor.fetchone()[0]
             
-            cursor.execute("""
-                INSERT INTO t_p35759334_music_label_portal.artist_report_files 
-                (uploaded_report_id, artist_username, artist_full_name, data, deduction_percent)
-                VALUES (%s, %s, %s, %s, %s)
-                RETURNING id
-            """, (
-                uploaded_report_id,
-                'unassigned',
-                'Не привязано',
-                json.dumps(rows),
-                0
-            ))
-            
-            file_id = cursor.fetchone()[0]
-            created_files = [{
-                'id': file_id,
-                'artist_username': 'unassigned',
-                'artist_full_name': 'Не привязано',
-                'rows_count': len(rows)
-            }]
+            created_files = []
+            for performer_name, performer_rows in artist_data.items():
+                cursor.execute("""
+                    INSERT INTO t_p35759334_music_label_portal.artist_report_files 
+                    (uploaded_report_id, artist_username, artist_full_name, data, deduction_percent)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING id
+                """, (
+                    uploaded_report_id,
+                    performer_name,
+                    performer_name,
+                    json.dumps(performer_rows),
+                    0
+                ))
+                
+                file_id = cursor.fetchone()[0]
+                created_files.append({
+                    'id': file_id,
+                    'artist_username': performer_name,
+                    'artist_full_name': performer_name,
+                    'rows_count': len(performer_rows)
+                })
             
             conn.commit()
             cursor.close()
@@ -120,9 +131,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'uploaded_report_id': uploaded_report_id,
                     'total_rows': len(rows),
-                    'artist_files': created_files,
-                    'unmatched_count': len(rows) - sum(f['rows_count'] for f in created_files),
-                    'unmatched_labels': list(unmatched_labels)[:10]
+                    'artist_files': created_files
                 })
             }
             
