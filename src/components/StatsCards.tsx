@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Ticket {
@@ -19,37 +20,42 @@ interface StatsCardsProps {
 }
 
 export default function StatsCards({ tickets }: StatsCardsProps) {
-  const totalTickets = tickets.length;
-  const openTickets = tickets.filter(t => t.status === 'open').length;
-  const inProgressTickets = tickets.filter(t => t.status === 'in_progress').length;
-  const overdueTickets = tickets.filter(
-    t => t.deadline && new Date(t.deadline) < new Date() && t.status !== 'closed'
-  ).length;
+  const stats = useMemo(() => {
+    const now = new Date();
+    return {
+      total: tickets.length,
+      open: tickets.filter(t => t.status === 'open').length,
+      inProgress: tickets.filter(t => t.status === 'in_progress').length,
+      overdue: tickets.filter(
+        t => t.deadline && new Date(t.deadline) < now && t.status !== 'closed'
+      ).length
+    };
+  }, [tickets]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card className="border-primary/20 bg-card/95">
         <CardHeader className="pb-3">
           <CardDescription>Всего заявок</CardDescription>
-          <CardTitle className="text-3xl text-primary">{totalTickets}</CardTitle>
+          <CardTitle className="text-3xl text-primary">{stats.total}</CardTitle>
         </CardHeader>
       </Card>
       <Card className="border-blue-500/20 bg-card/95">
         <CardHeader className="pb-3">
           <CardDescription>Открытые</CardDescription>
-          <CardTitle className="text-3xl text-blue-500">{openTickets}</CardTitle>
+          <CardTitle className="text-3xl text-blue-500">{stats.open}</CardTitle>
         </CardHeader>
       </Card>
       <Card className="border-yellow-500/20 bg-card/95">
         <CardHeader className="pb-3">
           <CardDescription>В работе</CardDescription>
-          <CardTitle className="text-3xl text-yellow-500">{inProgressTickets}</CardTitle>
+          <CardTitle className="text-3xl text-yellow-500">{stats.inProgress}</CardTitle>
         </CardHeader>
       </Card>
       <Card className="border-red-500/20 bg-card/95">
         <CardHeader className="pb-3">
           <CardDescription>Просрочено</CardDescription>
-          <CardTitle className="text-3xl text-red-500">{overdueTickets}</CardTitle>
+          <CardTitle className="text-3xl text-red-500">{stats.overdue}</CardTitle>
         </CardHeader>
       </Card>
     </div>

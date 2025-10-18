@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { User, NewUser, API_URLS } from '@/types';
 
@@ -7,7 +7,7 @@ export const useUsers = (user: User | null) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const { toast } = useToast();
 
-  const loadManagers = async () => {
+  const loadManagers = useCallback(async () => {
     try {
       const response = await fetch(`${API_URLS.users}?role=manager`);
       const data = await response.json();
@@ -15,9 +15,9 @@ export const useUsers = (user: User | null) => {
     } catch (error) {
       console.error('Failed to load managers:', error);
     }
-  };
+  }, []);
 
-  const loadAllUsers = async () => {
+  const loadAllUsers = useCallback(async () => {
     try {
       const response = await fetch(API_URLS.users);
       const data = await response.json();
@@ -25,9 +25,9 @@ export const useUsers = (user: User | null) => {
     } catch (error) {
       console.error('Failed to load users:', error);
     }
-  };
+  }, []);
 
-  const createUser = async (newUser: NewUser) => {
+  const createUser = useCallback(async (newUser: NewUser) => {
     if (!newUser.username || !newUser.full_name) {
       toast({ title: '❌ Заполните все поля', variant: 'destructive' });
       return false;
@@ -52,9 +52,9 @@ export const useUsers = (user: User | null) => {
       toast({ title: '❌ Ошибка создания', variant: 'destructive' });
     }
     return false;
-  };
+  }, [toast, loadAllUsers]);
 
-  const updateUser = async (userId: number, userData: Partial<User>) => {
+  const updateUser = useCallback(async (userId: number, userData: Partial<User>) => {
     try {
       const response = await fetch(API_URLS.users, {
         method: 'PUT',
@@ -72,14 +72,14 @@ export const useUsers = (user: User | null) => {
     } catch (error) {
       toast({ title: '❌ Ошибка обновления', variant: 'destructive' });
     }
-  };
+  }, [toast, loadAllUsers]);
 
   useEffect(() => {
     if (user?.role === 'director') {
       loadManagers();
       loadAllUsers();
     }
-  }, [user]);
+  }, [user?.role, loadManagers, loadAllUsers]);
 
   return {
     managers,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logActivity } from '@/utils/activityLogger';
 import { User, Ticket, NewTicket, API_URLS } from '@/types';
@@ -7,7 +7,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const { toast } = useToast();
 
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (statusFilter !== 'all') params.append('status', statusFilter);
@@ -19,9 +19,9 @@ export const useTickets = (user: User | null, statusFilter: string) => {
     } catch (error) {
       console.error('Failed to load tickets:', error);
     }
-  };
+  }, [user, statusFilter]);
 
-  const createTicket = async (
+  const createTicket = useCallback(async (
     newTicket: NewTicket,
     selectedFile: File | null,
     setUploadingTicket: (uploading: boolean) => void
@@ -87,9 +87,9 @@ export const useTickets = (user: User | null, statusFilter: string) => {
       setUploadingTicket(false);
     }
     return false;
-  };
+  }, [user, toast, loadTickets]);
 
-  const updateTicketStatus = async (ticketId: number, status: string) => {
+  const updateTicketStatus = useCallback(async (ticketId: number, status: string) => {
     try {
       await fetch(API_URLS.tickets, {
         method: 'PUT',
@@ -105,9 +105,9 @@ export const useTickets = (user: User | null, statusFilter: string) => {
     } catch (error) {
       toast({ title: '❌ Ошибка обновления', variant: 'destructive' });
     }
-  };
+  }, [user, toast, loadTickets]);
 
-  const assignTicket = async (ticketId: number, managerId: number | null, deadline?: string) => {
+  const assignTicket = useCallback(async (ticketId: number, managerId: number | null, deadline?: string) => {
     try {
       await fetch(API_URLS.tickets, {
         method: 'PUT',
@@ -123,9 +123,9 @@ export const useTickets = (user: User | null, statusFilter: string) => {
     } catch (error) {
       toast({ title: '❌ Ошибка назначения', variant: 'destructive' });
     }
-  };
+  }, [user, toast, loadTickets]);
 
-  const deleteTicket = async (ticketId: number) => {
+  const deleteTicket = useCallback(async (ticketId: number) => {
     if (!confirm('Вы уверены, что хотите удалить этот тикет?')) return;
     
     try {
@@ -147,13 +147,13 @@ export const useTickets = (user: User | null, statusFilter: string) => {
     } catch (error) {
       toast({ title: '❌ Ошибка удаления', variant: 'destructive' });
     }
-  };
+  }, [user, toast, loadTickets]);
 
   useEffect(() => {
     if (user) {
       loadTickets();
     }
-  }, [user, statusFilter]);
+  }, [user, loadTickets]);
 
   return {
     tickets,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import TicketCard from '@/components/TicketCard';
 import { useToast } from '@/hooks/use-toast';
@@ -74,12 +74,16 @@ export default function TicketManagement({
     onLoadTickets();
   }, []);
 
-  const sortByDate = (a: Ticket, b: Ticket) => 
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  const sortByDate = useCallback((a: Ticket, b: Ticket) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    []
+  );
 
-  const openTickets = tickets.filter(t => t.status === 'open').sort(sortByDate);
-  const inProgressTickets = tickets.filter(t => t.status === 'in_progress').sort(sortByDate);
-  const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').sort(sortByDate);
+  const { openTickets, inProgressTickets, resolvedTickets } = useMemo(() => ({
+    openTickets: tickets.filter(t => t.status === 'open').sort(sortByDate),
+    inProgressTickets: tickets.filter(t => t.status === 'in_progress').sort(sortByDate),
+    resolvedTickets: tickets.filter(t => t.status === 'resolved' || t.status === 'closed').sort(sortByDate)
+  }), [tickets, sortByDate]);
 
   return (
     <div className="space-y-6 p-6">

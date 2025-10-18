@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 const API_URL = 'https://functions.poehali.dev';
@@ -33,7 +33,7 @@ export const useTasks = (user: any, ticketId?: number) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     if (!user?.token) return;
 
     setLoading(true);
@@ -59,9 +59,9 @@ export const useTasks = (user: any, ticketId?: number) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.token, user?.id, ticketId]);
 
-  const createTask = async (taskData: CreateTaskData) => {
+  const createTask = useCallback(async (taskData: CreateTaskData) => {
     if (!user?.token) {
       console.error('No user token available');
       return false;
@@ -102,9 +102,9 @@ export const useTasks = (user: any, ticketId?: number) => {
       toast.error('Не удалось создать задачу');
       return false;
     }
-  };
+  }, [user, loadTasks]);
 
-  const updateTaskStatus = async (taskId: number, status: string) => {
+  const updateTaskStatus = useCallback(async (taskId: number, status: string) => {
     if (!user?.token) return false;
 
     try {
@@ -131,9 +131,9 @@ export const useTasks = (user: any, ticketId?: number) => {
       toast.error('Не удалось обновить статус');
       return false;
     }
-  };
+  }, [user, loadTasks]);
 
-  const deleteTask = async (taskId: number) => {
+  const deleteTask = useCallback(async (taskId: number) => {
     if (!user?.token) return false;
 
     try {
@@ -155,13 +155,13 @@ export const useTasks = (user: any, ticketId?: number) => {
       toast.error('Не удалось удалить задачу');
       return false;
     }
-  };
+  }, [user, loadTasks]);
 
   useEffect(() => {
     if (user?.token) {
       loadTasks();
     }
-  }, [user, ticketId]);
+  }, [user?.token, loadTasks]);
 
   return {
     tasks,

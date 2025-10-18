@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TicketManagement from '@/components/TicketManagement';
 import SubmissionsManager from '@/components/SubmissionsManager';
@@ -9,6 +9,7 @@ import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface ManagerViewProps {
   user: User;
@@ -47,39 +48,7 @@ export default function ManagerView({
     return localStorage.getItem('manager_active_tab') || 'tasks';
   });
 
-  const [unreadCounts, setUnreadCounts] = useState({
-    tickets: 0,
-    tasks: 0,
-    messages: 0,
-    submissions: 0
-  });
-
-  const loadUnreadCounts = async () => {
-    try {
-      const token = localStorage.getItem('auth_token') || 'manager-token';
-      const userId = localStorage.getItem('user_id') || user.id.toString();
-
-      const response = await fetch('https://functions.poehali.dev/87d13cda-05ed-4e45-9232-344fe2c026d7', {
-        headers: {
-          'X-User-Id': userId,
-          'X-Auth-Token': token
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCounts(data);
-      }
-    } catch (error) {
-      console.error('Failed to load unread counts:', error);
-    }
-  };
-
-  useEffect(() => {
-    loadUnreadCounts();
-    const interval = setInterval(loadUnreadCounts, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { unreadCounts } = useNotifications();
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;

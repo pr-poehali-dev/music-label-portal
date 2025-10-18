@@ -15,7 +15,7 @@ import AnalyticsView from '@/components/AnalyticsView';
 import WeeklyReport from '@/components/WeeklyReport';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
-import { useNotifications, requestNotificationPermission } from '@/hooks/useNotifications';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface User {
   id: number;
@@ -101,43 +101,7 @@ export default function DirectorTabs({
     return localStorage.getItem('director_active_tab') || 'home';
   });
 
-  const [unreadCounts, setUnreadCounts] = useState({
-    tickets: 0,
-    tasks: 0,
-    messages: 0,
-    submissions: 0
-  });
-
-  const loadUnreadCounts = async () => {
-    try {
-      const token = localStorage.getItem('auth_token') || 'director-token';
-      const userId = localStorage.getItem('user_id') || '1';
-
-      const response = await fetch('https://functions.poehali.dev/87d13cda-05ed-4e45-9232-344fe2c026d7', {
-        headers: {
-          'X-User-Id': userId,
-          'X-Auth-Token': token
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCounts(data);
-      }
-    } catch (error) {
-      console.error('Failed to load unread counts:', error);
-    }
-  };
-
-  useEffect(() => {
-    requestNotificationPermission();
-    loadUnreadCounts();
-    const interval = setInterval(loadUnreadCounts, 30000); // Обновляем каждые 30 секунд
-    return () => clearInterval(interval);
-  }, []);
-
-  // Звуковые уведомления
-  useNotifications(unreadCounts);
+  const { unreadCounts, refreshCounts } = useNotifications();
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
@@ -151,17 +115,17 @@ export default function DirectorTabs({
   // Обёртки для обновления счётчиков после действий
   const handleUpdateStatus = async (ticketId: number, status: string) => {
     await onUpdateStatus(ticketId, status);
-    loadUnreadCounts();
+    refreshCounts();
   };
 
   const handleAssignTicket = async (ticketId: number, managerId: number | null, deadline?: string) => {
     await onAssignTicket(ticketId, managerId, deadline);
-    loadUnreadCounts();
+    refreshCounts();
   };
 
   const handleDeleteTicket = async (ticketId: number) => {
     await onDeleteTicket(ticketId);
-    loadUnreadCounts();
+    refreshCounts();
   };
 
   return (
