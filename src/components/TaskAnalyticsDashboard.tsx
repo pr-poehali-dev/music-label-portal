@@ -5,8 +5,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Task {
   id: number;
+  title: string;
   assigned_to: number;
   assigned_name: string;
+  created_by_name: string;
   status: 'pending' | 'in_progress' | 'completed';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_at: string;
@@ -22,15 +24,17 @@ interface ManagerStats {
   in_progress_tasks: number;
   pending_tasks: number;
   overdue_tasks: number;
-  avg_completion_time: number;
   on_time_completion_rate: number;
 }
 
 interface DailyStats {
   date: string;
+  dayOfWeek: string;
   created: number;
+  accepted: number;
   completed: number;
   in_progress: number;
+  tasks_by_manager: { [key: string]: number };
 }
 
 const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
@@ -77,7 +81,6 @@ export default function TaskAnalyticsDashboard() {
           in_progress_tasks: 0,
           pending_tasks: 0,
           overdue_tasks: 0,
-          avg_completion_time: 0,
           on_time_completion_rate: 0
         });
       }
@@ -115,16 +118,42 @@ export default function TaskAnalyticsDashboard() {
     setManagerStats(Array.from(managers.values()).sort((a, b) => b.completed_tasks - a.completed_tasks));
   };
 
-  const calculateDailyStats = (allTasks: Task[]) => {
-    const daily = new Map<string, DailyStats>();
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toISOString().split('T')[0];
-    }).reverse();
+  const getWorkingDays = () => {
+    const days: string[] = [];
+    const today = new Date();
     
-    last7Days.forEach(date => {
-      daily.set(date, { date, created: 0, completed: 0, in_progress: 0 });
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        days.push(date.toISOString().split('T')[0]);
+      }
+    }
+    
+    return days;
+  };
+
+  const calculateDailyStats = (allTasks: Task[]) => {
+    const workingDays = getWorkingDays();
+    const daily = new Map<string, DailyStats>();
+    
+    const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    
+    workingDays.forEach(date => {
+      const dateObj = new Date(date);
+      const dayOfWeek = dayNames[dateObj.getDay()];
+      
+      daily.set(date, { 
+        date, 
+        dayOfWeek,
+        created: 0, 
+        accepted: 0,
+        completed: 0, 
+        in_progress: 0,
+        tasks_by_manager: {}
+      });
     });
     
     allTasks.forEach(task => {
@@ -132,6 +161,17 @@ export default function TaskAnalyticsDashboard() {
       if (daily.has(createdDate)) {
         const stats = daily.get(createdDate)!;
         stats.created++;
+        
+        if (!stats.tasks_by_manager[task.assigned_name]) {
+          stats.tasks_by_manager[task.assigned_name] = 0;
+        }
+        stats.tasks_by_manager[task.assigned_name]++;
+      }
+      
+      if (task.status !== 'pending') {
+        if (daily.has(createdDate)) {
+          daily.get(createdDate)!.accepted++;
+        }
       }
       
       if (task.completed_at) {
@@ -223,38 +263,75 @@ export default function TaskAnalyticsDashboard() {
         <CardHeader>
           <CardTitle className="text-yellow-400 flex items-center gap-2">
             <Icon name="TrendingUp" size={24} />
-            Статистика за последние 7 дней
+            Статистика по рабочим дням (последние 30 дней)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {dailyStats.map(day => {
-              const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.completed)));
-              const createdWidth = maxValue > 0 ? (day.created / maxValue) * 100 : 0;
-              const completedWidth = maxValue > 0 ? (day.completed / maxValue) * 100 : 0;
-              
-              return (
-                <div key={day.date} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">{new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}</span>
-                    <div className="flex gap-4 text-xs">
-                      <span className="text-blue-400">Создано: {day.created}</span>
-                      <span className="text-green-400">Завершено: {day.completed}</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-max space-y-2">
+              {dailyStats.map(day => {
+                const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)));
+                const createdWidth = maxValue > 0 ? (day.created / maxValue) * 100 : 0;
+                const acceptedWidth = maxValue > 0 ? (day.accepted / maxValue) * 100 : 0;
+                const completedWidth = maxValue > 0 ? (day.completed / maxValue) * 100 : 0;
+                
+                return (
+                  <div key={day.date} className="space-y-1 hover:bg-yellow-500/5 p-2 rounded transition-colors">
+                    <div className="flex items-center justify-between text-sm gap-4">
+                      <div className="flex items-center gap-2 min-w-[100px]">
+                        <span className="text-gray-400 font-medium">{day.dayOfWeek}</span>
+                        <span className="text-gray-500 text-xs">
+                          {new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
+                        </span>
+                      </div>
+                      <div className="flex gap-4 text-xs flex-wrap">
+                        <span className="text-yellow-400">
+                          <Icon name="Plus" size={12} className="inline mr-1" />
+                          Создано: {day.created}
+                        </span>
+                        <span className="text-blue-400">
+                          <Icon name="Play" size={12} className="inline mr-1" />
+                          Принято: {day.accepted}
+                        </span>
+                        <span className="text-green-400">
+                          <Icon name="CheckCircle" size={12} className="inline mr-1" />
+                          Завершено: {day.completed}
+                        </span>
+                      </div>
+                      {Object.keys(day.tasks_by_manager).length > 0 && (
+                        <div className="flex gap-2 text-xs text-gray-400">
+                          {Object.entries(day.tasks_by_manager).map(([manager, count]) => (
+                            <span key={manager} className="bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">
+                              {manager}: {count}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      <div 
+                        className="h-6 bg-yellow-500/30 border border-yellow-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-yellow-100"
+                        style={{ width: `${createdWidth}%`, minWidth: day.created > 0 ? '30px' : '0' }}
+                      >
+                        {day.created > 0 && day.created}
+                      </div>
+                      <div 
+                        className="h-6 bg-blue-500/30 border border-blue-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-blue-100"
+                        style={{ width: `${acceptedWidth}%`, minWidth: day.accepted > 0 ? '30px' : '0' }}
+                      >
+                        {day.accepted > 0 && day.accepted}
+                      </div>
+                      <div 
+                        className="h-6 bg-green-500/30 border border-green-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-green-100"
+                        style={{ width: `${completedWidth}%`, minWidth: day.completed > 0 ? '30px' : '0' }}
+                      >
+                        {day.completed > 0 && day.completed}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <div 
-                      className="h-6 bg-blue-500/30 border border-blue-500/50 rounded transition-all"
-                      style={{ width: `${createdWidth}%` }}
-                    />
-                    <div 
-                      className="h-6 bg-green-500/30 border border-green-500/50 rounded transition-all"
-                      style={{ width: `${completedWidth}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>

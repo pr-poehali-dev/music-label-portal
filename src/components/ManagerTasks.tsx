@@ -61,10 +61,26 @@ export default function ManagerTasks({ userId }: ManagerTasksProps) {
 
   const updateStatus = async (taskId: number, status: string) => {
     try {
+      const savedUser = localStorage.getItem('user');
+      let changed_by = userId;
+      let changed_by_name = 'Менеджер';
+      
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        changed_by = userData.id;
+        changed_by_name = userData.full_name;
+      }
+      
       const response = await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'task', id: taskId, status })
+        body: JSON.stringify({ 
+          type: 'task', 
+          id: taskId, 
+          status,
+          changed_by,
+          changed_by_name
+        })
       });
 
       if (response.ok) {

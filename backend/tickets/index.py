@@ -228,6 +228,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             status = body_data.get('status')
             is_read = body_data.get('is_read')
             completed_at = body_data.get('completed_at')
+            changed_by = body_data.get('changed_by')
+            changed_by_name = body_data.get('changed_by_name')
             
             if not task_id:
                 cur.close()
@@ -238,6 +240,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps({'error': 'Missing task id'})
                 }
+            
+            old_status = None
+            if status:
+                cur.execute('SELECT status FROM tasks WHERE id = %s', (task_id,))
+                result = cur.fetchone()
+                if result:
+                    old_status = result['status']
             
             updates = []
             params = []
@@ -256,6 +265,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 params.append(task_id)
                 query = f"UPDATE tasks SET {', '.join(updates)} WHERE id = %s"
                 cur.execute(query, params)
+                
+                if status and changed_by and changed_by_name and old_status != status:
+                    cur.execute(
+                        '''INSERT INTO task_history (task_id, changed_by, changed_by_name, old_status, new_status)
+                           VALUES (%s, %s, %s, %s, %s)''',
+                        (task_id, changed_by, changed_by_name, old_status, status)
+                    )
+                
                 conn.commit()
             
             cur.close()
