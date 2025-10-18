@@ -16,26 +16,6 @@ export const useOnlineStatus = (currentUserId?: number) => {
     try {
       const now = new Date().toISOString();
       localStorage.setItem(`heartbeat_${userId}`, now);
-      
-      const allHeartbeats = new Map<number, UserOnlineStatus>();
-      const keys = Object.keys(localStorage);
-      
-      for (const key of keys) {
-        if (key.startsWith('heartbeat_')) {
-          const uid = parseInt(key.replace('heartbeat_', ''));
-          const lastSeen = localStorage.getItem(key) || '';
-          const lastSeenTime = new Date(lastSeen).getTime();
-          const isOnline = Date.now() - lastSeenTime < ONLINE_THRESHOLD;
-          
-          allHeartbeats.set(uid, {
-            userId: uid,
-            isOnline,
-            lastSeen
-          });
-        }
-      }
-      
-      setOnlineUsers(allHeartbeats);
     } catch (error) {
       console.error('Failed to update heartbeat:', error);
     }
@@ -67,6 +47,7 @@ export const useOnlineStatus = (currentUserId?: number) => {
     if (!currentUserId) return;
 
     updateHeartbeat(currentUserId);
+    checkOnlineStatus();
 
     const heartbeatTimer = setInterval(() => {
       updateHeartbeat(currentUserId);
@@ -97,7 +78,7 @@ export const useOnlineStatus = (currentUserId?: number) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [currentUserId, updateHeartbeat, checkOnlineStatus]);
+  }, [currentUserId]);
 
   const isUserOnline = useCallback((userId: number): boolean => {
     return onlineUsers.get(userId)?.isOnline || false;

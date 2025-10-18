@@ -73,89 +73,93 @@ export const useActivityTracking = (userId?: number) => {
   }, [saveSession]);
 
   const calculateStats = useCallback(() => {
-    const allSessions: ActivitySession[] = JSON.parse(localStorage.getItem('activity_sessions') || '[]');
-    const userStats = new Map<number, UserActivityStats>();
+    try {
+      const allSessions: ActivitySession[] = JSON.parse(localStorage.getItem('activity_sessions') || '[]');
+      const userStats = new Map<number, UserActivityStats>();
 
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekStart = new Date(todayStart);
-    weekStart.setDate(weekStart.getDate() - 7);
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(todayStart);
+      weekStart.setDate(weekStart.getDate() - 7);
 
-    const uniqueUserIds = new Set<number>();
-    allSessions.forEach(s => uniqueUserIds.add(s.userId));
+      const uniqueUserIds = new Set<number>();
+      allSessions.forEach(s => uniqueUserIds.add(s.userId));
 
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('current_session_')) {
-        const uid = parseInt(key.replace('current_session_', ''));
-        uniqueUserIds.add(uid);
-      }
-    });
-
-    uniqueUserIds.forEach(uid => {
-      const userSessions = allSessions.filter(s => s.userId === uid);
-      
-      let currentSession: ActivitySession | undefined;
-      const currentData = localStorage.getItem(`current_session_${uid}`);
-      if (currentData) {
-        currentSession = JSON.parse(currentData);
-        const startTime = new Date(currentSession.startTime);
-        const duration = Math.floor((now.getTime() - startTime.getTime()) / 1000 / 60);
-        currentSession.duration = duration;
-      }
-
-      const todaySessions = userSessions.filter(s => {
-        const sessionDate = new Date(s.startTime);
-        return sessionDate >= todayStart;
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('current_session_')) {
+          const uid = parseInt(key.replace('current_session_', ''));
+          uniqueUserIds.add(uid);
+        }
       });
 
-      const weekSessions = userSessions.filter(s => {
-        const sessionDate = new Date(s.startTime);
-        return sessionDate >= weekStart;
-      });
+      uniqueUserIds.forEach(uid => {
+        const userSessions = allSessions.filter(s => s.userId === uid);
+        
+        let currentSession: ActivitySession | undefined;
+        const currentData = localStorage.getItem(`current_session_${uid}`);
+        if (currentData) {
+          currentSession = JSON.parse(currentData);
+          const startTime = new Date(currentSession.startTime);
+          const duration = Math.floor((now.getTime() - startTime.getTime()) / 1000 / 60);
+          currentSession.duration = duration;
+        }
 
-      const todayTime = todaySessions.reduce((sum, s) => sum + s.duration, 0) + (currentSession?.duration || 0);
-      const weekTime = weekSessions.reduce((sum, s) => sum + s.duration, 0) + (currentSession?.duration || 0);
-
-      const dailyStatsMap = new Map<string, DailyStats>();
-      
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(todayStart);
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        dailyStatsMap.set(dateStr, {
-          date: dateStr,
-          totalTime: 0,
-          sessions: 0
+        const todaySessions = userSessions.filter(s => {
+          const sessionDate = new Date(s.startTime);
+          return sessionDate >= todayStart;
         });
-      }
 
-      weekSessions.forEach(s => {
-        const dateStr = new Date(s.startTime).toISOString().split('T')[0];
-        const stats = dailyStatsMap.get(dateStr);
-        if (stats) {
-          stats.totalTime += s.duration;
-          stats.sessions += 1;
+        const weekSessions = userSessions.filter(s => {
+          const sessionDate = new Date(s.startTime);
+          return sessionDate >= weekStart;
+        });
+
+        const todayTime = todaySessions.reduce((sum, s) => sum + s.duration, 0) + (currentSession?.duration || 0);
+        const weekTime = weekSessions.reduce((sum, s) => sum + s.duration, 0) + (currentSession?.duration || 0);
+
+        const dailyStatsMap = new Map<string, DailyStats>();
+        
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(todayStart);
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split('T')[0];
+          dailyStatsMap.set(dateStr, {
+            date: dateStr,
+            totalTime: 0,
+            sessions: 0
+          });
         }
+
+        weekSessions.forEach(s => {
+          const dateStr = new Date(s.startTime).toISOString().split('T')[0];
+          const stats = dailyStatsMap.get(dateStr);
+          if (stats) {
+            stats.totalTime += s.duration;
+            stats.sessions += 1;
+          }
+        });
+
+        if (currentSession) {
+          const dateStr = new Date(currentSession.startTime).toISOString().split('T')[0];
+          const stats = dailyStatsMap.get(dateStr);
+          if (stats) {
+            stats.totalTime += currentSession.duration;
+          }
+        }
+
+        userStats.set(uid, {
+          userId: uid,
+          todayTime,
+          weekTime,
+          dailyStats: Array.from(dailyStatsMap.values()).reverse(),
+          currentSession
+        });
       });
 
-      if (currentSession) {
-        const dateStr = new Date(currentSession.startTime).toISOString().split('T')[0];
-        const stats = dailyStatsMap.get(dateStr);
-        if (stats) {
-          stats.totalTime += currentSession.duration;
-        }
-      }
-
-      userStats.set(uid, {
-        userId: uid,
-        todayTime,
-        weekTime,
-        dailyStats: Array.from(dailyStatsMap.values()).reverse(),
-        currentSession
-      });
-    });
-
-    setStats(userStats);
+      setStats(userStats);
+    } catch (error) {
+      console.error('Failed to calculate stats:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -165,6 +169,8 @@ export const useActivityTracking = (userId?: number) => {
     if (!currentSessionData) {
       startSession(userId);
     }
+
+    calculateStats();
 
     const trackingTimer = setInterval(() => {
       updateSession(userId);
@@ -177,13 +183,11 @@ export const useActivityTracking = (userId?: number) => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    calculateStats();
-
     return () => {
       clearInterval(trackingTimer);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [userId, startSession, updateSession, endSession, calculateStats]);
+  }, [userId]);
 
   const getUserStats = useCallback((uid: number): UserActivityStats | null => {
     return stats.get(uid) || null;
