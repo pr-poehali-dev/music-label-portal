@@ -139,7 +139,7 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="monitoring">
-        <UserActivityMonitor />
+        <UserActivityMonitor users={allUsers} />
       </TabsContent>
 
       <TabsContent value="home">

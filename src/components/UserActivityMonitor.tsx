@@ -13,10 +13,10 @@ interface User {
 }
 
 interface Props {
-  users: User[];
+  users?: User[];
 }
 
-export default function UserActivityMonitor({ users }: Props) {
+export default function UserActivityMonitor({ users = [] }: Props) {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
