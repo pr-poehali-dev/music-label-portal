@@ -58,6 +58,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     }
 
 def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
+    if 'callback_query' in update:
+        return handle_callback_query(update, bot_token, db_url)
+    
     message = update.get('message', {})
     chat_id = message.get('chat', {}).get('id')
     text = message.get('text', '')
@@ -155,12 +158,19 @@ def send_ticket_notification(data: Dict[str, Any], bot_token: str, db_url: str) 
         f"<b>Описание:</b> {ticket.get('description')}\n"
         f"<b>Приоритет:</b> {ticket.get('priority')}\n"
         f"<b>Автор:</b> {ticket.get('creator_name')}\n\n"
-        f"Назначить: /assign {ticket.get('id')} <username>"
+        f"Выберите менеджера для назначения:"
     )
+    
+    conn = psycopg2.connect(db_url)
+    cur = conn.cursor()
+    cur.execute("SELECT username, full_name FROM users WHERE role = 'manager' ORDER BY full_name")
+    managers = cur.fetchall()
+    cur.close()
+    conn.close()
     
     for director in directors:
         chat_id = director[0]
-        send_message(bot_token, chat_id, message_text)
+        send_message_with_buttons(bot_token, chat_id, message_text, ticket.get('id'), managers)
     
     return {
         'statusCode': 200,
@@ -177,6 +187,87 @@ def send_message(bot_token: str, chat_id: int, text: str):
     }).encode()
     
     req = request.Request(url, data=data, method='POST')
+    request.urlopen(req)
+
+def send_message_with_buttons(bot_token: str, chat_id: int, text: str, ticket_id: int, managers: list):
+    url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+    
+    keyboard = []
+    for username, full_name in managers:
+        keyboard.append([{
+            'text': f'👤 {full_name}',
+            'callback_data': f'assign_{ticket_id}_{username}'
+        }])
+    
+    payload = {
+        'chat_id': chat_id,
+        'text': text,
+        'parse_mode': 'HTML',
+        'reply_markup': json.dumps({'inline_keyboard': keyboard})
+    }
+    
+    data = json.dumps(payload).encode('utf-8')
+    req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
+    request.urlopen(req)
+
+def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
+    callback_query = update.get('callback_query', {})
+    callback_data = callback_query.get('data', '')
+    chat_id = callback_query.get('message', {}).get('chat', {}).get('id')
+    message_id = callback_query.get('message', {}).get('message_id')
+    
+    if callback_data.startswith('assign_'):
+        parts = callback_data.split('_')
+        if len(parts) >= 3:
+            ticket_id = parts[1]
+            manager_username = parts[2]
+            
+            if db_url:
+                conn = psycopg2.connect(db_url)
+                cur = conn.cursor()
+                
+                cur.execute("SELECT id, full_name FROM users WHERE username = %s AND role = 'manager'", (manager_username,))
+                manager = cur.fetchone()
+                
+                if manager:
+                    cur.execute(
+                        "UPDATE tickets SET assigned_to = %s, status = 'in_progress' WHERE id = %s",
+                        (manager[0], ticket_id)
+                    )
+                    conn.commit()
+                    
+                    answer_callback_query(bot_token, callback_query.get('id'), f'✅ Тикет назначен на {manager[1]}')
+                    edit_message(bot_token, chat_id, message_id, 
+                        f'✅ Тикет #{ticket_id} назначен на {manager[1]} (@{manager_username})')
+                else:
+                    answer_callback_query(bot_token, callback_query.get('id'), '❌ Менеджер не найден')
+                
+                cur.close()
+                conn.close()
+    
+    return {'statusCode': 200, 'body': ''}
+
+def answer_callback_query(bot_token: str, callback_query_id: str, text: str):
+    url = f'https://api.telegram.org/bot{bot_token}/answerCallbackQuery'
+    data = parse.urlencode({
+        'callback_query_id': callback_query_id,
+        'text': text
+    }).encode()
+    
+    req = request.Request(url, data=data, method='POST')
+    request.urlopen(req)
+
+def edit_message(bot_token: str, chat_id: int, message_id: int, text: str):
+    url = f'https://api.telegram.org/bot{bot_token}/editMessageText'
+    payload = {
+        'chat_id': chat_id,
+        'message_id': message_id,
+        'text': text,
+        'parse_mode': 'HTML'
+    }
+    
+    data = json.dumps(payload).encode('utf-8')
+    req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
     request.urlopen(req)
 
 def set_webhook(bot_token: str, webhook_url: Optional[str]) -> Dict[str, Any]:
