@@ -157,17 +157,35 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
               <div className="space-y-1 text-sm text-green-300">
                 <p>✅ Всего записей: <strong>{result.total_rows}</strong></p>
                 <p>📁 Создано файлов: <strong>{result.artist_files.length}</strong></p>
-                <div className="mt-2">
-                  <p className="text-yellow-300 mb-1">Артисты:</p>
-                  <ul className="list-disc list-inside text-yellow-200 text-xs">
-                    {result.artist_files.map((af: any, idx: number) => (
-                      <li key={idx}>{af.artist_full_name} ({af.rows_count} записей)</li>
-                    ))}
-                  </ul>
-                </div>
+                {result.unmatched_count > 0 && (
+                  <p className="text-yellow-400">⚠️ Не распределено: <strong>{result.unmatched_count}</strong> записей</p>
+                )}
+                {result.artist_files.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-yellow-300 mb-1">Артисты:</p>
+                    <ul className="list-disc list-inside text-yellow-200 text-xs">
+                      {result.artist_files.map((af: any, idx: number) => (
+                        <li key={idx}>{af.artist_full_name} ({af.rows_count} записей)</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {result.unmatched_labels && result.unmatched_labels.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-orange-400 mb-1">⚠️ Не найдены артисты для альбомов:</p>
+                    <ul className="list-disc list-inside text-orange-300 text-xs max-h-32 overflow-y-auto">
+                      {result.unmatched_labels.map((label: string, idx: number) => (
+                        <li key={idx}>{label}</li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-orange-300/70 mt-2">
+                      💡 Совет: Убедитесь, что username или ФИО артиста есть в названии альбома или исполнителя
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
-            <ProcessReports uploadedReportId={result.uploaded_report_id} />
+            {result.artist_files.length > 0 && <ProcessReports uploadedReportId={result.uploaded_report_id} />}
           </div>
         )}
 
@@ -178,10 +196,10 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
           </h4>
           <ol className="text-sm text-blue-300 space-y-1 list-decimal list-inside">
             <li>Загрузите общий CSV/XLSX файл со всеми артистами</li>
-            <li>Система автоматически разобьёт файл по артистам (по username в названии альбома)</li>
-            <li>Для каждого отчёта выберите артиста из списка (привязка вручную)</li>
-            <li>Установите % вычета - он автоматически вычтется из итоговой суммы в PDF</li>
-            <li>Нажмите "Экспорт и отправить" - отчёт скачается и отправится артисту в ЛК</li>
+            <li>Система автоматически разобьёт файл по артистам (ищет username или ФИО в названии альбома/исполнителя)</li>
+            <li>Для каждого разбитого файла выберите артиста из списка (привязка вручную)</li>
+            <li>Установите % удержания лейбла (0-100%) - он вычтется из суммы артиста</li>
+            <li>Нажмите "Экспорт" - PDF скачается и автоматически отправится в ЛК выбранного артиста</li>
           </ol>
         </div>
       </CardContent>
