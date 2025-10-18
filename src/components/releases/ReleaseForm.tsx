@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,34 @@ export default function ReleaseForm({
   uploading,
   onCancel
 }: ReleaseFormProps) {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (dropIndex: number) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      return;
+    }
+
+    const direction = draggedIndex < dropIndex ? 'down' : 'up';
+    const steps = Math.abs(draggedIndex - dropIndex);
+    
+    let currentIndex = draggedIndex;
+    for (let i = 0; i < steps; i++) {
+      moveTrack(currentIndex, direction);
+      currentIndex = direction === 'down' ? currentIndex + 1 : currentIndex - 1;
+    }
+    
+    setDraggedIndex(null);
+  };
+
   return (
     <div className="max-w-5xl mx-auto">
       <Card className="border-2">
@@ -213,6 +242,10 @@ export default function ReleaseForm({
                   updateTrack={updateTrack}
                   removeTrack={removeTrack}
                   moveTrack={moveTrack}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  isDragging={draggedIndex === index}
                 />
               ))}
 

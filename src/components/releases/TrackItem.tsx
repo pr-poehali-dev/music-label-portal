@@ -13,14 +13,29 @@ interface TrackItemProps {
   updateTrack: (index: number, field: keyof Track, value: any) => void;
   removeTrack: (index: number) => void;
   moveTrack: (index: number, direction: 'up' | 'down') => void;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDrop: (index: number) => void;
+  isDragging: boolean;
 }
 
-export default function TrackItem({ track, index, totalTracks, updateTrack, removeTrack, moveTrack }: TrackItemProps) {
+export default function TrackItem({ track, index, totalTracks, updateTrack, removeTrack, moveTrack, onDragStart, onDragOver, onDrop, isDragging }: TrackItemProps) {
   return (
-    <Card className="border-l-4 border-l-primary/30 hover:border-l-primary transition-colors">
+    <Card 
+      draggable
+      onDragStart={() => onDragStart(index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={() => onDrop(index)}
+      className={`border-l-4 border-l-primary/30 hover:border-l-primary transition-all cursor-move ${
+        isDragging ? 'opacity-50 scale-95' : ''
+      }`}
+    >
       <CardContent className="p-5">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
+            <div className="cursor-move" title="Перетащите для изменения порядка">
+              <Icon name="GripVertical" size={20} className="text-muted-foreground" />
+            </div>
             <div className="flex flex-col gap-1">
               <Button 
                 variant="ghost" 
