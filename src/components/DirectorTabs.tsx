@@ -8,6 +8,7 @@ import ReminderSetup from '@/components/ReminderSetup';
 import StatsCollector from '@/components/StatsCollector';
 import UserActivityMonitor from '@/components/UserActivityMonitor';
 import HomePage from '@/components/HomePage';
+import ReportsUploader from '@/components/ReportsUploader';
 
 interface User {
   id: number;
@@ -79,7 +80,7 @@ export default function DirectorTabs({
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="stats" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
+      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-10 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
         <TabsTrigger value="stats" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Статистика</TabsTrigger>
         <TabsTrigger value="create" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Создать тикет</TabsTrigger>
         <TabsTrigger value="manage" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Управление тикетами</TabsTrigger>
@@ -88,6 +89,7 @@ export default function DirectorTabs({
         <TabsTrigger value="reminders" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Напоминания</TabsTrigger>
         <TabsTrigger value="collector" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Автосбор</TabsTrigger>
         <TabsTrigger value="monitoring" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Мониторинг</TabsTrigger>
+        <TabsTrigger value="reports" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Отчёты</TabsTrigger>
         <TabsTrigger value="home" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Дом</TabsTrigger>
       </TabsList>
 
@@ -140,6 +142,10 @@ export default function DirectorTabs({
 
       <TabsContent value="monitoring">
         <UserActivityMonitor users={allUsers} />
+      </TabsContent>
+
+      <TabsContent value="reports">
+        <ReportsUploader userId={user.id} />
       </TabsContent>
 
       <TabsContent value="home">

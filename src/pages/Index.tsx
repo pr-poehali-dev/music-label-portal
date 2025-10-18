@@ -10,6 +10,7 @@ import ArtistDashboard from '@/components/ArtistDashboard';
 import TicketManagement from '@/components/TicketManagement';
 import MyTickets from '@/components/MyTickets';
 import DirectorTabs from '@/components/DirectorTabs';
+import ArtistReports from '@/components/ArtistReports';
 
 interface User {
   id: number;
@@ -246,14 +247,19 @@ export default function Index() {
           </div>
 
           <Tabs defaultValue="stats" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
               <TabsTrigger value="stats" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Статистика</TabsTrigger>
+              <TabsTrigger value="reports" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Отчёты</TabsTrigger>
               <TabsTrigger value="create" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Создать тикет</TabsTrigger>
               <TabsTrigger value="my-tickets" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Мои тикеты</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stats">
               <ArtistDashboard user={user} />
+            </TabsContent>
+
+            <TabsContent value="reports">
+              <ArtistReports userId={user.id} />
             </TabsContent>
 
             <TabsContent value="create">
