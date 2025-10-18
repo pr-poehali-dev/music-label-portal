@@ -106,7 +106,7 @@ export default function DirectorTabs({
           <TabsList className="mb-4">
             <TabsTrigger value="assignment">Назначение задач</TabsTrigger>
             <TabsTrigger value="tickets">Заявки техподдержки</TabsTrigger>
-            <TabsTrigger value="create">Создать заявку</TabsTrigger>
+            <TabsTrigger value="create">Создать тикет</TabsTrigger>
           </TabsList>
           
           <TabsContent value="assignment">
