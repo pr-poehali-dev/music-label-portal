@@ -156,12 +156,12 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
               <p>Заявок не найдено</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {submissions.map((submission) => (
                 <Card key={submission.id} className="bg-black/60 border-yellow-500/20">
                   <CardContent className="p-4">
-                    <div className="flex flex-col lg:flex-row gap-4">
-                      <div className="flex-1 space-y-2">
+                    <div className="flex flex-col gap-3">
+                      <div className="space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <Icon name="User" size={18} className="text-yellow-400" />
@@ -216,11 +216,11 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                         </div>
                       </div>
 
-                      <div className="flex lg:flex-col gap-2 lg:w-auto">
+                      <div className="flex flex-col gap-2">
                         <Button
                           size="sm"
                           onClick={() => openCommentModal(submission)}
-                          className="bg-blue-500 hover:bg-blue-600 flex-1 lg:flex-initial"
+                          className="bg-blue-500 hover:bg-blue-600 w-full"
                         >
                           <Icon name="MessageSquare" size={14} className="mr-1" />
                           Комментарий
@@ -230,7 +230,7 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                           <Button
                             size="sm"
                             onClick={() => updateStatus(submission.id, 'approved')}
-                            className="bg-green-500 hover:bg-green-600 flex-1 lg:flex-initial"
+                            className="bg-green-500 hover:bg-green-600 w-full"
                           >
                             <Icon name="Check" size={14} className="mr-1" />
                             Одобрить
@@ -241,7 +241,7 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                           <Button
                             size="sm"
                             onClick={() => updateStatus(submission.id, 'rejected')}
-                            className="bg-red-500 hover:bg-red-600 flex-1 lg:flex-initial"
+                            className="bg-red-500 hover:bg-red-600 w-full"
                           >
                             <Icon name="X" size={14} className="mr-1" />
                             Отклонить
@@ -252,7 +252,7 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                           <Button
                             size="sm"
                             onClick={() => updateStatus(submission.id, 'reviewing')}
-                            className="bg-yellow-500 hover:bg-yellow-600 flex-1 lg:flex-initial"
+                            className="bg-yellow-500 hover:bg-yellow-600 w-full"
                           >
                             <Icon name="Eye" size={14} className="mr-1" />
                             В работу
