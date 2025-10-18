@@ -8,6 +8,7 @@ import UserActivityMonitor from '@/components/UserActivityMonitor';
 import HomePage from '@/components/HomePage';
 import ReportsUploader from '@/components/ReportsUploader';
 import SubmissionsManager from '@/components/SubmissionsManager';
+import TaskAssignment from '@/components/TaskAssignment';
 
 interface User {
   id: number;
@@ -84,8 +85,9 @@ export default function DirectorTabs({
   return (
     <Tabs defaultValue="submissions" className="w-full">
       <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-8 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
+        <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-9 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
           <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Заявки</TabsTrigger>
+          <TabsTrigger value="tasks" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Задачи</TabsTrigger>
           <TabsTrigger value="manage" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Управление</TabsTrigger>
           <TabsTrigger value="create" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
           <TabsTrigger value="users" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Пользователи</TabsTrigger>
@@ -98,6 +100,10 @@ export default function DirectorTabs({
 
       <TabsContent value="submissions">
         <SubmissionsManager userId={user.id} />
+      </TabsContent>
+
+      <TabsContent value="tasks">
+        <TaskAssignment managers={managers} directorId={user.id} />
       </TabsContent>
 
       <TabsContent value="create">
