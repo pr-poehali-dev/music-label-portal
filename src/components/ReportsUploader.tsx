@@ -35,98 +35,39 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: '❌ Файл слишком большой',
-        description: 'Максимальный размер файла: 2 MB. Попробуйте разбить файл на части.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setUploading(true);
 
     try {
-      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
-      
-      const reader = new FileReader();
-      reader.onerror = () => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('uploaded_by', String(userId));
+
+      const response = await fetch('https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResult(data);
         toast({
-          title: '❌ Ошибка чтения файла',
-          description: 'Не удалось прочитать файл',
+          title: '✅ Файл разбит по артистам',
+          description: `Создано ${data.artist_files.length} файлов для артистов`
+        });
+      } else {
+        toast({
+          title: '❌ Ошибка загрузки',
+          description: data.error || 'Неизвестная ошибка',
           variant: 'destructive'
         });
-        setUploading(false);
-      };
-
-      reader.onload = async (event) => {
-        try {
-          const result = event.target?.result;
-          let base64Content: string;
-          
-          if (isExcel) {
-            const arrayBuffer = result as ArrayBuffer;
-            const bytes = new Uint8Array(arrayBuffer);
-            let binary = '';
-            for (let i = 0; i < bytes.length; i++) {
-              binary += String.fromCharCode(bytes[i]);
-            }
-            base64Content = btoa(binary);
-          } else {
-            const content = result as string;
-            base64Content = btoa(unescape(encodeURIComponent(content)));
-          }
-
-          console.log('Sending file to backend:', file.name, 'size:', base64Content.length);
-
-          const response = await fetch('https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              file_content: base64Content,
-              file_type: isExcel ? 'xlsx' : 'csv',
-              file_name: file.name,
-              uploaded_by: userId
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (data.success) {
-            setResult(data);
-            toast({
-              title: '✅ Файл разбит по артистам',
-              description: `Создано ${data.artist_files.length} файлов для артистов`
-            });
-          } else {
-            toast({
-              title: '❌ Ошибка загрузки',
-              description: data.error || 'Неизвестная ошибка',
-              variant: 'destructive'
-            });
-          }
-
-          setUploading(false);
-        } catch (err) {
-          console.error('Fetch error:', err, 'for', 'https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264');
-          toast({
-            title: '❌ Ошибка отправки',
-            description: 'Не удалось отправить файл на сервер. Попробуйте файл меньшего размера.',
-            variant: 'destructive'
-          });
-          setUploading(false);
-        }
-      };
-
-      if (isExcel) {
-        reader.readAsArrayBuffer(file);
-      } else {
-        reader.readAsText(file);
       }
+
+      setUploading(false);
     } catch (error) {
       toast({
         title: '❌ Ошибка',

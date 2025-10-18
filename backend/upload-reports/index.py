@@ -36,18 +36,57 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'POST':
         try:
-            body_data = json.loads(event.get('body', '{}'))
-            file_content = body_data.get('file_content', '')
-            file_type = body_data.get('file_type', 'csv')
-            file_name = body_data.get('file_name', 'report.csv')
-            uploaded_by = body_data.get('uploaded_by')
+            content_type = event.get('headers', {}).get('content-type', event.get('headers', {}).get('Content-Type', ''))
             
-            if not file_content or not uploaded_by:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется file_content и uploaded_by'})
+            if 'multipart/form-data' in content_type:
+                import cgi
+                from io import BytesIO
+                
+                body = event.get('body', '')
+                if event.get('isBase64Encoded'):
+                    body = base64.b64decode(body)
+                else:
+                    body = body.encode('utf-8')
+                
+                environ = {
+                    'REQUEST_METHOD': 'POST',
+                    'CONTENT_TYPE': content_type,
+                    'CONTENT_LENGTH': len(body)
                 }
+                
+                form = cgi.FieldStorage(
+                    fp=BytesIO(body),
+                    environ=environ,
+                    keep_blank_values=True
+                )
+                
+                uploaded_by = form.getvalue('uploaded_by')
+                file_field = form['file']
+                file_name = file_field.filename
+                file_content = file_field.file.read()
+                file_type = 'xlsx' if file_name.endswith('.xlsx') else 'csv'
+                
+                if not file_content or not uploaded_by:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется файл и uploaded_by'})
+                    }
+            else:
+                body_data = json.loads(event.get('body', '{}'))
+                file_content = body_data.get('file_content', '')
+                file_type = body_data.get('file_type', 'csv')
+                file_name = body_data.get('file_name', 'report.csv')
+                uploaded_by = body_data.get('uploaded_by')
+                
+                if not file_content or not uploaded_by:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется file_content и uploaded_by'})
+                    }
+                
+                file_content = base64.b64decode(file_content)
             
             if file_type == 'xlsx':
                 if not EXCEL_AVAILABLE:
@@ -57,8 +96,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Поддержка Excel не установлена'})
                     }
                 
-                decoded_bytes = base64.b64decode(file_content)
-                workbook = openpyxl.load_workbook(io.BytesIO(decoded_bytes))
+                if isinstance(file_content, bytes):
+                    workbook = openpyxl.load_workbook(io.BytesIO(file_content))
+                else:
+                    decoded_bytes = base64.b64decode(file_content)
+                    workbook = openpyxl.load_workbook(io.BytesIO(decoded_bytes))
                 sheet = workbook.active
                 
                 header_row_index = 34
@@ -78,7 +120,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             row_dict[header] = row_cells[i] if i < len(row_cells) else None
                         rows.append(row_dict)
             else:
-                decoded_content = base64.b64decode(file_content).decode('utf-8')
+                if isinstance(file_content, bytes):
+                    decoded_content = file_content.decode('utf-8')
+                else:
+                    decoded_content = file_content
                 csv_reader = csv.DictReader(io.StringIO(decoded_content))
                 rows = [row for row in csv_reader if any(v for v in row.values())]
             
