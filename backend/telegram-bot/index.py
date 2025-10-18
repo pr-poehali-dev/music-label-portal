@@ -515,21 +515,25 @@ def get_webhook_info(bot_token: str) -> Dict[str, Any]:
 def send_message(bot_token: str, chat_id: str, text: str):
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
     payload = {
-        'chat_id': chat_id,
-        'text': text,
-        'parse_mode': 'HTML'
+        'chat_id': int(chat_id) if isinstance(chat_id, str) and chat_id.isdigit() else chat_id,
+        'text': text
     }
     
     data = json.dumps(payload).encode('utf-8')
     req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
-    request.urlopen(req, timeout=5)
+    
+    try:
+        response = request.urlopen(req, timeout=5)
+        return json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        print(f'Error sending message: {str(e)}')
+        return None
 
 def send_message_with_keyboard(bot_token: str, chat_id: str, text: str, keyboard: list):
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
     payload = {
-        'chat_id': chat_id,
+        'chat_id': int(chat_id) if isinstance(chat_id, str) and chat_id.isdigit() else chat_id,
         'text': text,
-        'parse_mode': 'HTML',
         'reply_markup': {
             'inline_keyboard': keyboard
         }
@@ -537,7 +541,13 @@ def send_message_with_keyboard(bot_token: str, chat_id: str, text: str, keyboard
     
     data = json.dumps(payload).encode('utf-8')
     req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
-    request.urlopen(req, timeout=5)
+    
+    try:
+        response = request.urlopen(req, timeout=5)
+        return json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        print(f'Error sending message with keyboard: {str(e)}')
+        return None
 
 def answer_callback(bot_token: str, callback_id: str, text: str):
     url = f'https://api.telegram.org/bot{bot_token}/answerCallbackQuery'
