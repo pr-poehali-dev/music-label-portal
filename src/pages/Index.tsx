@@ -233,23 +233,23 @@ export default function Index() {
 
   if (user.role === 'artist') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-900 via-yellow-800 to-black">
         <div className="container mx-auto p-4">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+            <h1 className="text-3xl font-bold text-yellow-100">👋 {user.full_name}</h1>
             <button 
               onClick={logout}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
             >
               Выйти
             </button>
           </div>
 
           <Tabs defaultValue="stats" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="stats">Статистика</TabsTrigger>
-              <TabsTrigger value="create">Создать тикет</TabsTrigger>
-              <TabsTrigger value="my-tickets">Мои тикеты</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
+              <TabsTrigger value="stats" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Статистика</TabsTrigger>
+              <TabsTrigger value="create" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Создать тикет</TabsTrigger>
+              <TabsTrigger value="my-tickets" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Мои тикеты</TabsTrigger>
             </TabsList>
 
             <TabsContent value="stats">
@@ -281,13 +281,13 @@ export default function Index() {
 
   if (user.role === 'manager') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-900 via-yellow-800 to-black">
         <div className="container mx-auto p-4">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+            <h1 className="text-3xl font-bold text-yellow-100">👋 {user.full_name}</h1>
             <button 
               onClick={logout}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
             >
               Выйти
             </button>
@@ -309,13 +309,13 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-900 via-yellow-800 to-black">
       <div className="container mx-auto p-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+          <h1 className="text-3xl font-bold text-yellow-100">👋 {user.full_name}</h1>
           <button 
             onClick={logout}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             Выйти
           </button>

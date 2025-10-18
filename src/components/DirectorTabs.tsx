@@ -79,16 +79,16 @@ export default function DirectorTabs({
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="stats" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-        <TabsTrigger value="stats">Статистика</TabsTrigger>
-        <TabsTrigger value="create">Создать тикет</TabsTrigger>
-        <TabsTrigger value="manage">Управление тикетами</TabsTrigger>
-        <TabsTrigger value="users">Пользователи</TabsTrigger>
-        <TabsTrigger value="blocking">Блокировки</TabsTrigger>
-        <TabsTrigger value="reminders">Напоминания</TabsTrigger>
-        <TabsTrigger value="collector">Автосбор</TabsTrigger>
-        <TabsTrigger value="monitoring">Мониторинг</TabsTrigger>
-        <TabsTrigger value="home">Дом</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
+        <TabsTrigger value="stats" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Статистика</TabsTrigger>
+        <TabsTrigger value="create" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Создать тикет</TabsTrigger>
+        <TabsTrigger value="manage" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Управление тикетами</TabsTrigger>
+        <TabsTrigger value="users" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Пользователи</TabsTrigger>
+        <TabsTrigger value="blocking" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Блокировки</TabsTrigger>
+        <TabsTrigger value="reminders" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Напоминания</TabsTrigger>
+        <TabsTrigger value="collector" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Автосбор</TabsTrigger>
+        <TabsTrigger value="monitoring" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Мониторинг</TabsTrigger>
+        <TabsTrigger value="home" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Дом</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stats">
