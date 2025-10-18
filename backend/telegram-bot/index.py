@@ -56,12 +56,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
     
     if method == 'GET':
-        params = event.get('queryStringParameters', {})
+        params = event.get('queryStringParameters', {}) or {}
         action = params.get('action')
         
         if action == 'set_webhook':
             webhook_url = params.get('url')
             return set_webhook(bot_token, webhook_url)
+        
+        if action == 'get_webhook_info':
+            return get_webhook_info(bot_token)
     
     return {
         'statusCode': 200,
@@ -482,6 +485,25 @@ def set_webhook(bot_token: str, webhook_url: str) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps(result)
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)})
+        }
+
+def get_webhook_info(bot_token: str) -> Dict[str, Any]:
+    try:
+        url = f'https://api.telegram.org/bot{bot_token}/getWebhookInfo'
+        req = request.Request(url, method='GET')
+        response = request.urlopen(req, timeout=10)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps(result.get('result', {}))
         }
     except Exception as e:
         return {

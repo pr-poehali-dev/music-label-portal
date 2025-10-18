@@ -9,28 +9,53 @@ const BOT_API_URL = 'https://functions.poehali.dev/ae7c32d8-5b08-4870-9606-e750d
 
 export default function TelegramBotSettings() {
   const [webhookUrl, setWebhookUrl] = useState(BOT_API_URL);
-  const [botUsername, setBotUsername] = useState('');
+  const [webhookStatus, setWebhookStatus] = useState<'checking' | 'active' | 'inactive'>('checking');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    checkWebhookStatus();
+  }, []);
+
+  const checkWebhookStatus = async () => {
+    try {
+      const response = await fetch(`${BOT_API_URL}?action=get_webhook_info`);
+      if (!response.ok) {
+        setWebhookStatus('inactive');
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.url && data.url.includes('functions.poehali.dev')) {
+        setWebhookStatus('active');
+      } else {
+        setWebhookStatus('inactive');
+      }
+    } catch (error) {
+      setWebhookStatus('inactive');
+    }
+  };
 
   const setupWebhook = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${BOT_API_URL}?action=set_webhook&url=${encodeURIComponent(webhookUrl)}`);
+      const response = await fetch(`${BOT_API_URL}?action=set_webhook&url=${encodeURIComponent(BOT_API_URL)}`);
       const data = await response.json();
       
-      if (data.ok) {
+      if (data.ok || response.ok) {
+        setWebhookStatus('active');
         toast({
-          title: '✅ Webhook настроен',
-          description: 'Бот готов к работе!',
+          title: '✅ Webhook настроен успешно!',
+          description: 'Бот теперь будет получать обновления от Telegram',
         });
       } else {
-        throw new Error(data.description || 'Failed to set webhook');
+        throw new Error(data.description || 'Не удалось настроить webhook');
       }
     } catch (error) {
       toast({
         title: '❌ Ошибка настройки webhook',
-        description: error instanceof Error ? error.message : 'Неизвестная ошибка',
+        description: error instanceof Error ? error.message : 'Проверьте, что токен бота установлен в секретах',
         variant: 'destructive',
       });
     } finally {
@@ -78,27 +103,72 @@ export default function TelegramBotSettings() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="p-4 rounded-lg border" style={{
+            backgroundColor: webhookStatus === 'active' ? 'rgb(34 197 94 / 0.1)' : webhookStatus === 'inactive' ? 'rgb(239 68 68 / 0.1)' : 'rgb(234 179 8 / 0.1)',
+            borderColor: webhookStatus === 'active' ? 'rgb(34 197 94 / 0.3)' : webhookStatus === 'inactive' ? 'rgb(239 68 68 / 0.3)' : 'rgb(234 179 8 / 0.3)'
+          }}>
+            <div className="flex items-center gap-3">
+              {webhookStatus === 'checking' && (
+                <>
+                  <Icon name="Loader2" className="animate-spin text-yellow-400" size={20} />
+                  <div>
+                    <p className="font-semibold text-yellow-400">Проверка статуса...</p>
+                    <p className="text-xs text-muted-foreground">Подключение к Telegram API</p>
+                  </div>
+                </>
+              )}
+              {webhookStatus === 'active' && (
+                <>
+                  <Icon name="CheckCircle" className="text-green-500" size={20} />
+                  <div>
+                    <p className="font-semibold text-green-500">✅ Webhook активен</p>
+                    <p className="text-xs text-muted-foreground">Бот получает обновления</p>
+                  </div>
+                </>
+              )}
+              {webhookStatus === 'inactive' && (
+                <>
+                  <Icon name="AlertCircle" className="text-red-500" size={20} />
+                  <div>
+                    <p className="font-semibold text-red-500">❌ Webhook не настроен</p>
+                    <p className="text-xs text-muted-foreground">Нажмите кнопку ниже для настройки</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="text-sm font-medium mb-2 block">Webhook URL</label>
             <Input
               value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="https://..."
+              readOnly
+              className="bg-muted/50"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              URL для получения обновлений от Telegram
+              URL автоматически установлен на адрес облачной функции
             </p>
           </div>
 
-          <Button onClick={setupWebhook} disabled={loading} className="w-full">
+          <Button 
+            onClick={setupWebhook} 
+            disabled={loading || webhookStatus === 'checking'} 
+            className="w-full"
+            variant={webhookStatus === 'active' ? 'outline' : 'default'}
+          >
             {loading ? (
               <>
                 <Icon name="Loader2" className="animate-spin mr-2" size={16} />
                 Настройка...
               </>
+            ) : webhookStatus === 'active' ? (
+              <>
+                <Icon name="RefreshCw" className="mr-2" size={16} />
+                Переустановить webhook
+              </>
             ) : (
               <>
-                <Icon name="Check" className="mr-2" size={16} />
+                <Icon name="Zap" className="mr-2" size={16} />
                 Настроить webhook
               </>
             )}
