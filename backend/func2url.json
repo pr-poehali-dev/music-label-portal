@@ -1,4 +1,5 @@
 {
+  "deadline-reminder": "https://functions.poehali.dev/7b917e9b-349b-4e00-91f6-933aaff43d85",
   "telegram-bot": "https://functions.poehali.dev/ae7c32d8-5b08-4870-9606-e750de3c31a9",
   "users": "https://functions.poehali.dev/cf5d45c1-d64b-4400-af77-a51c7588d942",
   "tickets": "https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296",

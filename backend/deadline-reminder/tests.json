@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Check reminders",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

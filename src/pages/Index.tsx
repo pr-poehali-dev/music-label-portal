@@ -10,6 +10,7 @@ import TicketCard from '@/components/TicketCard';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import StatsCards from '@/components/StatsCards';
 import UserManagement from '@/components/UserManagement';
+import ReminderSetup from '@/components/ReminderSetup';
 
 interface User {
   id: number;
@@ -251,7 +252,7 @@ export default function Index() {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue={user.role === 'artist' ? 'create' : 'manage'} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-4' : user.role === 'artist' ? 'grid-cols-2' : 'grid-cols-1'} mb-8`}>
             {user.role === 'artist' && (
               <TabsTrigger value="create">
                 <Icon name="Plus" size={16} className="mr-2" />
@@ -263,10 +264,16 @@ export default function Index() {
               {user.role === 'artist' ? 'Мои тикеты' : 'Управление тикетами'}
             </TabsTrigger>
             {user.role === 'director' && (
-              <TabsTrigger value="users">
-                <Icon name="Users" size={16} className="mr-2" />
-                Пользователи
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="users">
+                  <Icon name="Users" size={16} className="mr-2" />
+                  Пользователи
+                </TabsTrigger>
+                <TabsTrigger value="reminders">
+                  <Icon name="Bell" size={16} className="mr-2" />
+                  Напоминания
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -337,14 +344,20 @@ export default function Index() {
           </TabsContent>
 
           {user.role === 'director' && (
-            <TabsContent value="users">
-              <UserManagement
-                allUsers={allUsers}
-                newUser={newUser}
-                onNewUserChange={setNewUser}
-                onCreateUser={createUser}
-              />
-            </TabsContent>
+            <>
+              <TabsContent value="users">
+                <UserManagement
+                  allUsers={allUsers}
+                  newUser={newUser}
+                  onNewUserChange={setNewUser}
+                  onCreateUser={createUser}
+                />
+              </TabsContent>
+
+              <TabsContent value="reminders">
+                <ReminderSetup />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </main>
