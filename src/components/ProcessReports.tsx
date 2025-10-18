@@ -138,27 +138,26 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
 
   const exportAndSend = async (file: ArtistFile) => {
     try {
-      toast({
-        title: 'Экспорт начат',
-        description: `Подготовка отчёта для ${file.artist_full_name}...`,
-      });
-
-      const artistId = selectedArtists[file.id];
-      if (!artistId) {
+      if (!file.sent_to_artist_id) {
         toast({
           title: 'Ошибка',
-          description: 'Выберите артиста для отправки',
+          description: 'Сначала привяжите отчёт к артисту',
           variant: 'destructive',
         });
         return;
       }
+
+      toast({
+        title: 'Экспорт начат',
+        description: `Подготовка отчёта для ${file.artist_full_name}...`,
+      });
 
       const response = await fetch('https://functions.poehali.dev/4c11f3e5-93f5-42fb-862e-9fbcd9ce7825', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           file_id: file.id,
-          artist_id: artistId,
+          artist_id: file.sent_to_artist_id,
         }),
       });
 
@@ -214,7 +213,7 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
               Обработка отчётов
             </CardTitle>
             <CardDescription className="text-yellow-300/70">
-              Настройте процент удержания для каждого артиста и экспортируйте отчёты
+              Привяжите отчёт к артисту, установите % вычета и экспортируйте PDF
             </CardDescription>
           </div>
           {onClose && (

@@ -27,7 +27,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -86,18 +86,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             artists = {row[0]: row[1] for row in cursor.fetchall()}
             
             artist_data = defaultdict(list)
+            unmatched_labels = set()
             
             for row in rows:
                 label = row.get('Название альбома', '').strip()
+                performer = row.get('Исполнитель', '').strip()
                 
                 artist_username = None
-                for username in artists.keys():
-                    if username.lower() in label.lower():
+                for username, full_name in artists.items():
+                    if (username.lower() in label.lower() or 
+                        username.lower() in performer.lower() or
+                        full_name.lower() in label.lower() or
+                        full_name.lower() in performer.lower()):
                         artist_username = username
                         break
                 
                 if artist_username:
                     artist_data[artist_username].append(row)
+                else:
+                    unmatched_labels.add(label[:50])
             
             cursor.execute(
                 "INSERT INTO t_p35759334_music_label_portal.uploaded_reports (file_name, uploaded_by, total_rows, processed) VALUES (%s, %s, %s, %s) RETURNING id",
@@ -141,7 +148,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'uploaded_report_id': uploaded_report_id,
                     'total_rows': len(rows),
-                    'artist_files': created_files
+                    'artist_files': created_files,
+                    'unmatched_count': len(rows) - sum(f['rows_count'] for f in created_files),
+                    'unmatched_labels': list(unmatched_labels)[:10]
                 })
             }
             
