@@ -404,17 +404,13 @@ export default function Index() {
             <div className="w-full overflow-x-auto pb-2">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="tasks">✅ Мои задачи</TabsTrigger>
-                <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
                 <TabsTrigger value="tickets">🎫 Тикеты</TabsTrigger>
+                <TabsTrigger value="submissions">🎵 Послушайте мой трек</TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="tasks">
               <ManagerTasks userId={user.id} />
-            </TabsContent>
-
-            <TabsContent value="submissions">
-              <SubmissionsManager userId={user.id} />
             </TabsContent>
 
             <TabsContent value="tickets">
@@ -429,6 +425,10 @@ export default function Index() {
                 onLoadTickets={loadTickets}
                 onDeleteTicket={deleteTicket}
               />
+            </TabsContent>
+
+            <TabsContent value="submissions">
+              <SubmissionsManager userId={user.id} />
             </TabsContent>
           </Tabs>
         </div>
