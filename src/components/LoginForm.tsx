@@ -33,21 +33,36 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     const VK_APP_ID = '54249540';
     const VK_REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
     
-    const authUrl = `https://oauth.vk.com/authorize?client_id=${VK_APP_ID}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&display=page&scope=email&response_type=code&v=5.131`;
+    const authUrl = `https://id.vk.com/auth?app_id=${VK_APP_ID}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&response_type=code&scope=email,phone`;
     
     setVkLoading(true);
     window.location.href = authUrl;
   };
 
   const handleVkCallback = async (code: string) => {
+    setVkLoading(true);
     try {
       const VK_APP_ID = '54249540';
       const VK_APP_SECRET = 'VfFONGwRNpW5xZ9yxwSf';
       const VK_REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
+      const DEVICE_ID = 'poehali_' + Math.random().toString(36).substring(7);
       
-      const tokenUrl = `https://oauth.vk.com/access_token?client_id=${VK_APP_ID}&client_secret=${VK_APP_SECRET}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&code=${code}`;
+      const tokenUrl = `https://id.vk.com/oauth2/auth?` + new URLSearchParams({
+        grant_type: 'authorization_code',
+        code_verifier: DEVICE_ID,
+        redirect_uri: VK_REDIRECT_URI,
+        code: code,
+        client_id: VK_APP_ID,
+        device_id: DEVICE_ID,
+        state: 'poehali_state'
+      });
       
-      const tokenResponse = await fetch(tokenUrl);
+      const tokenResponse = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
       const tokenData = await tokenResponse.json();
       
       if (tokenData.error) {
@@ -57,12 +72,13 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
           variant: 'destructive'
         });
         setVkLoading(false);
+        window.history.replaceState({}, document.title, window.location.pathname);
         return;
       }
       
-      const { access_token, user_id, email } = tokenData;
+      const { access_token, user_id } = tokenData;
       
-      const userInfoUrl = `https://api.vk.com/method/users.get?user_ids=${user_id}&fields=photo_200&access_token=${access_token}&v=5.131`;
+      const userInfoUrl = `https://api.vk.com/method/users.get?user_ids=${user_id}&fields=photo_200&access_token=${access_token}&v=5.199`;
       const userResponse = await fetch(userInfoUrl);
       const userData = await userResponse.json();
       
@@ -73,7 +89,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
           first_name: user.first_name,
           last_name: user.last_name,
           photo: user.photo_200,
-          email: email || '',
+          email: '',
           access_token
         };
         
@@ -83,12 +99,14 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     } catch (error) {
+      console.error('VK Auth Error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось войти через ВКонтакте',
         variant: 'destructive'
       });
       setVkLoading(false);
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   };
 
