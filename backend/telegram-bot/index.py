@@ -12,6 +12,9 @@ connection_pool = None
 cache = {}
 CACHE_TTL = 300  # 5 минут
 
+# Хранилище состояний для создания тикетов
+user_states = {}
+
 def get_db_connection(db_url: str):
     global connection_pool
     if connection_pool is None:
@@ -133,7 +136,11 @@ def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) 
             if text.startswith('/'):
                 handle_command(text, chat_id, bot_token, db_url, user)
             else:
-                show_main_menu(bot_token, chat_id, user)
+                # Проверяем, есть ли активное состояние (создание тикета)
+                if chat_id in user_states:
+                    handle_ticket_creation_step(text, chat_id, bot_token, db_url, user)
+                else:
+                    show_main_menu(bot_token, chat_id, user)
         else:
             send_message(bot_token, chat_id, 
                 '❌ Сначала привяжите аккаунт:\n/link ваш_username')
@@ -180,6 +187,7 @@ def show_main_menu(bot_token: str, chat_id: int, user: Optional[Dict]):
     
     if role == 'director':
         keyboard = [
+            [{'text': '➕ Создать тикет', 'callback_data': 'create_ticket'}],
             [{'text': '📊 Аналитика', 'callback_data': 'analytics_main'}],
             [{'text': '📋 Тикеты', 'callback_data': 'tickets_list'}, {'text': '👥 Команда', 'callback_data': 'team_stats'}],
             [{'text': '⚡ Быстрые действия', 'callback_data': 'quick_actions'}],
@@ -189,6 +197,7 @@ def show_main_menu(bot_token: str, chat_id: int, user: Optional[Dict]):
         text = f'👑 Главное меню - {name}\n\nВыберите действие:'
     elif role == 'manager':
         keyboard = [
+            [{'text': '➕ Создать тикет', 'callback_data': 'create_ticket'}],
             [{'text': '📋 Мои тикеты', 'callback_data': 'my_tickets'}],
             [{'text': '📊 Моя статистика', 'callback_data': 'my_stats'}, {'text': '✍️ Отчёт', 'callback_data': 'report_menu'}],
             [{'text': '⚡ Быстрые действия', 'callback_data': 'quick_actions'}],
@@ -240,6 +249,16 @@ def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -
         show_tickets_list(bot_token, chat_id, message_id, user, db_url)
     elif data == 'my_tickets':
         show_my_tickets(bot_token, chat_id, message_id, user, db_url)
+    elif data == 'create_ticket':
+        start_ticket_creation(bot_token, chat_id, message_id, user)
+    elif data == 'cancel_ticket':
+        cancel_ticket_creation(bot_token, chat_id, message_id)
+    elif data == 'deadline_today':
+        complete_ticket_creation(bot_token, chat_id, message_id, 0, user, db_url)
+    elif data == 'deadline_tomorrow':
+        complete_ticket_creation(bot_token, chat_id, message_id, 1, user, db_url)
+    elif data == 'deadline_3days':
+        complete_ticket_creation(bot_token, chat_id, message_id, 3, user, db_url)
     elif data.startswith('ticket_'):
         ticket_id = int(data.split('_')[1])
         show_ticket_details(bot_token, chat_id, message_id, ticket_id, user, db_url)
@@ -980,3 +999,82 @@ def answer_callback(bot_token: str, callback_id: str, text: str = None):
         request.urlopen(req, timeout=3)
     except:
         pass
+
+def start_ticket_creation(bot_token: str, chat_id: int, message_id: int, user: Dict):
+    global user_states
+    user_states[chat_id] = {'step': 'title', 'data': {}}
+    
+    keyboard = [[{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}]]
+    edit_message(bot_token, chat_id, message_id, 
+                '📝 <b>Создание тикета</b>\n\nВведите название тикета:', keyboard)
+
+def cancel_ticket_creation(bot_token: str, chat_id: int, message_id: int):
+    global user_states
+    if chat_id in user_states:
+        del user_states[chat_id]
+    
+    delete_message(bot_token, chat_id, message_id)
+    send_message(bot_token, chat_id, '❌ Создание тикета отменено')
+
+def handle_ticket_creation_step(text: str, chat_id: int, bot_token: str, db_url: str, user: Dict):
+    global user_states
+    
+    if chat_id not in user_states:
+        return
+    
+    state = user_states[chat_id]
+    step = state['step']
+    
+    if step == 'title':
+        state['data']['title'] = text
+        state['step'] = 'description'
+        keyboard = [[{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}]]
+        send_message_with_keyboard(bot_token, chat_id, 
+                                  '✅ Название принято!\n\nТеперь введите описание тикета:', keyboard)
+    
+    elif step == 'description':
+        state['data']['description'] = text
+        state['step'] = 'deadline'
+        keyboard = [
+            [{'text': 'Сегодня', 'callback_data': 'deadline_today'}],
+            [{'text': 'Завтра', 'callback_data': 'deadline_tomorrow'}],
+            [{'text': '3 дня', 'callback_data': 'deadline_3days'}],
+            [{'text': '❌ Отменить', 'callback_data': 'cancel_ticket'}]
+        ]
+        send_message_with_keyboard(bot_token, chat_id, 
+                                  '✅ Описание принято!\n\nВыберите дедлайн:', keyboard)
+
+def complete_ticket_creation(bot_token: str, chat_id: int, message_id: int, deadline_days: int, user: Dict, db_url: str):
+    global user_states
+    
+    if chat_id not in user_states:
+        return
+    
+    state = user_states[chat_id]
+    data = state['data']
+    
+    deadline = datetime.now() + timedelta(days=deadline_days)
+    
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute(
+        """INSERT INTO tickets (title, description, creator_id, deadline, status, priority, created_at) 
+           VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+        (data['title'], data['description'], user['id'], deadline, 'open', 'medium', datetime.now())
+    )
+    
+    ticket_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    release_db_connection(conn)
+    
+    del user_states[chat_id]
+    
+    edit_message(bot_token, chat_id, message_id, 
+                f'✅ <b>Тикет #{ticket_id} создан!</b>\n\n'
+                f'📌 <b>{data["title"]}</b>\n'
+                f'📄 {data["description"]}\n'
+                f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y")}')
+    
+    show_main_menu(bot_token, chat_id, user)
