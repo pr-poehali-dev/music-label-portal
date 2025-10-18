@@ -14,6 +14,9 @@ import ArtistReports from '@/components/ArtistReports';
 import SubmissionsManager from '@/components/SubmissionsManager';
 import ManagerTasks from '@/components/ManagerTasks';
 import ManagerStats from '@/components/ManagerStats';
+import MessagesModal from '@/components/MessagesModal';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 interface User {
   id: number;
@@ -65,6 +68,7 @@ export default function Index() {
   const [managers, setManagers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist', revenue_share_percent: 50 });
+  const [messagesOpen, setMessagesOpen] = useState(false);
   const { toast } = useToast();
 
 
@@ -325,13 +329,30 @@ export default function Index() {
               />
               <h1 className="text-3xl font-bold text-primary">420.рф</h1>
             </div>
-            <button 
-              onClick={logout}
-              className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
-            >
-              Выйти
-            </button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setMessagesOpen(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Icon name="MessageSquare" size={18} />
+                Написать руководителю
+              </Button>
+              <button 
+                onClick={logout}
+                className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
+              >
+                Выйти
+              </button>
+            </div>
           </div>
+
+          <MessagesModal 
+            open={messagesOpen} 
+            onOpenChange={setMessagesOpen}
+            userId={user.id}
+            userRole="artist"
+          />
 
           <Tabs defaultValue="stats" className="w-full">
             <div className="w-full overflow-x-auto pb-2">
@@ -390,13 +411,30 @@ export default function Index() {
               />
               <h1 className="text-3xl font-bold text-primary">420.рф</h1>
             </div>
-            <button 
-              onClick={logout}
-              className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
-            >
-              Выйти
-            </button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setMessagesOpen(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Icon name="MessageSquare" size={18} />
+                Написать руководителю
+              </Button>
+              <button 
+                onClick={logout}
+                className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
+              >
+                Выйти
+              </button>
+            </div>
           </div>
+
+          <MessagesModal 
+            open={messagesOpen} 
+            onOpenChange={setMessagesOpen}
+            userId={user.id}
+            userRole="manager"
+          />
 
           <ManagerStats userId={user.id} />
 
@@ -448,13 +486,30 @@ export default function Index() {
             />
             <h1 className="text-3xl font-bold text-primary">420.рф</h1>
           </div>
-          <button 
-            onClick={logout}
-            className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
-          >
-            Выйти
-          </button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setMessagesOpen(true)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Icon name="MessageSquare" size={18} />
+              Сообщения от команды
+            </Button>
+            <button 
+              onClick={logout}
+              className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
+            >
+              Выйти
+            </button>
+          </div>
         </div>
+
+        <MessagesModal 
+          open={messagesOpen} 
+          onOpenChange={setMessagesOpen}
+          userId={user.id}
+          userRole="boss"
+        />
 
         <DirectorTabs
           user={user}

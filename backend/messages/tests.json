@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Send message",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "sender_id": 1,
+        "message": "Здравствуйте, у меня вопрос по задаче"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "sender_id": 1,
+        "message": "string",
+        "is_read": false
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get user messages",
+      "method": "GET",
+      "path": "/?user_id=1",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
