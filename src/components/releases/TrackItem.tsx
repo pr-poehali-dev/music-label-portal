@@ -9,16 +9,38 @@ import { Track, LANGUAGES } from './types';
 interface TrackItemProps {
   track: Track;
   index: number;
+  totalTracks: number;
   updateTrack: (index: number, field: keyof Track, value: any) => void;
   removeTrack: (index: number) => void;
+  moveTrack: (index: number, direction: 'up' | 'down') => void;
 }
 
-export default function TrackItem({ track, index, updateTrack, removeTrack }: TrackItemProps) {
+export default function TrackItem({ track, index, totalTracks, updateTrack, removeTrack, moveTrack }: TrackItemProps) {
   return (
     <Card className="border-l-4 border-l-primary/30 hover:border-l-primary transition-colors">
       <CardContent className="p-5">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => moveTrack(index, 'up')} 
+                disabled={index === 0}
+                className="h-6 w-6 p-0 hover:bg-primary/10"
+              >
+                <Icon name="ChevronUp" size={14} />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => moveTrack(index, 'down')} 
+                disabled={index === totalTracks - 1}
+                className="h-6 w-6 p-0 hover:bg-primary/10"
+              >
+                <Icon name="ChevronDown" size={14} />
+              </Button>
+            </div>
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <span className="text-sm font-bold text-primary">{track.track_number}</span>
             </div>

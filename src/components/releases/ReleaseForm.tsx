@@ -24,6 +24,7 @@ interface ReleaseFormProps {
   addTrack: () => void;
   removeTrack: (index: number) => void;
   updateTrack: (index: number, field: keyof Track, value: any) => void;
+  moveTrack: (index: number, direction: 'up' | 'down') => void;
   handleSubmit: () => void;
   uploading: boolean;
   onCancel: () => void;
@@ -38,6 +39,7 @@ export default function ReleaseForm({
   addTrack,
   removeTrack,
   updateTrack,
+  moveTrack,
   handleSubmit,
   uploading,
   onCancel
@@ -207,8 +209,10 @@ export default function ReleaseForm({
                   key={index}
                   track={track}
                   index={index}
+                  totalTracks={tracks.length}
                   updateTrack={updateTrack}
                   removeTrack={removeTrack}
+                  moveTrack={moveTrack}
                 />
               ))}
 

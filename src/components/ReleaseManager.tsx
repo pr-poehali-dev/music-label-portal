@@ -115,7 +115,20 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
   };
 
   const removeTrack = (index: number) => {
-    setTracks(tracks.filter((_, i) => i !== index));
+    const updated = tracks.filter((_, i) => i !== index);
+    const renumbered = updated.map((track, i) => ({ ...track, track_number: i + 1 }));
+    setTracks(renumbered);
+  };
+
+  const moveTrack = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= tracks.length) return;
+    
+    const updated = [...tracks];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    
+    const renumbered = updated.map((track, i) => ({ ...track, track_number: i + 1 }));
+    setTracks(renumbered);
   };
 
   const updateTrack = (index: number, field: keyof Track, value: any) => {
@@ -380,6 +393,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
           addTrack={addTrack}
           removeTrack={removeTrack}
           updateTrack={updateTrack}
+          moveTrack={moveTrack}
           handleSubmit={handleSubmit}
           uploading={uploading}
           onCancel={() => setShowForm(false)}
