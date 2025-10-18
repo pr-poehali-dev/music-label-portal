@@ -82,8 +82,8 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
   };
 
   const createTask = async () => {
-    if (!newTask.title || newTask.assigned_to.length === 0 || !newTask.deadline) {
-      toast({ title: '❌ Заполните все обязательные поля', variant: 'destructive' });
+    if (!newTask.title) {
+      toast({ title: '❌ Заполните название задачи', variant: 'destructive' });
       return;
     }
 
