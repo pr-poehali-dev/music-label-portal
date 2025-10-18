@@ -92,7 +92,7 @@ export default function DirectorTabs({
       </TabsList>
 
       <TabsContent value="stats">
-        <StatsCards />
+        <StatsCards tickets={tickets} />
       </TabsContent>
 
       <TabsContent value="create">
