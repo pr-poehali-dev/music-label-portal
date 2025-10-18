@@ -82,60 +82,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
-            cursor.execute("SELECT username, full_name FROM t_p35759334_music_label_portal.users WHERE role = 'artist'")
-            artists = {row[0]: row[1] for row in cursor.fetchall()}
-            
-            artist_data = defaultdict(list)
-            unmatched_labels = set()
-            
-            for row in rows:
-                label = row.get('Название альбома', '').strip()
-                performer = row.get('Исполнитель', '').strip()
-                
-                artist_username = None
-                for username, full_name in artists.items():
-                    if (username.lower() in label.lower() or 
-                        username.lower() in performer.lower() or
-                        full_name.lower() in label.lower() or
-                        full_name.lower() in performer.lower()):
-                        artist_username = username
-                        break
-                
-                if artist_username:
-                    artist_data[artist_username].append(row)
-                else:
-                    unmatched_labels.add(label[:50])
-            
             cursor.execute(
                 "INSERT INTO t_p35759334_music_label_portal.uploaded_reports (file_name, uploaded_by, total_rows, processed) VALUES (%s, %s, %s, %s) RETURNING id",
                 (file_name, uploaded_by, len(rows), True)
             )
             uploaded_report_id = cursor.fetchone()[0]
             
-            created_files = []
-            for artist_username, artist_rows in artist_data.items():
-                artist_full_name = artists.get(artist_username, '')
-                
-                cursor.execute("""
-                    INSERT INTO t_p35759334_music_label_portal.artist_report_files 
-                    (uploaded_report_id, artist_username, artist_full_name, data, deduction_percent)
-                    VALUES (%s, %s, %s, %s, %s)
-                    RETURNING id
-                """, (
-                    uploaded_report_id,
-                    artist_username,
-                    artist_full_name,
-                    json.dumps(artist_rows),
-                    0
-                ))
-                
-                file_id = cursor.fetchone()[0]
-                created_files.append({
-                    'id': file_id,
-                    'artist_username': artist_username,
-                    'artist_full_name': artist_full_name,
-                    'rows_count': len(artist_rows)
-                })
+            cursor.execute("""
+                INSERT INTO t_p35759334_music_label_portal.artist_report_files 
+                (uploaded_report_id, artist_username, artist_full_name, data, deduction_percent)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            """, (
+                uploaded_report_id,
+                'unassigned',
+                'Не привязано',
+                json.dumps(rows),
+                0
+            ))
+            
+            file_id = cursor.fetchone()[0]
+            created_files = [{
+                'id': file_id,
+                'artist_username': 'unassigned',
+                'artist_full_name': 'Не привязано',
+                'rows_count': len(rows)
+            }]
             
             conn.commit()
             cursor.close()
