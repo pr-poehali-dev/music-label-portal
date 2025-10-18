@@ -378,6 +378,12 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
   const completedTasks = tasks.filter(t => t.status === 'completed');
 
+  const getManagerTaskCount = (managerId: number) => {
+    const active = tasks.filter(t => t.assigned_to === managerId && t.status !== 'completed').length;
+    const total = tasks.filter(t => t.assigned_to === managerId).length;
+    return { active, total };
+  };
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center gap-3">
@@ -430,6 +436,7 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         onFileChange={setSelectedFile}
         onSubmit={createTask}
         onToggleManager={(managerId) => toggleManager(managerId, false)}
+        getManagerTaskCount={getManagerTaskCount}
       />
       )}
 

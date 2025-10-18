@@ -17,6 +17,12 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
   const [fullName, setFullName] = useState(user.fullName || user.full_name || '');
   const [email, setEmail] = useState(user.email || '');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,6 +50,44 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     setAvatarPreview(user.avatar || null);
     setIsEditing(false);
   }, [user]);
+
+  const handlePasswordChange = useCallback(async () => {
+    setPasswordError('');
+    setPasswordSuccess(false);
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Заполните все поля');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Новые пароли не совпадают');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('Пароль должен быть не менее 6 символов');
+      return;
+    }
+
+    setPasswordSuccess(true);
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setTimeout(() => {
+      setIsChangingPassword(false);
+      setPasswordSuccess(false);
+    }, 2000);
+  }, [oldPassword, newPassword, confirmPassword]);
+
+  const handleCancelPasswordChange = useCallback(() => {
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError('');
+    setPasswordSuccess(false);
+    setIsChangingPassword(false);
+  }, []);
 
   const getRoleLabel = (role: string) => {
     const roles: Record<string, string> = {
@@ -223,20 +267,101 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon name="Key" size={20} className="text-primary" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Icon name="Key" size={20} className="text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-medium">Пароль</div>
+                      <div className="text-sm text-muted-foreground">••••••••</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium">Пароль</div>
-                    <div className="text-sm text-muted-foreground">••••••••</div>
-                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="gap-1"
+                    onClick={() => setIsChangingPassword(!isChangingPassword)}
+                  >
+                    {isChangingPassword ? 'Отмена' : 'Изменить'}
+                    <Icon name={isChangingPassword ? 'X' : 'ChevronRight'} size={16} />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  Изменить
-                  <Icon name="ChevronRight" size={16} />
-                </Button>
+
+                {isChangingPassword && (
+                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="oldPassword">Текущий пароль</Label>
+                      <Input 
+                        id="oldPassword"
+                        type="password"
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        placeholder="Введите текущий пароль"
+                        className="h-10"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Новый пароль</Label>
+                      <Input 
+                        id="newPassword"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Минимум 6 символов"
+                        className="h-10"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Повторите новый пароль</Label>
+                      <Input 
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Повторите пароль"
+                        className="h-10"
+                      />
+                    </div>
+
+                    {passwordError && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                        <Icon name="AlertCircle" size={16} />
+                        {passwordError}
+                      </div>
+                    )}
+
+                    {passwordSuccess && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-600 text-sm">
+                        <Icon name="CheckCircle2" size={16} />
+                        Пароль успешно изменён!
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handlePasswordChange}
+                        className="flex-1 h-10"
+                        size="sm"
+                      >
+                        <Icon name="Check" size={16} className="mr-1" />
+                        Сохранить
+                      </Button>
+                      <Button 
+                        onClick={handleCancelPasswordChange}
+                        variant="outline"
+                        className="flex-1 h-10"
+                        size="sm"
+                      >
+                        <Icon name="X" size={16} className="mr-1" />
+                        Отмена
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">

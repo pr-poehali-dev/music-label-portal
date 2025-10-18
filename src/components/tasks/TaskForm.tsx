@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
 interface User {
@@ -27,6 +28,7 @@ interface TaskFormProps {
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
   onToggleManager: (managerId: number) => void;
+  getManagerTaskCount?: (managerId: number) => { active: number; total: number };
 }
 
 const TASK_TEMPLATES = [
@@ -44,7 +46,8 @@ export default function TaskForm({
   onTaskChange,
   onFileChange,
   onSubmit,
-  onToggleManager
+  onToggleManager,
+  getManagerTaskCount
 }: TaskFormProps) {
   const selectAllManagers = () => {
     const allIds = managers.map(m => m.id);
@@ -161,21 +164,37 @@ export default function TaskForm({
               </div>
             </div>
             <div className="border rounded-md p-3 space-y-2 max-h-[200px] overflow-y-auto">
-              {managers.map((manager) => (
-                <div key={manager.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`manager-${manager.id}`}
-                    checked={newTask.assigned_to.includes(manager.id)}
-                    onCheckedChange={() => onToggleManager(manager.id)}
-                  />
-                  <label
-                    htmlFor={`manager-${manager.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    {manager.full_name}
-                  </label>
-                </div>
-              ))}
+              {managers.map((manager) => {
+                const taskCount = getManagerTaskCount ? getManagerTaskCount(manager.id) : null;
+                return (
+                  <div key={manager.id} className="flex items-center justify-between space-x-2 group">
+                    <div className="flex items-center space-x-2 flex-1">
+                      <Checkbox
+                        id={`manager-${manager.id}`}
+                        checked={newTask.assigned_to.includes(manager.id)}
+                        onCheckedChange={() => onToggleManager(manager.id)}
+                      />
+                      <label
+                        htmlFor={`manager-${manager.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                      >
+                        {manager.full_name}
+                      </label>
+                    </div>
+                    {taskCount && (
+                      <div className="flex gap-1">
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                          <Icon name="Clock" size={10} className="mr-0.5" />
+                          {taskCount.active}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">
+                          {taskCount.total}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {newTask.assigned_to.length > 0 && (
               <p className="text-xs text-green-600 mt-1">
