@@ -13,6 +13,7 @@ import DirectorTabs from '@/components/DirectorTabs';
 import ArtistReports from '@/components/ArtistReports';
 import SubmissionsManager from '@/components/SubmissionsManager';
 import ManagerTasks from '@/components/ManagerTasks';
+import ManagerStats from '@/components/ManagerStats';
 
 interface User {
   id: number;
@@ -396,6 +397,8 @@ export default function Index() {
               Выйти
             </button>
           </div>
+
+          <ManagerStats userId={user.id} />
 
           <Tabs defaultValue="tasks" className="w-full">
             <div className="w-full overflow-x-auto pb-2">

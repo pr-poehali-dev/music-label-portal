@@ -37,6 +37,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_id = query_params.get('user_id')
         task_type = query_params.get('type', 'tickets')
         
+        if task_type == 'stats':
+            if not user_id:
+                cur.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'user_id is required for stats'})
+                }
+            
+            cur.execute('''
+                SELECT COUNT(*) as completed_tasks 
+                FROM tasks 
+                WHERE assigned_to = %s AND status = 'completed'
+            ''', (int(user_id),))
+            tasks_result = cur.fetchone()
+            
+            cur.execute('''
+                SELECT COUNT(*) as answered_tickets 
+                FROM tickets 
+                WHERE assigned_to = %s AND status = 'closed'
+            ''', (int(user_id),))
+            tickets_result = cur.fetchone()
+            
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({
+                    'completed_tasks': tasks_result['completed_tasks'] if tasks_result else 0,
+                    'answered_tickets': tickets_result['answered_tickets'] if tickets_result else 0
+                })
+            }
+        
         if task_type == 'tasks':
             query = '''
                 SELECT t.*, 
