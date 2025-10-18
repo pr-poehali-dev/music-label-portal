@@ -15,17 +15,23 @@ interface TrackItemProps {
 
 export default function TrackItem({ track, index, updateTrack, removeTrack }: TrackItemProps) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-3">
-          <h4 className="font-medium">Трек #{track.track_number}</h4>
-          <Button variant="ghost" size="sm" onClick={() => removeTrack(index)}>
+    <Card className="border-l-4 border-l-primary/30 hover:border-l-primary transition-colors">
+      <CardContent className="p-5">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-sm font-bold text-primary">{track.track_number}</span>
+            </div>
+            <h4 className="font-semibold text-base">Трек #{track.track_number}</h4>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => removeTrack(index)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
             <Icon name="Trash2" size={16} />
           </Button>
         </div>
-        <div className="grid md:grid-cols-2 gap-3">
+
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs mb-1 block">Название *</label>
+            <label className="text-sm font-medium mb-1.5 block">Название *</label>
             <Input
               placeholder="Название трека"
               value={track.title}
@@ -33,7 +39,7 @@ export default function TrackItem({ track, index, updateTrack, removeTrack }: Tr
             />
           </div>
           <div>
-            <label className="text-xs mb-1 block">Композитор *</label>
+            <label className="text-sm font-medium mb-1.5 block">Композитор *</label>
             <Input
               placeholder="Композитор"
               value={track.composer}
@@ -41,7 +47,7 @@ export default function TrackItem({ track, index, updateTrack, removeTrack }: Tr
             />
           </div>
           <div>
-            <label className="text-xs mb-1 block">Автор слов</label>
+            <label className="text-sm font-medium mb-1.5 block">Автор слов</label>
             <Input
               placeholder="Автор слов"
               value={track.author_lyrics || ''}
@@ -49,7 +55,7 @@ export default function TrackItem({ track, index, updateTrack, removeTrack }: Tr
             />
           </div>
           <div>
-            <label className="text-xs mb-1 block">Язык Аудио *</label>
+            <label className="text-sm font-medium mb-1.5 block">Язык Аудио *</label>
             <Select value={track.language_audio} onValueChange={(value) => updateTrack(index, 'language_audio', value)}>
               <SelectTrigger>
                 <SelectValue />
@@ -61,45 +67,67 @@ export default function TrackItem({ track, index, updateTrack, removeTrack }: Tr
               </SelectContent>
             </Select>
           </div>
+          
           <div className="md:col-span-2">
-            <label className="text-xs mb-1 block">Аудио файл * (MP3, WAV, до 50 МБ)</label>
-            <Input
-              type="file"
-              accept=".mp3,.wav,.flac,.m4a"
-              onChange={(e) => updateTrack(index, 'file', e.target.files?.[0])}
-            />
+            <label className="text-sm font-medium mb-1.5 block">Аудио файл *</label>
+            <div className="relative">
+              <Input
+                type="file"
+                accept=".mp3,.wav,.flac,.m4a"
+                onChange={(e) => updateTrack(index, 'file', e.target.files?.[0])}
+                className="cursor-pointer"
+              />
+            </div>
             {track.file && (
-              <div className="mt-2">
-                <p className="text-xs text-green-600 mb-2 flex items-center gap-1">
-                  <Icon name="CheckCircle" size={12} />
-                  {track.file.name} ({(track.file.size / 1024 / 1024).toFixed(2)} МБ)
-                </p>
+              <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Music" size={20} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{track.file.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {(track.file.size / 1024 / 1024).toFixed(2)} МБ
+                    </p>
+                  </div>
+                  <Icon name="CheckCircle" size={20} className="text-green-600 flex-shrink-0" />
+                </div>
                 {track.preview_url && (
-                  <audio controls className="w-full">
+                  <audio controls className="w-full h-10">
                     <source src={track.preview_url} />
                     Ваш браузер не поддерживает аудио плеер
                   </audio>
                 )}
               </div>
             )}
+            {!track.file && (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Поддерживаемые форматы: MP3, WAV, FLAC, M4A • Максимум 50 МБ
+              </p>
+            )}
           </div>
+
           <div>
-            <label className="text-xs mb-1 block">Текст песни</label>
+            <label className="text-sm font-medium mb-1.5 block">Текст песни</label>
             <Textarea
-              placeholder="Текст песни..."
+              placeholder="Введите текст песни..."
               value={track.lyrics_text || ''}
               onChange={(e) => updateTrack(index, 'lyrics_text', e.target.value)}
-              rows={2}
+              rows={3}
+              className="resize-none"
             />
           </div>
           <div>
-            <label className="text-xs mb-1 block">TikTok превью (сек.)</label>
+            <label className="text-sm font-medium mb-1.5 block">TikTok превью</label>
             <Input
               type="number"
-              placeholder="0"
+              placeholder="Время начала (в секундах)"
               value={track.tiktok_preview_start || ''}
               onChange={(e) => updateTrack(index, 'tiktok_preview_start', parseInt(e.target.value) || 0)}
             />
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Укажите время начала фрагмента для TikTok
+            </p>
           </div>
         </div>
       </CardContent>

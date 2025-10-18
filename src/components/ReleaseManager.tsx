@@ -135,10 +135,10 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
   };
 
   const handleSubmit = async () => {
-    if (!newRelease.release_name || !coverFile) {
+    if (!newRelease.release_name || !coverFile || !newRelease.release_date) {
       toast({
         title: 'Ошибка',
-        description: 'Заполните название и загрузите обложку',
+        description: 'Заполните название, дату релиза и загрузите обложку',
         variant: 'destructive'
       });
       return;
