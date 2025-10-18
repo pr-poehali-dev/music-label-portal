@@ -146,12 +146,62 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         try:
             params = event.get('queryStringParameters', {}) or {}
             uploaded_report_id = params.get('uploaded_report_id')
+            file_id = params.get('file_id')
             
             dsn = os.environ.get('DATABASE_URL')
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
+            if file_id:
+                cursor.execute("""
+                    SELECT id, artist_username, artist_full_name, deduction_percent, sent_to_artist_id, sent_at, 
+                           data, jsonb_array_length(data) as rows_count
+                    FROM t_p35759334_music_label_portal.artist_report_files
+                    WHERE id = %s
+                """, (file_id,))
+                row = cursor.fetchone()
+                cursor.close()
+                conn.close()
+                
+                if not row:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Файл не найден'})
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'files': [{
+                            'id': row[0],
+                            'artist_username': row[1],
+                            'artist_full_name': row[2],
+                            'deduction_percent': float(row[3]) if row[3] else 0,
+                            'sent_to_artist_id': row[4],
+                            'sent_at': row[5].isoformat() if row[5] else None,
+                            'data': row[6],
+                            'rows_count': row[7]
+                        }]
+                    })
+                }
+            
             if uploaded_report_id:
+                cursor.execute("""
+                    SELECT DISTINCT artist_username, artist_full_name
+                    FROM t_p35759334_music_label_portal.artist_report_files
+                    WHERE uploaded_report_id = %s
+                    ORDER BY artist_username
+                """, (uploaded_report_id,))
+                
+                performers = []
+                for row in cursor.fetchall():
+                    performers.append({
+                        'username': row[0],
+                        'full_name': row[1]
+                    })
+                
                 cursor.execute("""
                     SELECT id, artist_username, artist_full_name, deduction_percent, sent_to_artist_id, sent_at, 
                            jsonb_array_length(data) as rows_count
@@ -159,6 +209,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     WHERE uploaded_report_id = %s
                     ORDER BY artist_username
                 """, (uploaded_report_id,))
+                
+                files = []
+                for row in cursor.fetchall():
+                    files.append({
+                        'id': row[0],
+                        'artist_username': row[1],
+                        'artist_full_name': row[2],
+                        'deduction_percent': float(row[3]) if row[3] else 0,
+                        'sent_to_artist_id': row[4],
+                        'sent_at': row[5].isoformat() if row[5] else None,
+                        'rows_count': row[6]
+                    })
+                
+                cursor.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'files': files, 'performers': performers})
+                }
             else:
                 cursor.execute("""
                     SELECT arf.id, arf.artist_username, arf.artist_full_name, arf.deduction_percent, 
@@ -169,19 +240,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ORDER BY ur.uploaded_at DESC, arf.artist_username
                 """)
             
-            files = []
-            for row in cursor.fetchall():
-                if uploaded_report_id:
-                    files.append({
-                        'id': row[0],
-                        'artist_username': row[1],
-                        'artist_full_name': row[2],
-                        'deduction_percent': float(row[3]) if row[3] else 0,
-                        'sent_to_artist_id': row[4],
-                        'sent_at': row[5].isoformat() if row[5] else None,
-                        'rows_count': row[6]
-                    })
-                else:
+                files = []
+                for row in cursor.fetchall():
                     files.append({
                         'id': row[0],
                         'artist_username': row[1],
@@ -194,14 +254,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'uploaded_at': row[8].isoformat() if row[8] else None
                     })
             
-            cursor.close()
-            conn.close()
+                cursor.close()
+                conn.close()
             
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'files': files})
-            }
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'files': files})
+                }
             
         except Exception as e:
             return {

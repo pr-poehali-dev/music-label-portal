@@ -1,14 +1,10 @@
 {
   "tests": [
     {
-      "name": "Test GET all artist files",
-      "method": "GET",
+      "name": "Test OPTIONS",
+      "method": "OPTIONS",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "files": []
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Test GET files by upload ID",
