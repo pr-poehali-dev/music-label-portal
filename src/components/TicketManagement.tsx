@@ -95,13 +95,10 @@ export default function TicketManagement({
     <div className="space-y-5">
         <div className="space-y-3">
           <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border border-blue-200 dark:border-blue-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                <Icon name="Circle" size={16} />
-                Открыто
-              </h3>
-              <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">{openTickets.length}</span>
-            </div>
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+              <Icon name="Circle" size={16} />
+              Открыто
+            </h3>
           </div>
           {openTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
@@ -129,13 +126,10 @@ export default function TicketManagement({
 
         <div className="space-y-3">
           <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-3 border border-yellow-200 dark:border-yellow-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center gap-2">
-                <Icon name="Clock" size={16} />
-                В работе
-              </h3>
-              <span className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressTickets.length}</span>
-            </div>
+            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center gap-2">
+              <Icon name="Clock" size={16} />
+              В работе
+            </h3>
           </div>
           {inProgressTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
@@ -163,13 +157,10 @@ export default function TicketManagement({
 
         <div className="space-y-3">
           <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center gap-2">
-                <Icon name="CheckCircle" size={16} />
-                Решено
-              </h3>
-              <span className="text-2xl font-bold text-green-900 dark:text-green-100">{resolvedTickets.length}</span>
-            </div>
+            <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center gap-2">
+              <Icon name="CheckCircle" size={16} />
+              Решено
+            </h3>
           </div>
           {resolvedTickets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground/50">
