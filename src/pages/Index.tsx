@@ -369,6 +369,41 @@ export default function Index() {
 
           <TabsContent value="manage">
             <div className="space-y-4">
+              {user.role === 'director' && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className="border-primary/20 bg-card/95">
+                    <CardHeader className="pb-3">
+                      <CardDescription>Всего тикетов</CardDescription>
+                      <CardTitle className="text-3xl text-primary">{tickets.length}</CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-blue-500/20 bg-card/95">
+                    <CardHeader className="pb-3">
+                      <CardDescription>Открытые</CardDescription>
+                      <CardTitle className="text-3xl text-blue-500">
+                        {tickets.filter(t => t.status === 'open').length}
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-yellow-500/20 bg-card/95">
+                    <CardHeader className="pb-3">
+                      <CardDescription>В работе</CardDescription>
+                      <CardTitle className="text-3xl text-yellow-500">
+                        {tickets.filter(t => t.status === 'in_progress').length}
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-red-500/20 bg-card/95">
+                    <CardHeader className="pb-3">
+                      <CardDescription>Просрочено</CardDescription>
+                      <CardTitle className="text-3xl text-red-500">
+                        {tickets.filter(t => t.deadline && new Date(t.deadline) < new Date() && t.status !== 'closed').length}
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                </div>
+              )}
+
               <Card className="border-primary/20 bg-card/95">
                 <CardHeader>
                   <div className="flex items-center justify-between">
