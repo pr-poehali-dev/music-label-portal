@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Upload track as artist",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "2"
+      },
+      "body": {
+        "title": "My Track",
+        "file_url": "https://example.com/track.mp3",
+        "file_name": "track.mp3",
+        "file_size": 5242880,
+        "description": "Test track",
+        "genre": "Pop"
+      },
+      "expectedStatus": 201,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get tracks list",
+      "method": "GET",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
