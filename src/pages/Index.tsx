@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { collectStatsIfNeeded } from '@/utils/statsScheduler';
 import LoginForm from '@/components/LoginForm';
 import TicketCard from '@/components/TicketCard';
 import CreateTicketForm from '@/components/CreateTicketForm';
@@ -14,6 +15,7 @@ import ReminderSetup from '@/components/ReminderSetup';
 import SocialLinksForm from '@/components/SocialLinksForm';
 import ArtistDashboard from '@/components/ArtistDashboard';
 import UserBlockingPanel from '@/components/UserBlockingPanel';
+import StatsCollector from '@/components/StatsCollector';
 
 interface User {
   id: number;
@@ -61,6 +63,12 @@ export default function Index() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist' });
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user && user.role === 'director') {
+      collectStatsIfNeeded();
+    }
+  }, [user]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -322,7 +330,7 @@ export default function Index() {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue={user.role === 'artist' ? 'stats' : 'manage'} className="w-full">
-          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-5' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
+          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-6' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
             {user.role === 'artist' && (
               <>
                 <TabsTrigger value="stats">
@@ -352,6 +360,10 @@ export default function Index() {
                 <TabsTrigger value="reminders">
                   <Icon name="Bell" size={16} className="mr-2" />
                   Напоминания
+                </TabsTrigger>
+                <TabsTrigger value="stats">
+                  <Icon name="Download" size={16} className="mr-2" />
+                  Автосбор
                 </TabsTrigger>
               </>
             )}
@@ -452,6 +464,10 @@ export default function Index() {
 
               <TabsContent value="reminders">
                 <ReminderSetup />
+              </TabsContent>
+
+              <TabsContent value="stats">
+                <StatsCollector />
               </TabsContent>
             </>
           )}

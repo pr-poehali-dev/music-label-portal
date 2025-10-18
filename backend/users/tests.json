@@ -11,18 +11,12 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Create new user",
+      "name": "Collect artist stats",
       "method": "POST",
-      "path": "/",
-      "body": {
-        "username": "test_artist",
-        "full_name": "Test Artist",
-        "role": "artist"
-      },
-      "expectedStatus": 201,
+      "path": "/?action=collect_stats",
+      "expectedStatus": 200,
       "expectedBody": {
-        "id": "number",
-        "message": "string"
+        "success": true
       },
       "bodyMatcher": "partial"
     }
