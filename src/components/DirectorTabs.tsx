@@ -85,12 +85,12 @@ export default function DirectorTabs({
   onUpdateUser
 }: DirectorTabsProps) {
   return (
-    <Tabs defaultValue="submissions" className="w-full">
+    <Tabs defaultValue="analytics" className="w-full">
       <div className="w-full overflow-x-auto pb-2">
         <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
-          <TabsTrigger value="tasks">✅ Задачи</TabsTrigger>
           <TabsTrigger value="analytics">📊 Аналитика</TabsTrigger>
+          <TabsTrigger value="tasks">✅ Задачи</TabsTrigger>
+          <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
           <TabsTrigger value="team">👥 Команда</TabsTrigger>
           <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
           <TabsTrigger value="settings">⚙️ Настройки</TabsTrigger>
