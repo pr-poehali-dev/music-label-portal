@@ -1,8 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import TicketCard from '@/components/TicketCard';
 import { useToast } from '@/hooks/use-toast';
@@ -72,21 +68,11 @@ export default function TicketManagement({
   onDeleteTicket
 }: TicketManagementProps) {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'resolved'>('open');
 
   useEffect(() => {
     onLoadTickets();
   }, []);
-
-  const getTicketStats = () => {
-    return {
-      total: tickets.length,
-      open: tickets.filter(t => t.status === 'open').length,
-      inProgress: tickets.filter(t => t.status === 'in_progress').length,
-      resolved: tickets.filter(t => t.status === 'resolved').length
-    };
-  };
-
-  const stats = getTicketStats();
 
   const sortByDate = (a: Ticket, b: Ticket) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -94,17 +80,50 @@ export default function TicketManagement({
   const openTickets = tickets.filter(t => t.status === 'open').sort(sortByDate);
   const inProgressTickets = tickets.filter(t => t.status === 'in_progress').sort(sortByDate);
   const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').sort(sortByDate);
-  const allTickets = [...openTickets, ...inProgressTickets, ...resolvedTickets];
 
   return (
-    <Tabs defaultValue="open" className="w-full">
-      <TabsList className="mb-4">
-        <TabsTrigger value="open">Открыто ({openTickets.length})</TabsTrigger>
-        <TabsTrigger value="in_progress">В работе ({inProgressTickets.length})</TabsTrigger>
-        <TabsTrigger value="resolved">Выполнено ({resolvedTickets.length})</TabsTrigger>
-      </TabsList>
+    <div className="space-y-6 p-6">
+      <div className="flex items-center gap-3">
+        <Icon name="Ticket" size={32} className="text-primary" />
+        <h1 className="text-3xl font-bold">Заявки</h1>
+      </div>
 
-      <TabsContent value="open" className="space-y-3">
+      {/* Tabs */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveTab('open')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'open'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Открыто ({openTickets.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('in_progress')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'in_progress'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          В работе ({inProgressTickets.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('resolved')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'resolved'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Выполнено ({resolvedTickets.length})
+        </button>
+      </div>
+
+      {/* Open Tab */}
+      {activeTab === 'open' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {openTickets.length === 0 ? (
             <div className="col-span-full text-center py-8 text-muted-foreground/50">
@@ -127,9 +146,10 @@ export default function TicketManagement({
             ))
           )}
         </div>
-      </TabsContent>
+      )}
 
-      <TabsContent value="in_progress" className="space-y-3">
+      {/* In Progress Tab */}
+      {activeTab === 'in_progress' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {inProgressTickets.length === 0 ? (
             <div className="col-span-full text-center py-8 text-muted-foreground/50">
@@ -152,9 +172,10 @@ export default function TicketManagement({
             ))
           )}
         </div>
-      </TabsContent>
+      )}
 
-      <TabsContent value="resolved" className="space-y-3">
+      {/* Resolved Tab */}
+      {activeTab === 'resolved' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {resolvedTickets.length === 0 ? (
             <div className="col-span-full text-center py-8 text-muted-foreground/50">
@@ -177,7 +198,7 @@ export default function TicketManagement({
             ))
           )}
         </div>
-      </TabsContent>
-    </Tabs>
+      )}
+    </div>
   );
 }
