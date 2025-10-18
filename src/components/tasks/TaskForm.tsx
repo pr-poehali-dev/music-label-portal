@@ -192,7 +192,7 @@ export default function TaskForm({
                                 {taskCount.active}
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent side="top" className="text-xs">
                               <p>Активных задач (не завершённые)</p>
                             </TooltipContent>
                           </Tooltip>
@@ -203,7 +203,7 @@ export default function TaskForm({
                                 {taskCount.total}
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent side="top" className="text-xs">
                               <p>Всего задач за всё время</p>
                             </TooltipContent>
                           </Tooltip>
