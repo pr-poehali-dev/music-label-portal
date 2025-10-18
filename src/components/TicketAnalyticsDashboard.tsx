@@ -92,65 +92,65 @@ export default function TicketAnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-3 md:p-6">
       <div className="flex items-center gap-3">
-        <Icon name="TicketCheck" size={32} className="text-primary" />
-        <h1 className="text-3xl font-bold">Аналитика тикетов</h1>
+        <Icon name="TicketCheck" size={24} className="text-primary md:w-8 md:h-8" />
+        <h1 className="text-xl md:text-3xl font-bold">Аналитика тикетов</h1>
       </div>
 
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Всего</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Всего</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary.total_tickets}</div>
+              <div className="text-xl md:text-2xl font-bold">{summary.total_tickets}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Открытых</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Открытых</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-500">{summary.open_tickets}</div>
+              <div className="text-xl md:text-2xl font-bold text-orange-500">{summary.open_tickets}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">В работе</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">В работе</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-500">{summary.in_progress_tickets}</div>
+              <div className="text-xl md:text-2xl font-bold text-yellow-500">{summary.in_progress_tickets}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Решено</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Решено</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">{summary.resolved_tickets}</div>
+              <div className="text-xl md:text-2xl font-bold text-green-500">{summary.resolved_tickets}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Срочных</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Срочных</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-500">{summary.urgent_tickets}</div>
+              <div className="text-xl md:text-2xl font-bold text-red-500">{summary.urgent_tickets}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ср. время</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Ср. время</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-500">
+              <div className="text-xl md:text-2xl font-bold text-blue-500">
                 {summary.avg_resolution_hours !== null 
                   ? `${summary.avg_resolution_hours.toFixed(1)}ч` 
                   : '—'}
@@ -185,7 +185,7 @@ export default function TicketAnalyticsDashboard() {
                 </div>
               </div>
 
-              <div className="relative h-64 flex items-end justify-between gap-2 border-b border-border pb-2">
+              <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 overflow-x-auto scrollbar-hide">
                 <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
                   {[maxDaily, Math.floor(maxDaily * 0.75), Math.floor(maxDaily * 0.5), Math.floor(maxDaily * 0.25), 0].map((val, i) => (
                     <div key={i} className="flex items-center">
@@ -227,15 +227,15 @@ export default function TicketAnalyticsDashboard() {
                         </div>
                       </div>
                       
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-xs font-medium text-foreground">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className="text-[10px] md:text-xs font-medium text-foreground">
                           {getDayName(day.date)}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[9px] md:text-xs text-muted-foreground hidden md:block">
                           {formatDate(day.date)}
                         </span>
                         {day.urgent_count > 0 && (
-                          <span className="text-xs bg-red-500/20 text-red-400 px-1 rounded">
+                          <span className="text-[9px] md:text-xs bg-red-500/20 text-red-400 px-1 rounded">
                             🔥{day.urgent_count}
                           </span>
                         )}

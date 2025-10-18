@@ -86,14 +86,32 @@ export default function DirectorTabs({
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="analytics" className="w-full">
-      <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="analytics">📊 Аналитика</TabsTrigger>
-          <TabsTrigger value="tasks">✅ Задачи</TabsTrigger>
-          <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
-          <TabsTrigger value="team">👥 Команда</TabsTrigger>
-          <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
-          <TabsTrigger value="settings">⚙️ Настройки</TabsTrigger>
+      <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+        <TabsList className="grid w-full grid-cols-6 md:grid-cols-6 min-w-[600px] md:min-w-0">
+          <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">📊 Аналитика</span>
+            <span className="md:hidden">📊</span>
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">✅ Задачи</span>
+            <span className="md:hidden">✅</span>
+          </TabsTrigger>
+          <TabsTrigger value="submissions" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">📋 Заявки</span>
+            <span className="md:hidden">📋</span>
+          </TabsTrigger>
+          <TabsTrigger value="team" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">👥 Команда</span>
+            <span className="md:hidden">👥</span>
+          </TabsTrigger>
+          <TabsTrigger value="reports" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">📁 Отчёты</span>
+            <span className="md:hidden">📁</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">⚙️ Настройки</span>
+            <span className="md:hidden">⚙️</span>
+          </TabsTrigger>
         </TabsList>
       </div>
 

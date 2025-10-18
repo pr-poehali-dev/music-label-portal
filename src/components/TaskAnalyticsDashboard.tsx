@@ -207,47 +207,47 @@ export default function TaskAnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-3 md:p-6">
       <div className="flex items-center gap-3 mb-2">
-        <Icon name="BarChart3" size={32} className="text-yellow-400" />
-        <h1 className="text-3xl font-bold">Аналитика задач</h1>
+        <Icon name="BarChart3" size={24} className="text-yellow-400 md:w-8 md:h-8" />
+        <h1 className="text-xl md:text-3xl font-bold">Аналитика задач</h1>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Всего задач</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Всего задач</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalTasks}</div>
+            <div className="text-xl md:text-2xl font-bold">{totalTasks}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Завершено</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Завершено</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">{completedTasks}</div>
-            <p className="text-xs text-muted-foreground mt-1">{completionRate}% от всех</p>
+            <div className="text-xl md:text-2xl font-bold text-green-500">{completedTasks}</div>
+            <p className="text-xs text-muted-foreground mt-1">{completionRate}%</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">В работе</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">В работе</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{inProgressTasks}</div>
+            <div className="text-xl md:text-2xl font-bold text-blue-500">{inProgressTasks}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Просрочено</CardTitle>
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Просрочено</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{overdueTasks}</div>
+            <div className="text-xl md:text-2xl font-bold text-red-500">{overdueTasks}</div>
           </CardContent>
         </Card>
       </div>
@@ -276,7 +276,7 @@ export default function TaskAnalyticsDashboard() {
               </div>
             </div>
 
-            <div className="relative h-64 flex items-end justify-between gap-2 border-b border-border pb-2">
+            <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 overflow-x-auto scrollbar-hide">
               <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
                 {(() => {
                   const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)), 1);
@@ -335,11 +335,11 @@ export default function TaskAnalyticsDashboard() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-xs font-medium text-foreground">
-                        {day.dayOfWeek}
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-[10px] md:text-xs font-medium text-foreground">
+                        {day.dayOfWeek.slice(0, 2)}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[9px] md:text-xs text-muted-foreground hidden md:block">
                         {new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }).replace(' ', '.')}
                       </span>
                     </div>
@@ -361,39 +361,39 @@ export default function TaskAnalyticsDashboard() {
         <CardContent>
           <div className="space-y-3">
             {managerStats.map((manager, index) => (
-              <div key={manager.manager_id} className="border rounded-lg p-4 space-y-3">
+              <div key={manager.manager_id} className="border rounded-lg p-3 md:p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold text-sm">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary/20 text-primary font-bold text-xs md:text-sm">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-semibold">{manager.manager_name}</p>
-                      <p className="text-xs text-muted-foreground">{manager.total_tasks} задач всего</p>
+                      <p className="font-semibold text-sm md:text-base">{manager.manager_name}</p>
+                      <p className="text-xs text-muted-foreground">{manager.total_tasks} задач</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-green-500">{manager.on_time_completion_rate}%</p>
+                    <p className="text-lg md:text-xl font-bold text-green-500">{manager.on_time_completion_rate}%</p>
                     <p className="text-xs text-muted-foreground">в срок</p>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                <div className="grid grid-cols-4 gap-1 md:gap-2 text-center text-xs">
                   <div>
-                    <p className="text-green-500 font-bold text-lg">{manager.completed_tasks}</p>
-                    <p className="text-muted-foreground">Готово</p>
+                    <p className="text-green-500 font-bold text-base md:text-lg">{manager.completed_tasks}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs">Готово</p>
                   </div>
                   <div>
-                    <p className="text-blue-500 font-bold text-lg">{manager.in_progress_tasks}</p>
-                    <p className="text-muted-foreground">В работе</p>
+                    <p className="text-blue-500 font-bold text-base md:text-lg">{manager.in_progress_tasks}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs">В работе</p>
                   </div>
                   <div>
-                    <p className="text-yellow-500 font-bold text-lg">{manager.pending_tasks}</p>
-                    <p className="text-muted-foreground">Ожидают</p>
+                    <p className="text-yellow-500 font-bold text-base md:text-lg">{manager.pending_tasks}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs">Ожидают</p>
                   </div>
                   <div>
-                    <p className="text-red-500 font-bold text-lg">{manager.overdue_tasks}</p>
-                    <p className="text-muted-foreground">Просрочено</p>
+                    <p className="text-red-500 font-bold text-base md:text-lg">{manager.overdue_tasks}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs">Просрочено</p>
                   </div>
                 </div>
                 
