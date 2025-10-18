@@ -128,164 +128,161 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-black to-yellow-900/20 py-8">
-      <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm max-w-7xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-yellow-400 flex items-center gap-2">
-              <Icon name="Music" size={24} />
-              Заявки на прослушивание
-            </CardTitle>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48 bg-black/60 border-yellow-500/30">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все заявки</SelectItem>
-                <SelectItem value="new">Новые</SelectItem>
-                <SelectItem value="reviewing">На рассмотрении</SelectItem>
-                <SelectItem value="approved">Одобренные</SelectItem>
-                <SelectItem value="rejected">Отклонённые</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {submissions.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Icon name="Inbox" size={48} className="mx-auto mb-4 opacity-50" />
-              <p>Заявок не найдено</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              {submissions.map((submission) => (
-                <Card key={submission.id} className="bg-black/60 border-yellow-500/20">
-                  <CardContent className="p-4">
-                    <div className="flex flex-col gap-3">
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <Icon name="User" size={18} className="text-yellow-400" />
-                            <h3 className="font-semibold text-white text-lg">{submission.artist_name}</h3>
-                          </div>
-                          <Badge className={getStatusColor(submission.status)}>
-                            {getStatusText(submission.status)}
-                          </Badge>
-                        </div>
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Icon name="Music" size={32} className="text-primary" />
+          <h1 className="text-3xl font-bold">Заявки на прослушивание</h1>
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Все заявки</SelectItem>
+            <SelectItem value="new">Новые</SelectItem>
+            <SelectItem value="reviewing">На рассмотрении</SelectItem>
+            <SelectItem value="approved">Одобренные</SelectItem>
+            <SelectItem value="rejected">Отклонённые</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-                        <div className="space-y-1 text-sm">
-                          <div className="flex items-center gap-2 text-gray-300">
-                            <Icon name="Music" size={14} className="text-yellow-400" />
-                            <a href={submission.track_link} target="_blank" rel="noopener noreferrer" 
-                               className="hover:text-yellow-400 transition-colors break-all">
-                              {submission.track_link}
-                            </a>
-                          </div>
+      {submissions.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Icon name="Inbox" size={48} className="mx-auto mb-4 opacity-50 text-muted-foreground" />
+            <p className="text-muted-foreground">Заявок не найдено</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {submissions.map((submission) => (
+            <Card key={submission.id}>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="User" size={18} className="text-primary" />
+                        <h3 className="font-semibold text-lg">{submission.artist_name}</h3>
+                      </div>
+                      <Badge className={getStatusColor(submission.status)}>
+                        {getStatusText(submission.status)}
+                      </Badge>
+                    </div>
 
-                          {submission.contact_link && (
-                            <div className="flex items-center gap-2 text-gray-300">
-                              <Icon name="MessageCircle" size={14} className="text-yellow-400" />
-                              <span>{submission.contact_link}</span>
-                            </div>
-                          )}
-
-                          {submission.message && (
-                            <div className="flex items-start gap-2 text-gray-300 mt-2">
-                              <Icon name="FileText" size={14} className="text-yellow-400 mt-1" />
-                              <p className="italic">{submission.message}</p>
-                            </div>
-                          )}
-
-                          {submission.admin_comment && (
-                            <div className="mt-2 p-2 bg-yellow-500/10 rounded border border-yellow-500/20">
-                              <p className="text-xs text-gray-400 mb-1">Комментарий:</p>
-                              <p className="text-sm text-gray-200">{submission.admin_comment}</p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                            <Icon name="Calendar" size={12} />
-                            {new Date(submission.created_at).toLocaleString('ru-RU')}
-                            {submission.reviewed_by_name && (
-                              <>
-                                <span className="mx-1">•</span>
-                                <Icon name="User" size={12} />
-                                Проверил: {submission.reviewed_by_name}
-                              </>
-                            )}
-                          </div>
-                        </div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Music" size={14} className="text-primary" />
+                        <a href={submission.track_link} target="_blank" rel="noopener noreferrer" 
+                           className="hover:text-primary transition-colors break-all text-muted-foreground">
+                          {submission.track_link}
+                        </a>
                       </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="outline" className="w-full border-yellow-500/30 hover:bg-yellow-500/10">
-                            <Icon name="MoreVertical" size={16} className="mr-1" />
-                            Действия
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-black/95 border-yellow-500/30">
-                          <DropdownMenuItem 
-                            onClick={() => openCommentModal(submission)}
-                            className="cursor-pointer hover:bg-blue-500/20 focus:bg-blue-500/20"
-                          >
-                            <Icon name="MessageSquare" size={14} className="mr-2" />
-                            Комментарий
-                          </DropdownMenuItem>
-                          
-                          {submission.status !== 'approved' && (
-                            <DropdownMenuItem 
-                              onClick={() => updateStatus(submission.id, 'approved')}
-                              className="cursor-pointer hover:bg-green-500/20 focus:bg-green-500/20"
-                            >
-                              <Icon name="Check" size={14} className="mr-2" />
-                              Одобрить
-                            </DropdownMenuItem>
-                          )}
-                          
-                          {submission.status !== 'rejected' && (
-                            <DropdownMenuItem 
-                              onClick={() => updateStatus(submission.id, 'rejected')}
-                              className="cursor-pointer hover:bg-red-500/20 focus:bg-red-500/20"
-                            >
-                              <Icon name="X" size={14} className="mr-2" />
-                              Отклонить
-                            </DropdownMenuItem>
-                          )}
-                          
-                          {submission.status === 'new' && (
-                            <DropdownMenuItem 
-                              onClick={() => updateStatus(submission.id, 'reviewing')}
-                              className="cursor-pointer hover:bg-yellow-500/20 focus:bg-yellow-500/20"
-                            >
-                              <Icon name="Eye" size={14} className="mr-2" />
-                              В работу
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {submission.contact_link && (
+                        <div className="flex items-center gap-2">
+                          <Icon name="MessageCircle" size={14} className="text-primary" />
+                          <span className="text-muted-foreground">{submission.contact_link}</span>
+                        </div>
+                      )}
+
+                      {submission.message && (
+                        <div className="flex items-start gap-2 mt-2">
+                          <Icon name="FileText" size={14} className="text-primary mt-1" />
+                          <p className="italic text-muted-foreground">{submission.message}</p>
+                        </div>
+                      )}
+
+                      {submission.admin_comment && (
+                        <div className="mt-2 p-2 bg-primary/10 rounded border border-primary/20">
+                          <p className="text-xs text-muted-foreground mb-1">Комментарий:</p>
+                          <p className="text-sm">{submission.admin_comment}</p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                        <Icon name="Calendar" size={12} />
+                        {new Date(submission.created_at).toLocaleString('ru-RU')}
+                        {submission.reviewed_by_name && (
+                          <>
+                            <span className="mx-1">•</span>
+                            <Icon name="User" size={12} />
+                            Проверил: {submission.reviewed_by_name}
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" className="w-full">
+                        <Icon name="MoreVertical" size={16} className="mr-1" />
+                        Действия
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem 
+                        onClick={() => openCommentModal(submission)}
+                        className="cursor-pointer"
+                      >
+                        <Icon name="MessageSquare" size={14} className="mr-2" />
+                        Комментарий
+                      </DropdownMenuItem>
+                      
+                      {submission.status !== 'approved' && (
+                        <DropdownMenuItem 
+                          onClick={() => updateStatus(submission.id, 'approved')}
+                          className="cursor-pointer"
+                        >
+                          <Icon name="Check" size={14} className="mr-2 text-green-500" />
+                          Одобрить
+                        </DropdownMenuItem>
+                      )}
+                      
+                      {submission.status !== 'rejected' && (
+                        <DropdownMenuItem 
+                          onClick={() => updateStatus(submission.id, 'rejected')}
+                          className="cursor-pointer"
+                        >
+                          <Icon name="X" size={14} className="mr-2 text-red-500" />
+                          Отклонить
+                        </DropdownMenuItem>
+                      )}
+                      
+                      {submission.status === 'new' && (
+                        <DropdownMenuItem 
+                          onClick={() => updateStatus(submission.id, 'reviewing')}
+                          className="cursor-pointer"
+                        >
+                          <Icon name="Eye" size={14} className="mr-2" />
+                          В работу
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {showModal && selectedSubmission && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md bg-card border-yellow-500/30">
+          <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-400">
-                <Icon name="MessageSquare" size={24} />
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="MessageSquare" size={20} />
                 Комментарий к заявке
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="font-semibold text-white mb-2">{selectedSubmission.artist_name}</p>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="font-semibold mb-2">{selectedSubmission.artist_name}</p>
+                <p className="text-sm text-muted-foreground mb-4">
                   {selectedSubmission.track_link}
                 </p>
               </div>
@@ -294,11 +291,11 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                 placeholder="Оставьте комментарий для команды..."
                 value={adminComment}
                 onChange={(e) => setAdminComment(e.target.value)}
-                className="min-h-[120px] bg-black/60 border-yellow-500/30"
+                className="min-h-[120px]"
               />
 
               <div className="flex gap-2">
-                <Button onClick={saveComment} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black">
+                <Button onClick={saveComment} className="flex-1">
                   <Icon name="Save" size={16} className="mr-2" />
                   Сохранить
                 </Button>
