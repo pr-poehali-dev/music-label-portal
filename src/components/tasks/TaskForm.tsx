@@ -5,7 +5,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 
 interface User {
@@ -30,6 +29,7 @@ interface TaskFormProps {
   onSubmit: () => void;
   onToggleManager: (managerId: number) => void;
   getManagerTaskCount?: (managerId: number) => { active: number; total: number };
+  onShowInfo?: (message: string) => void;
 }
 
 const TASK_TEMPLATES = [
@@ -48,7 +48,8 @@ export default function TaskForm({
   onFileChange,
   onSubmit,
   onToggleManager,
-  getManagerTaskCount
+  getManagerTaskCount,
+  onShowInfo
 }: TaskFormProps) {
   const selectAllManagers = () => {
     const allIds = managers.map(m => m.id);
@@ -69,9 +70,8 @@ export default function TaskForm({
   };
 
   return (
-    <TooltipProvider>
-      <Card>
-        <CardContent className="space-y-4 pt-6">
+    <Card>
+      <CardContent className="space-y-4 pt-6">
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-medium">Шаблоны задач</label>
@@ -185,28 +185,22 @@ export default function TaskForm({
                     </div>
                     {taskCount && (
                       <div className="flex gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge variant="secondary" className="text-xs px-1.5 py-0 cursor-help">
-                              <Icon name="Clock" size={10} className="mr-0.5" />
-                              {taskCount.active}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            <p>Активных задач (не завершённые)</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <Badge 
+                          variant="secondary" 
+                          className="text-xs px-1.5 py-0 cursor-help"
+                          onClick={() => onShowInfo?.('Активных задач (не завершённые)')}
+                        >
+                          <Icon name="Clock" size={10} className="mr-0.5" />
+                          {taskCount.active}
+                        </Badge>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge variant="outline" className="text-xs px-1.5 py-0 cursor-help">
-                              {taskCount.total}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            <p>Всего задач за всё время</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs px-1.5 py-0 cursor-help"
+                          onClick={() => onShowInfo?.('Всего задач за всё время')}
+                        >
+                          {taskCount.total}
+                        </Badge>
                       </div>
                     )}
                   </div>
@@ -255,6 +249,5 @@ export default function TaskForm({
         </Button>
       </CardContent>
     </Card>
-    </TooltipProvider>
   );
 }

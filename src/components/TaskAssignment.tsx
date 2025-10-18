@@ -437,6 +437,7 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         onSubmit={createTask}
         onToggleManager={(managerId) => toggleManager(managerId, false)}
         getManagerTaskCount={getManagerTaskCount}
+        onShowInfo={(message) => toast({ description: message })}
       />
       )}
 
