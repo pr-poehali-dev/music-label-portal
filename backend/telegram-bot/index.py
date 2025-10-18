@@ -187,9 +187,10 @@ def show_main_menu(bot_token: str, chat_id: int, user: Optional[Dict]):
     
     if role == 'director':
         keyboard = [
-            [{'text': '➕ Создать тикет', 'callback_data': 'create_ticket'}],
+            [{'text': '➕ Создать задачу', 'callback_data': 'create_task'}],
             [{'text': '📊 Аналитика', 'callback_data': 'analytics_main'}],
-            [{'text': '📋 Тикеты', 'callback_data': 'tickets_list'}, {'text': '👥 Команда', 'callback_data': 'team_stats'}],
+            [{'text': '📋 Тикеты', 'callback_data': 'tickets_list'}, {'text': '✅ Задачи', 'callback_data': 'tasks_list'}],
+            [{'text': '👥 Команда', 'callback_data': 'team_stats'}],
             [{'text': '⚡ Быстрые действия', 'callback_data': 'quick_actions'}],
             [{'text': '📁 Экспорт отчётов', 'callback_data': 'export_menu'}],
             [{'text': '⚙️ Настройки', 'callback_data': 'settings'}]
@@ -197,8 +198,7 @@ def show_main_menu(bot_token: str, chat_id: int, user: Optional[Dict]):
         text = f'👑 Главное меню - {name}\n\nВыберите действие:'
     elif role == 'manager':
         keyboard = [
-            [{'text': '➕ Создать тикет', 'callback_data': 'create_ticket'}],
-            [{'text': '📋 Мои тикеты', 'callback_data': 'my_tickets'}],
+            [{'text': '✅ Мои задачи', 'callback_data': 'my_tasks'}],
             [{'text': '📊 Моя статистика', 'callback_data': 'my_stats'}, {'text': '✍️ Отчёт', 'callback_data': 'report_menu'}],
             [{'text': '⚡ Быстрые действия', 'callback_data': 'quick_actions'}],
             [{'text': '💬 Комментарии', 'callback_data': 'comments_menu'}]
@@ -206,7 +206,8 @@ def show_main_menu(bot_token: str, chat_id: int, user: Optional[Dict]):
         text = f'🎯 Главное меню - {name}\n\nВыберите действие:'
     else:  # artist
         keyboard = [
-            [{'text': '📋 Мои задачи', 'callback_data': 'my_tasks'}],
+            [{'text': '➕ Создать тикет', 'callback_data': 'create_ticket'}],
+            [{'text': '📋 Мои тикеты', 'callback_data': 'my_tickets'}],
             [{'text': '📊 Моя статистика', 'callback_data': 'my_stats'}],
             [{'text': '✍️ Отправить отчёт', 'callback_data': 'submit_report'}]
         ]
@@ -314,6 +315,48 @@ def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -
     elif data.startswith('comment_'):
         ticket_id = int(data.split('_')[1])
         prompt_comment(bot_token, chat_id, ticket_id)
+    
+    # Задачи
+    elif data == 'tasks_list':
+        show_tasks_list(bot_token, chat_id, message_id, user, db_url)
+    elif data == 'my_tasks':
+        show_my_tasks(bot_token, chat_id, message_id, user, db_url)
+    elif data == 'create_task':
+        start_task_creation(bot_token, chat_id, message_id, user, db_url)
+    elif data.startswith('task_'):
+        task_id = int(data.split('_')[1])
+        show_task_details(bot_token, chat_id, message_id, task_id, user, db_url)
+    elif data.startswith('completetask_'):
+        task_id = int(data.split('_')[1])
+        complete_task(bot_token, chat_id, message_id, task_id, user, db_url)
+    elif data.startswith('taskticket_'):
+        ticket_id = int(data.split('_')[1])
+        show_ticket_for_task_creation(bot_token, chat_id, message_id, ticket_id, user, db_url)
+    elif data.startswith('createtask_'):
+        ticket_id = int(data.split('_')[1])
+        start_task_creation_for_ticket(bot_token, chat_id, message_id, ticket_id, user)
+    elif data == 'taskdesc_skip':
+        if chat_id in user_states:
+            user_states[chat_id]['description'] = ''
+            keyboard = [
+                [{'text': '🔥 Срочный', 'callback_data': 'taskpriority_urgent'}],
+                [{'text': '⚠️ Высокий', 'callback_data': 'taskpriority_high'}],
+                [{'text': '📌 Средний', 'callback_data': 'taskpriority_medium'}],
+                [{'text': '📋 Низкий', 'callback_data': 'taskpriority_low'}]
+            ]
+            edit_message(bot_token, chat_id, message_id, '⚡ Выберите приоритет:', keyboard)
+    elif data.startswith('taskpriority_'):
+        priority = data.split('_')[1]
+        set_task_priority_in_creation(bot_token, chat_id, message_id, priority, user, db_url)
+    elif data.startswith('taskdeadline_'):
+        days = data.split('_')[1]
+        set_task_deadline_in_creation(bot_token, chat_id, message_id, days, user, db_url)
+    elif data.startswith('taskassign_'):
+        if data == 'taskassign_skip':
+            finalize_task_creation(bot_token, chat_id, message_id, None, user, db_url)
+        else:
+            manager_id = int(data.split('_')[1])
+            finalize_task_creation(bot_token, chat_id, message_id, manager_id, user, db_url)
     
     return {'statusCode': 200, 'body': ''}
 
@@ -546,6 +589,15 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
     """, (ticket_id,))
     
     ticket = cur.fetchone()
+    
+    cur.execute("""
+        SELECT COUNT(*) as total,
+               SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+        FROM tasks
+        WHERE ticket_id = %s
+    """, (ticket_id,))
+    tasks_stats = cur.fetchone()
+    
     cur.close()
     release_db_connection(conn)
     
@@ -582,6 +634,11 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
         else:
             time_spent_text = f'\n⏱ <b>Время выполнения:</b> {minutes}м'
     
+    tasks_text = ''
+    if tasks_stats and tasks_stats[0] > 0:
+        total_tasks, completed_tasks = tasks_stats
+        tasks_text = f'\n\n✅ <b>Задачи:</b> {completed_tasks}/{total_tasks} выполнено'
+    
     text = (
         f'🎫 <b>Тикет #{ticket_id}</b>\n\n'
         f'📝 <b>Название:</b> {title}\n'
@@ -590,12 +647,23 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
         f'{status_emoji.get(status, "📌")} <b>Статус:</b> {status}\n'
         f'⏰ <b>Дедлайн:</b> {deadline_text}{time_spent_text}\n\n'
         f'👤 <b>Создал:</b> {creator}\n'
-        f'👨‍💼 <b>Назначен:</b> {assignee or "Не назначен"}'
+        f'👨‍💼 <b>Назначен:</b> {assignee or "Не назначен"}{tasks_text}'
     )
     
     keyboard = []
     
-    if user['role'] in ['director', 'manager']:
+    if user['role'] == 'director':
+        keyboard.append([
+            {'text': '➕ Создать задачу', 'callback_data': f'createtask_{ticket_id}'}
+        ])
+        keyboard.append([
+            {'text': '👤 Назначить', 'callback_data': f'assign_{ticket_id}'},
+            {'text': '⚡ Приоритет', 'callback_data': f'priority_{ticket_id}'}
+        ])
+        keyboard.append([
+            {'text': '✅ Закрыть', 'callback_data': f'close_{ticket_id}'}
+        ])
+    elif user['role'] == 'manager':
         keyboard.append([
             {'text': '👤 Назначить', 'callback_data': f'assign_{ticket_id}'},
             {'text': '⚡ Приоритет', 'callback_data': f'priority_{ticket_id}'}
@@ -604,7 +672,8 @@ def show_ticket_details(bot_token: str, chat_id: int, message_id: int, ticket_id
             {'text': '✅ Закрыть', 'callback_data': f'close_{ticket_id}'}
         ])
     
-    keyboard.append([{'text': '🔙 Назад', 'callback_data': 'tickets_list'}])
+    back_button = 'my_tickets' if user['role'] in ['manager', 'artist'] else 'tickets_list'
+    keyboard.append([{'text': '🔙 Назад', 'callback_data': back_button}])
     
     edit_message(bot_token, chat_id, message_id, text, keyboard)
 
@@ -1094,7 +1163,27 @@ def handle_ticket_creation_step(text: str, chat_id: int, bot_token: str, db_url:
         return
     
     state = user_states[chat_id]
-    step = state['step']
+    action = state.get('action')
+    
+    if action == 'creating_task':
+        if 'title' not in state:
+            state['title'] = text
+            keyboard = [[{'text': '⏭ Пропустить', 'callback_data': 'taskdesc_skip'}]]
+            send_message_with_keyboard(bot_token, chat_id, 
+                                      '✅ Название принято!\n\nВведите описание задачи (или пропустите):', keyboard)
+        elif 'description' not in state:
+            state['description'] = text
+            keyboard = [
+                [{'text': '🔥 Срочный', 'callback_data': 'taskpriority_urgent'}],
+                [{'text': '⚠️ Высокий', 'callback_data': 'taskpriority_high'}],
+                [{'text': '📌 Средний', 'callback_data': 'taskpriority_medium'}],
+                [{'text': '📋 Низкий', 'callback_data': 'taskpriority_low'}]
+            ]
+            send_message_with_keyboard(bot_token, chat_id, 
+                                      '✅ Описание принято!\n\n⚡ Выберите приоритет:', keyboard)
+        return
+    
+    step = state.get('step')
     
     if step == 'title':
         state['data']['title'] = text
@@ -1214,6 +1303,355 @@ def finalize_ticket_creation(bot_token: str, chat_id: int, message_id: int, mana
                 f'✅ <b>Тикет #{ticket_id} создан!</b>\n\n'
                 f'📌 <b>{data["title"]}</b>\n'
                 f'📄 {data["description"]}\n'
+                f'{priority_emoji.get(priority, "📌")} Приоритет: {priority}\n'
+                f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y")}{assigned_text}')
+    
+    show_main_menu(bot_token, chat_id, user)
+
+def show_tasks_list(bot_token: str, chat_id: int, message_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT t.id, t.title, t.status, t.priority, t.deadline, u.full_name, tk.id, tk.title
+        FROM tasks t
+        LEFT JOIN users u ON t.assigned_to = u.id
+        LEFT JOIN tickets tk ON t.ticket_id = tk.id
+        ORDER BY t.created_at DESC
+        LIMIT 20
+    """)
+    tasks = cur.fetchall()
+    cur.close()
+    release_db_connection(conn)
+    
+    if not tasks:
+        keyboard = [[{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}]]
+        edit_message(bot_token, chat_id, message_id, '📋 Задач пока нет', keyboard)
+        return
+    
+    text = '📋 <b>Все задачи:</b>\n\n'
+    keyboard = []
+    
+    status_emoji = {'open': '⬜', 'in_progress': '⏳', 'completed': '✅'}
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    
+    for task in tasks:
+        task_id, title, status, priority, deadline, assignee, ticket_id, ticket_title = task
+        status_icon = status_emoji.get(status, '⬜')
+        priority_icon = priority_emoji.get(priority, '📌')
+        
+        ticket_info = f' → Тикет #{ticket_id}' if ticket_id else ''
+        assignee_text = f' | {assignee}' if assignee else ''
+        
+        text += f'{status_icon} {priority_icon} <b>#{task_id}</b> {title}{assignee_text}{ticket_info}\n'
+        keyboard.append([{'text': f'#{task_id} {title[:30]}', 'callback_data': f'task_{task_id}'}])
+    
+    keyboard.append([{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}])
+    edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def show_my_tasks(bot_token: str, chat_id: int, message_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT t.id, t.title, t.status, t.priority, t.deadline, tk.id, tk.title
+        FROM tasks t
+        LEFT JOIN tickets tk ON t.ticket_id = tk.id
+        WHERE t.assigned_to = %s
+        ORDER BY 
+            CASE WHEN t.status = 'completed' THEN 2 ELSE 1 END,
+            t.deadline ASC NULLS LAST,
+            t.created_at DESC
+        LIMIT 20
+    """, (user['id'],))
+    tasks = cur.fetchall()
+    cur.close()
+    release_db_connection(conn)
+    
+    if not tasks:
+        keyboard = [[{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}]]
+        edit_message(bot_token, chat_id, message_id, '✅ У вас пока нет задач', keyboard)
+        return
+    
+    text = f'✅ <b>Мои задачи ({len(tasks)}):</b>\n\n'
+    keyboard = []
+    
+    status_emoji = {'open': '⬜', 'in_progress': '⏳', 'completed': '✅'}
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    
+    for task in tasks:
+        task_id, title, status, priority, deadline, ticket_id, ticket_title = task
+        status_icon = status_emoji.get(status, '⬜')
+        priority_icon = priority_emoji.get(priority, '📌')
+        
+        ticket_info = f' → Тикет #{ticket_id}' if ticket_id else ''
+        deadline_text = f' | {deadline.strftime("%d.%m")}' if deadline else ''
+        
+        text += f'{status_icon} {priority_icon} <b>#{task_id}</b> {title}{deadline_text}{ticket_info}\n'
+        keyboard.append([{'text': f'#{task_id} {title[:30]}', 'callback_data': f'task_{task_id}'}])
+    
+    keyboard.append([{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}])
+    edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def show_task_details(bot_token: str, chat_id: int, message_id: int, task_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT t.title, t.description, t.status, t.priority, t.deadline, 
+               t.created_at, u1.full_name, u2.full_name, tk.id, tk.title
+        FROM tasks t
+        LEFT JOIN users u1 ON t.created_by = u1.id
+        LEFT JOIN users u2 ON t.assigned_to = u2.id
+        LEFT JOIN tickets tk ON t.ticket_id = tk.id
+        WHERE t.id = %s
+    """, (task_id,))
+    task = cur.fetchone()
+    cur.close()
+    release_db_connection(conn)
+    
+    if not task:
+        edit_message(bot_token, chat_id, message_id, '❌ Задача не найдена', 
+                    [[{'text': '🔙 Назад', 'callback_data': 'tasks_list'}]])
+        return
+    
+    title, description, status, priority, deadline, created_at, creator, assignee, ticket_id, ticket_title = task
+    
+    status_emoji = {'open': '⬜ Открыта', 'in_progress': '⏳ В работе', 'completed': '✅ Выполнена'}
+    priority_emoji = {'urgent': '🔥 Срочный', 'high': '⚠️ Высокий', 'medium': '📌 Средний', 'low': '📋 Низкий'}
+    
+    text = f'✅ <b>Задача #{task_id}</b>\n\n'
+    text += f'📌 <b>{title}</b>\n'
+    text += f'📄 {description}\n\n'
+    text += f'{status_emoji.get(status, status)}\n'
+    text += f'{priority_emoji.get(priority, priority)}\n'
+    
+    if deadline:
+        text += f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y %H:%M")}\n'
+    
+    if ticket_id:
+        text += f'🎫 Тикет: #{ticket_id} {ticket_title}\n'
+    
+    text += f'\n👤 Создатель: {creator}\n'
+    text += f'👨‍💼 Исполнитель: {assignee or "Не назначен"}\n'
+    text += f'📅 Создано: {created_at.strftime("%d.%m.%Y %H:%M")}'
+    
+    keyboard = []
+    
+    if user['role'] == 'manager' and status != 'completed':
+        keyboard.append([{'text': '✅ Завершить задачу', 'callback_data': f'completetask_{task_id}'}])
+    
+    if ticket_id:
+        keyboard.append([{'text': '🎫 Открыть тикет', 'callback_data': f'ticket_{ticket_id}'}])
+    
+    keyboard.append([{'text': '🔙 К списку задач', 'callback_data': 'my_tasks' if user['role'] == 'manager' else 'tasks_list'}])
+    keyboard.append([{'text': '🏠 Главное меню', 'callback_data': 'main_menu'}])
+    
+    edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def complete_task(bot_token: str, chat_id: int, message_id: int, task_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("UPDATE tasks SET status = 'completed', completed_at = NOW() WHERE id = %s RETURNING ticket_id", (task_id,))
+    result = cur.fetchone()
+    ticket_id = result[0] if result else None
+    
+    if ticket_id:
+        cur.execute("SELECT COUNT(*) FROM tasks WHERE ticket_id = %s AND status != 'completed'", (ticket_id,))
+        remaining_tasks = cur.fetchone()[0]
+        
+        if remaining_tasks == 0:
+            cur.execute("UPDATE tickets SET status = 'closed' WHERE id = %s", (ticket_id,))
+    
+    conn.commit()
+    cur.close()
+    release_db_connection(conn)
+    
+    auto_close_text = f'\n\n🎯 Тикет #{ticket_id} автоматически закрыт (все задачи выполнены)' if ticket_id and remaining_tasks == 0 else ''
+    
+    edit_message(bot_token, chat_id, message_id, 
+                f'✅ Задача #{task_id} выполнена!{auto_close_text}',
+                [[{'text': '🔙 К задачам', 'callback_data': 'my_tasks'}]])
+
+def start_task_creation(bot_token: str, chat_id: int, message_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT id, title, status, priority
+        FROM tickets
+        WHERE status != 'closed'
+        ORDER BY created_at DESC
+        LIMIT 10
+    """)
+    tickets = cur.fetchall()
+    cur.close()
+    release_db_connection(conn)
+    
+    if not tickets:
+        keyboard = [[{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}]]
+        edit_message(bot_token, chat_id, message_id, '❌ Нет открытых тикетов для создания задач', keyboard)
+        return
+    
+    text = '🎫 <b>Выберите тикет для создания задачи:</b>\n\n'
+    keyboard = []
+    
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    status_emoji = {'open': '⬜', 'in_progress': '⏳'}
+    
+    for ticket in tickets:
+        ticket_id, title, status, priority = ticket
+        text += f'{status_emoji.get(status, "⬜")} {priority_emoji.get(priority, "📌")} <b>#{ticket_id}</b> {title}\n'
+        keyboard.append([{'text': f'#{ticket_id} {title[:30]}', 'callback_data': f'taskticket_{ticket_id}'}])
+    
+    keyboard.append([{'text': '🔙 Главное меню', 'callback_data': 'main_menu'}])
+    edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def show_ticket_for_task_creation(bot_token: str, chat_id: int, message_id: int, ticket_id: int, user: Dict, db_url: str):
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("SELECT title, description FROM tickets WHERE id = %s", (ticket_id,))
+    ticket = cur.fetchone()
+    
+    cur.execute("""
+        SELECT id, title, status 
+        FROM tasks 
+        WHERE ticket_id = %s
+        ORDER BY created_at DESC
+    """, (ticket_id,))
+    existing_tasks = cur.fetchall()
+    
+    cur.close()
+    release_db_connection(conn)
+    
+    if not ticket:
+        edit_message(bot_token, chat_id, message_id, '❌ Тикет не найден', 
+                    [[{'text': '🔙 Назад', 'callback_data': 'create_task'}]])
+        return
+    
+    title, description = ticket
+    
+    text = f'🎫 <b>Тикет #{ticket_id}</b>\n\n'
+    text += f'📌 <b>{title}</b>\n'
+    text += f'📄 {description}\n\n'
+    
+    if existing_tasks:
+        text += f'<b>Уже созданные задачи ({len(existing_tasks)}):</b>\n'
+        status_emoji = {'open': '⬜', 'in_progress': '⏳', 'completed': '✅'}
+        for task in existing_tasks:
+            task_id, task_title, task_status = task
+            text += f'{status_emoji.get(task_status, "⬜")} #{task_id} {task_title}\n'
+        text += '\n'
+    
+    text += 'Отправьте название новой задачи:'
+    
+    user_states[chat_id] = {'action': 'creating_task', 'ticket_id': ticket_id, 'creator_id': user['id']}
+    
+    keyboard = [
+        [{'text': '🔙 К выбору тикета', 'callback_data': 'create_task'}],
+        [{'text': '🏠 Главное меню', 'callback_data': 'main_menu'}]
+    ]
+    edit_message(bot_token, chat_id, message_id, text, keyboard)
+
+def start_task_creation_for_ticket(bot_token: str, chat_id: int, message_id: int, ticket_id: int, user: Dict):
+    user_states[chat_id] = {'action': 'creating_task', 'ticket_id': ticket_id, 'creator_id': user['id']}
+    
+    keyboard = [[{'text': '🔙 Назад', 'callback_data': f'ticket_{ticket_id}'}]]
+    edit_message(bot_token, chat_id, message_id, 
+                '📝 Отправьте название задачи:', keyboard)
+
+def set_task_priority_in_creation(bot_token: str, chat_id: int, message_id: int, priority: str, user: Dict, db_url: str):
+    if chat_id not in user_states or 'title' not in user_states[chat_id]:
+        return
+    
+    user_states[chat_id]['priority'] = priority
+    
+    keyboard = [
+        [{'text': 'Сегодня', 'callback_data': 'taskdeadline_0'}],
+        [{'text': 'Завтра', 'callback_data': 'taskdeadline_1'}],
+        [{'text': 'Через 3 дня', 'callback_data': 'taskdeadline_3'}],
+        [{'text': 'Через неделю', 'callback_data': 'taskdeadline_7'}]
+    ]
+    
+    edit_message(bot_token, chat_id, message_id, 
+                '⏰ Выберите дедлайн задачи:', keyboard)
+
+def set_task_deadline_in_creation(bot_token: str, chat_id: int, message_id: int, days: str, user: Dict, db_url: str):
+    if chat_id not in user_states or 'priority' not in user_states[chat_id]:
+        return
+    
+    user_states[chat_id]['deadline_days'] = int(days)
+    
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    cur.execute("SELECT id, full_name FROM users WHERE role = 'manager'")
+    managers = cur.fetchall()
+    cur.close()
+    release_db_connection(conn)
+    
+    keyboard = []
+    for manager in managers:
+        keyboard.append([{'text': manager[1], 'callback_data': f'taskassign_{manager[0]}'}])
+    
+    keyboard.append([{'text': '⏭ Без назначения', 'callback_data': 'taskassign_skip'}])
+    
+    edit_message(bot_token, chat_id, message_id, 
+                '👨‍💼 Назначьте менеджера на задачу:', keyboard)
+
+def finalize_task_creation(bot_token: str, chat_id: int, message_id: int, manager_id: Optional[int], user: Dict, db_url: str):
+    if chat_id not in user_states:
+        return
+    
+    data = user_states[chat_id]
+    ticket_id = data.get('ticket_id')
+    title = data.get('title')
+    description = data.get('description', '')
+    priority = data.get('priority')
+    deadline_days = data.get('deadline_days')
+    creator_id = data.get('creator_id')
+    
+    deadline = datetime.now() + timedelta(days=deadline_days)
+    
+    conn = get_db_connection(db_url)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        INSERT INTO tasks (title, description, priority, status, created_by, assigned_to, deadline, ticket_id, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        RETURNING id
+    """, (title, description, priority, 'open', creator_id, manager_id, deadline, ticket_id))
+    
+    task_id = cur.fetchone()[0]
+    
+    if ticket_id:
+        cur.execute("UPDATE tickets SET status = 'in_progress' WHERE id = %s AND status = 'open'", (ticket_id,))
+    
+    conn.commit()
+    
+    assigned_name = None
+    if manager_id:
+        cur.execute("SELECT full_name, telegram_chat_id FROM users WHERE id = %s", (manager_id,))
+        manager = cur.fetchone()
+        if manager:
+            assigned_name = manager[0]
+            if manager[1]:
+                send_message(bot_token, manager[1], f'🎯 Вам назначена новая задача #{task_id}: {title}')
+    
+    cur.close()
+    release_db_connection(conn)
+    
+    del user_states[chat_id]
+    
+    assigned_text = f'\n👨‍💼 Назначена: {assigned_name}' if assigned_name else '\n⏭ Без назначения'
+    priority_emoji = {'urgent': '🔥', 'high': '⚠️', 'medium': '📌', 'low': '📋'}
+    
+    edit_message(bot_token, chat_id, message_id, 
+                f'✅ <b>Задача #{task_id} создана!</b>\n\n'
+                f'🎫 Тикет #{ticket_id}\n'
+                f'📌 <b>{title}</b>\n'
+                f'📄 {description}\n'
                 f'{priority_emoji.get(priority, "📌")} Приоритет: {priority}\n'
                 f'⏰ Дедлайн: {deadline.strftime("%d.%m.%Y")}{assigned_text}')
     
