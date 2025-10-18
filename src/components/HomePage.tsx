@@ -23,19 +23,37 @@ export default function HomePage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: '✅ Материал отправлен!',
-        description: 'Мы рассмотрим ваш трек и свяжемся с вами в ближайшее время.'
+      const response = await fetch('https://functions.poehali.dev/40a44285-32b8-4e3e-8f8f-b77f16293727', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          artist_name: formData.artistName,
+          track_link: formData.trackLink,
+          contact_link: formData.contactLink,
+          message: formData.message
+        })
       });
 
-      setFormData({
-        artistName: '',
-        trackLink: '',
-        contactLink: '',
-        message: ''
-      });
+      if (response.ok) {
+        toast({
+          title: '✅ Материал отправлен!',
+          description: 'Мы рассмотрим ваш трек и свяжемся с вами в ближайшее время.'
+        });
+
+        setFormData({
+          artistName: '',
+          trackLink: '',
+          contactLink: '',
+          message: ''
+        });
+      } else {
+        const data = await response.json();
+        toast({
+          title: '❌ Ошибка',
+          description: data.error || 'Не удалось отправить материал',
+          variant: 'destructive'
+        });
+      }
     } catch (error) {
       toast({
         title: '❌ Ошибка',

@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Create submission",
+      "method": "POST",
+      "body": {
+        "artist_name": "Test Artist",
+        "track_link": "https://soundcloud.com/test",
+        "contact_link": "@test_artist",
+        "message": "Check out my track"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get all submissions",
+      "method": "GET",
+      "path": "/?status=all",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
