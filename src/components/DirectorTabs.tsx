@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
@@ -14,6 +15,7 @@ import AnalyticsView from '@/components/AnalyticsView';
 import WeeklyReport from '@/components/WeeklyReport';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
+import { useNotifications, requestNotificationPermission } from '@/hooks/useNotifications';
 
 interface User {
   id: number;
@@ -95,6 +97,69 @@ export default function DirectorTabs({
   onDeleteTicket,
   onUpdateUser
 }: DirectorTabsProps) {
+  const [unreadCounts, setUnreadCounts] = useState({
+    tickets: 0,
+    tasks: 0,
+    messages: 0,
+    submissions: 0
+  });
+
+  const loadUnreadCounts = async () => {
+    try {
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+
+      const response = await fetch('https://functions.poehali.dev/87d13cda-05ed-4e45-9232-344fe2c026d7', {
+        headers: {
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCounts(data);
+      }
+    } catch (error) {
+      console.error('Failed to load unread counts:', error);
+    }
+  };
+
+  useEffect(() => {
+    requestNotificationPermission();
+    loadUnreadCounts();
+    const interval = setInterval(loadUnreadCounts, 30000); // Обновляем каждые 30 секунд
+    return () => clearInterval(interval);
+  }, []);
+
+  // Звуковые уведомления
+  useNotifications(unreadCounts);
+
+  const Badge = ({ count }: { count: number }) => {
+    if (count === 0) return null;
+    return (
+      <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+        {count > 99 ? '99+' : count}
+      </span>
+    );
+  };
+
+  // Обёртки для обновления счётчиков после действий
+  const handleUpdateStatus = async (ticketId: number, status: string) => {
+    await onUpdateStatus(ticketId, status);
+    loadUnreadCounts();
+  };
+
+  const handleAssignTicket = async (ticketId: number, managerId: number | null, deadline?: string) => {
+    await onAssignTicket(ticketId, managerId, deadline);
+    loadUnreadCounts();
+  };
+
+  const handleDeleteTicket = async (ticketId: number) => {
+    await onDeleteTicket(ticketId);
+    loadUnreadCounts();
+  };
+
   return (
     <Tabs defaultValue="tickets" className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
@@ -108,16 +173,16 @@ export default function DirectorTabs({
             <span className="md:hidden">📅</span>
           </TabsTrigger>
           <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4">
-            <span className="hidden md:inline">🎫 Тикеты</span>
-            <span className="md:hidden">🎫</span>
+            <span className="hidden md:inline">🎫 Тикеты<Badge count={unreadCounts.tickets} /></span>
+            <span className="md:hidden">🎫<Badge count={unreadCounts.tickets} /></span>
           </TabsTrigger>
           <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-4">
-            <span className="hidden md:inline">✅ Задачи</span>
-            <span className="md:hidden">✅</span>
+            <span className="hidden md:inline">✅ Задачи<Badge count={unreadCounts.tasks} /></span>
+            <span className="md:hidden">✅<Badge count={unreadCounts.tasks} /></span>
           </TabsTrigger>
           <TabsTrigger value="submissions" className="text-xs md:text-sm px-2 md:px-4">
-            <span className="hidden md:inline">📋 Заявки</span>
-            <span className="md:hidden">📋</span>
+            <span className="hidden md:inline">📋 Заявки<Badge count={unreadCounts.submissions} /></span>
+            <span className="md:hidden">📋<Badge count={unreadCounts.submissions} /></span>
           </TabsTrigger>
           <TabsTrigger value="team" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">👥 Команда</span>
@@ -141,10 +206,10 @@ export default function DirectorTabs({
           managers={managers}
           statusFilter={statusFilter}
           onStatusFilterChange={onStatusFilterChange}
-          onUpdateStatus={onUpdateStatus}
-          onAssignTicket={onAssignTicket}
+          onUpdateStatus={handleUpdateStatus}
+          onAssignTicket={handleAssignTicket}
           onLoadTickets={onLoadTickets}
-          onDeleteTicket={onDeleteTicket}
+          onDeleteTicket={handleDeleteTicket}
         />
       </TabsContent>
 
