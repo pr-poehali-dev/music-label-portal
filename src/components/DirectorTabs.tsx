@@ -87,17 +87,13 @@ export default function DirectorTabs({
   return (
     <Tabs defaultValue="submissions" className="w-full">
       <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-10 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
-          <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Заявки</TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Задачи</TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Аналитика</TabsTrigger>
-          <TabsTrigger value="manage" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Управление</TabsTrigger>
-          <TabsTrigger value="create" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Пользователи</TabsTrigger>
-          <TabsTrigger value="reminders" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Напоминания</TabsTrigger>
-          <TabsTrigger value="collector" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Автосбор</TabsTrigger>
-          <TabsTrigger value="monitoring" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Мониторинг</TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Отчёты</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
+          <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📋 Заявки</TabsTrigger>
+          <TabsTrigger value="tasks" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">✅ Задачи</TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📊 Аналитика</TabsTrigger>
+          <TabsTrigger value="team" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">👥 Команда</TabsTrigger>
+          <TabsTrigger value="reports" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📁 Отчёты</TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">⚙️ Настройки</TabsTrigger>
         </TabsList>
       </div>
 
@@ -106,7 +102,39 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="tasks">
-        <TaskAssignment managers={managers} directorId={user.id} />
+        <Tabs defaultValue="assignment" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="assignment">Назначение задач</TabsTrigger>
+            <TabsTrigger value="tickets">Тикеты техподдержки</TabsTrigger>
+            <TabsTrigger value="create">Создать тикет</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="assignment">
+            <TaskAssignment managers={managers} directorId={user.id} />
+          </TabsContent>
+          
+          <TabsContent value="tickets">
+            <TicketManagement
+              user={user}
+              tickets={tickets}
+              managers={managers}
+              statusFilter={statusFilter}
+              onStatusFilterChange={onStatusFilterChange}
+              onUpdateStatus={onUpdateStatus}
+              onAssignTicket={onAssignTicket}
+              onLoadTickets={onLoadTickets}
+              onDeleteTicket={onDeleteTicket}
+            />
+          </TabsContent>
+          
+          <TabsContent value="create">
+            <CreateTicketForm
+              newTicket={newTicket}
+              onNewTicketChange={onNewTicketChange}
+              onCreateTicket={onCreateTicket}
+            />
+          </TabsContent>
+        </Tabs>
       </TabsContent>
 
       <TabsContent value="analytics">
@@ -126,52 +154,48 @@ export default function DirectorTabs({
         </Tabs>
       </TabsContent>
 
-      <TabsContent value="create">
-        <CreateTicketForm
-          newTicket={newTicket}
-          onNewTicketChange={onNewTicketChange}
-          onCreateTicket={onCreateTicket}
-        />
-      </TabsContent>
-
-      <TabsContent value="manage">
-        <TicketManagement
-          user={user}
-          tickets={tickets}
-          managers={managers}
-          statusFilter={statusFilter}
-          onStatusFilterChange={onStatusFilterChange}
-          onUpdateStatus={onUpdateStatus}
-          onAssignTicket={onAssignTicket}
-          onLoadTickets={onLoadTickets}
-          onDeleteTicket={onDeleteTicket}
-        />
-      </TabsContent>
-
-      <TabsContent value="users">
-        <UserManagement
-          allUsers={allUsers}
-          newUser={newUser}
-          onNewUserChange={onNewUserChange}
-          onCreateUser={onCreateUser}
-          onUpdateUser={onUpdateUser}
-        />
-      </TabsContent>
-
-      <TabsContent value="reminders">
-        <ReminderSetup />
-      </TabsContent>
-
-      <TabsContent value="collector">
-        <StatsCollector />
-      </TabsContent>
-
-      <TabsContent value="monitoring">
-        <UserActivityMonitor users={allUsers} />
+      <TabsContent value="team">
+        <Tabs defaultValue="users" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="users">Пользователи</TabsTrigger>
+            <TabsTrigger value="monitoring">Мониторинг активности</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="users">
+            <UserManagement
+              allUsers={allUsers}
+              newUser={newUser}
+              onNewUserChange={onNewUserChange}
+              onCreateUser={onCreateUser}
+              onUpdateUser={onUpdateUser}
+            />
+          </TabsContent>
+          
+          <TabsContent value="monitoring">
+            <UserActivityMonitor users={allUsers} />
+          </TabsContent>
+        </Tabs>
       </TabsContent>
 
       <TabsContent value="reports">
-        <ReportsUploader userId={user.id} />
+        <Tabs defaultValue="upload" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="upload">Загрузка отчётов</TabsTrigger>
+            <TabsTrigger value="collector">Автосбор статистики</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upload">
+            <ReportsUploader userId={user.id} />
+          </TabsContent>
+          
+          <TabsContent value="collector">
+            <StatsCollector />
+          </TabsContent>
+        </Tabs>
+      </TabsContent>
+
+      <TabsContent value="settings">
+        <ReminderSetup />
       </TabsContent>
     </Tabs>
   );
