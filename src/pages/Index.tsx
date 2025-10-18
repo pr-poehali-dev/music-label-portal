@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { collectStatsIfNeeded } from '@/utils/statsScheduler';
+
 import { logActivity } from '@/utils/activityLogger';
 import LoginForm from '@/components/LoginForm';
 import CreateTicketForm from '@/components/CreateTicketForm';
@@ -66,12 +66,7 @@ export default function Index() {
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist', revenue_share_percent: 50 });
   const { toast } = useToast();
 
-  // Отключили автосбор статистики - теперь только вручную через кнопку
-  // useEffect(() => {
-  //   if (user && user.role === 'director') {
-  //     collectStatsIfNeeded();
-  //   }
-  // }, [user]);
+
 
   const login = async (username: string, password: string) => {
     try {
