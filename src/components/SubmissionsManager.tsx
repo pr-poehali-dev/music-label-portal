@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -127,8 +128,8 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
   };
 
   return (
-    <div className="space-y-4">
-      <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black to-yellow-900/20 py-8">
+      <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm max-w-7xl mx-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-yellow-400 flex items-center gap-2">
@@ -216,49 +217,53 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => openCommentModal(submission)}
-                          className="bg-blue-500 hover:bg-blue-600 w-full"
-                        >
-                          <Icon name="MessageSquare" size={14} className="mr-1" />
-                          Комментарий
-                        </Button>
-
-                        {submission.status !== 'approved' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatus(submission.id, 'approved')}
-                            className="bg-green-500 hover:bg-green-600 w-full"
-                          >
-                            <Icon name="Check" size={14} className="mr-1" />
-                            Одобрить
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="outline" className="w-full border-yellow-500/30 hover:bg-yellow-500/10">
+                            <Icon name="MoreVertical" size={16} className="mr-1" />
+                            Действия
                           </Button>
-                        )}
-
-                        {submission.status !== 'rejected' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatus(submission.id, 'rejected')}
-                            className="bg-red-500 hover:bg-red-600 w-full"
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-black/95 border-yellow-500/30">
+                          <DropdownMenuItem 
+                            onClick={() => openCommentModal(submission)}
+                            className="cursor-pointer hover:bg-blue-500/20 focus:bg-blue-500/20"
                           >
-                            <Icon name="X" size={14} className="mr-1" />
-                            Отклонить
-                          </Button>
-                        )}
-
-                        {submission.status === 'new' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatus(submission.id, 'reviewing')}
-                            className="bg-yellow-500 hover:bg-yellow-600 w-full"
-                          >
-                            <Icon name="Eye" size={14} className="mr-1" />
-                            В работу
-                          </Button>
-                        )}
-                      </div>
+                            <Icon name="MessageSquare" size={14} className="mr-2" />
+                            Комментарий
+                          </DropdownMenuItem>
+                          
+                          {submission.status !== 'approved' && (
+                            <DropdownMenuItem 
+                              onClick={() => updateStatus(submission.id, 'approved')}
+                              className="cursor-pointer hover:bg-green-500/20 focus:bg-green-500/20"
+                            >
+                              <Icon name="Check" size={14} className="mr-2" />
+                              Одобрить
+                            </DropdownMenuItem>
+                          )}
+                          
+                          {submission.status !== 'rejected' && (
+                            <DropdownMenuItem 
+                              onClick={() => updateStatus(submission.id, 'rejected')}
+                              className="cursor-pointer hover:bg-red-500/20 focus:bg-red-500/20"
+                            >
+                              <Icon name="X" size={14} className="mr-2" />
+                              Отклонить
+                            </DropdownMenuItem>
+                          )}
+                          
+                          {submission.status === 'new' && (
+                            <DropdownMenuItem 
+                              onClick={() => updateStatus(submission.id, 'reviewing')}
+                              className="cursor-pointer hover:bg-yellow-500/20 focus:bg-yellow-500/20"
+                            >
+                              <Icon name="Eye" size={14} className="mr-2" />
+                              В работу
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </CardContent>
                 </Card>
