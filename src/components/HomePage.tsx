@@ -12,9 +12,8 @@ export default function HomePage() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     artistName: '',
-    email: '',
-    phone: '',
     trackLink: '',
+    contactLink: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,9 +32,8 @@ export default function HomePage() {
 
       setFormData({
         artistName: '',
-        email: '',
-        phone: '',
         trackLink: '',
+        contactLink: '',
         message: ''
       });
     } catch (error) {
@@ -151,32 +149,7 @@ export default function HomePage() {
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
-                    Email *
-                  </label>
-                  <Input
-                    required
-                    type="email"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
-                  />
-                </div>
 
-                <div>
-                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
-                    Телефон
-                  </label>
-                  <Input
-                    type="tel"
-                    placeholder="+7 (999) 123-45-67"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
-                  />
-                </div>
 
                 <div>
                   <label className="text-sm font-medium text-yellow-300 mb-2 block">
@@ -192,6 +165,21 @@ export default function HomePage() {
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     SoundCloud, YouTube, Google Drive и др.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Ссылка для связи
+                  </label>
+                  <Input
+                    placeholder="Telegram, VK, Instagram или email"
+                    value={formData.contactLink}
+                    onChange={(e) => setFormData({ ...formData, contactLink: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    @username, ссылка на профиль или email
                   </p>
                 </div>
 
