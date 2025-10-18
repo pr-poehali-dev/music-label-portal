@@ -187,7 +187,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             INSERT INTO tasks (title, description, priority, status, created_by, assigned_to, deadline, ticket_id, created_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
             RETURNING id
-        """, (title, description, priority, 'in_progress', user_id, assigned_to, deadline, ticket_id))
+        """, (title, description, priority, 'pending', user_id, assigned_to, deadline, ticket_id))
         
         task_id = cur.fetchone()[0]
         
