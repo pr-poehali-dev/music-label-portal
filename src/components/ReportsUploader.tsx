@@ -38,13 +38,19 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
     setUploading(true);
 
     try {
+      toast({
+        title: '⏳ Загрузка файла...',
+        description: 'Обработка может занять до 60 секунд для больших файлов'
+      });
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('uploaded_by', String(userId));
 
       const response = await fetch('https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: AbortSignal.timeout(120000)
       });
 
       if (!response.ok) {
