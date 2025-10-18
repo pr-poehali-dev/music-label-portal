@@ -1,7 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: number;
@@ -26,12 +28,27 @@ interface SocialLink {
 }
 
 export default function HomePage() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [managers, setManagers] = useState<User[]>([]);
   const [artists, setArtists] = useState<User[]>([]);
   const [releases, setReleases] = useState<Release[]>([]);
   const [socials, setSocials] = useState<SocialLink[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      navigate('/app');
+      return;
+    }
+
+    const user = JSON.parse(storedUser);
+    if (user.role !== 'director') {
+      navigate('/app');
+      return;
+    }
+
+    setCurrentUser(user);
     const storedUsers = localStorage.getItem('users');
     if (storedUsers) {
       const users = JSON.parse(storedUsers);
@@ -74,6 +91,15 @@ export default function HomePage() {
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem('user');
+    navigate('/app');
+  };
+
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900">
       <header className="border-b border-white/10 backdrop-blur-sm bg-black/30">
@@ -85,12 +111,19 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">420 SMM</h1>
-                <p className="text-sm text-gray-400">Music Label Portal</p>
+                <p className="text-sm text-gray-400">{currentUser.full_name} • 👑 Руководитель</p>
               </div>
             </div>
-            <a href="/app" className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors">
-              Войти
-            </a>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => navigate('/app')} variant="outline" className="bg-white/10 hover:bg-white/20 border-white/20">
+                <Icon name="LayoutDashboard" size={16} className="mr-2" />
+                Панель управления
+              </Button>
+              <Button onClick={logout} variant="outline" className="bg-white/10 hover:bg-white/20 border-white/20">
+                <Icon name="LogOut" size={16} className="mr-2" />
+                Выйти
+              </Button>
+            </div>
           </div>
         </div>
       </header>

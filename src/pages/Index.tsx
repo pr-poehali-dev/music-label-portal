@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { collectStatsIfNeeded } from '@/utils/statsScheduler';
+import { useNavigate } from 'react-router-dom';
 import LoginForm from '@/components/LoginForm';
 import TicketCard from '@/components/TicketCard';
 import CreateTicketForm from '@/components/CreateTicketForm';
@@ -63,6 +64,7 @@ export default function Index() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist' });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && user.role === 'director') {
@@ -321,10 +323,18 @@ export default function Index() {
               </p>
             </div>
           </div>
-          <Button onClick={logout} variant="outline">
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex items-center gap-3">
+            {user.role === 'director' && (
+              <Button onClick={() => navigate('/')} variant="outline">
+                <Icon name="Home" size={16} className="mr-2" />
+                Дом
+              </Button>
+            )}
+            <Button onClick={logout} variant="outline">
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
       </header>
 
