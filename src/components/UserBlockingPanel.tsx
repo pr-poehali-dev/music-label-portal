@@ -21,14 +21,14 @@ interface User {
 }
 
 interface Props {
-  users: User[];
-  onBlockUser: (userId: number, reason: string, permanent: boolean) => void;
-  onUnblockUser: (userId: number) => void;
-  onFreezeUser: (userId: number, until: Date) => void;
-  onUnfreezeUser: (userId: number) => void;
+  users?: User[];
+  onBlockUser?: (userId: number, reason: string, permanent: boolean) => void;
+  onUnblockUser?: (userId: number) => void;
+  onFreezeUser?: (userId: number, until: Date) => void;
+  onUnfreezeUser?: (userId: number) => void;
 }
 
-export default function UserBlockingPanel({ users, onBlockUser, onUnblockUser, onFreezeUser, onUnfreezeUser }: Props) {
+export default function UserBlockingPanel({ users = [], onBlockUser, onUnblockUser, onFreezeUser, onUnfreezeUser }: Props) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blockReason, setBlockReason] = useState('');
   const [freezeDate, setFreezeDate] = useState('');
@@ -36,7 +36,7 @@ export default function UserBlockingPanel({ users, onBlockUser, onUnblockUser, o
   const [showFreezeModal, setShowFreezeModal] = useState(false);
 
   const handleBlockUser = (permanent: boolean) => {
-    if (selectedUser && blockReason) {
+    if (selectedUser && blockReason && onBlockUser) {
       onBlockUser(selectedUser.id, blockReason, permanent);
       setShowBlockModal(false);
       setBlockReason('');
@@ -45,7 +45,7 @@ export default function UserBlockingPanel({ users, onBlockUser, onUnblockUser, o
   };
 
   const handleFreezeUser = () => {
-    if (selectedUser && freezeDate) {
+    if (selectedUser && freezeDate && onFreezeUser) {
       onFreezeUser(selectedUser.id, new Date(freezeDate));
       setShowFreezeModal(false);
       setFreezeDate('');

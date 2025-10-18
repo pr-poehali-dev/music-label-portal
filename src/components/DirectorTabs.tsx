@@ -127,7 +127,7 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="blocking">
-        <UserBlockingPanel />
+        <UserBlockingPanel users={allUsers} />
       </TabsContent>
 
       <TabsContent value="reminders">
