@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Test PDF export with valid artist",
+      "method": "GET",
+      "path": "/?artist_id=2",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": "boolean",
+        "filename": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

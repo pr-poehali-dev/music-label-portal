@@ -12,6 +12,11 @@ import os
 from typing import Dict, Any, List
 import psycopg2
 from datetime import datetime
+try:
+    import openpyxl
+    EXCEL_AVAILABLE = True
+except ImportError:
+    EXCEL_AVAILABLE = False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -42,10 +47,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Требуется file_content и uploaded_by'})
                 }
             
-            decoded_content = base64.b64decode(file_content).decode('utf-8')
-            
-            csv_reader = csv.DictReader(io.StringIO(decoded_content))
-            rows = list(csv_reader)
+            if file_type == 'xlsx':
+                if not EXCEL_AVAILABLE:
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Поддержка Excel не установлена'})
+                    }
+                
+                decoded_bytes = base64.b64decode(file_content)
+                workbook = openpyxl.load_workbook(io.BytesIO(decoded_bytes))
+                sheet = workbook.active
+                
+                headers = [cell.value for cell in sheet[1]]
+                rows = []
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    row_dict = {headers[i]: row[i] for i in range(len(headers)) if i < len(row)}
+                    rows.append(row_dict)
+            else:
+                decoded_content = base64.b64decode(file_content).decode('utf-8')
+                csv_reader = csv.DictReader(io.StringIO(decoded_content))
+                rows = list(csv_reader)
             
             dsn = os.environ.get('DATABASE_URL')
             if not dsn:
@@ -58,8 +80,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
-            cursor.execute("SELECT id, username, full_name FROM users WHERE role = 'artist'")
-            artists = {row[1]: {'id': row[0], 'full_name': row[2]} for row in cursor.fetchall()}
+            cursor.execute("SELECT id, username, full_name, revenue_share_percent FROM users WHERE role = 'artist'")
+            artists = {row[1]: {'id': row[0], 'full_name': row[2], 'revenue_share_percent': row[3] or 50} for row in cursor.fetchall()}
             
             inserted_count = 0
             skipped_count = 0
@@ -170,13 +192,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if artist_id:
                 cursor.execute("""
-                    SELECT id, period_start, period_end, platform, territory, right_type,
-                           contract_type, usage_type, performer, track_name, album_name,
-                           plays, author_reward_license, author_reward_license_changed, 
-                           total_reward, uploaded_at
-                    FROM artist_reports
-                    WHERE artist_id = %s
-                    ORDER BY period_start DESC, uploaded_at DESC
+                    SELECT ar.id, ar.period_start, ar.period_end, ar.platform, ar.territory, ar.right_type,
+                           ar.contract_type, ar.usage_type, ar.performer, ar.track_name, ar.album_name,
+                           ar.plays, ar.author_reward_license, ar.author_reward_license_changed, 
+                           ar.total_reward, ar.uploaded_at, u.revenue_share_percent
+                    FROM artist_reports ar
+                    LEFT JOIN users u ON ar.artist_id = u.id
+                    WHERE ar.artist_id = %s
+                    ORDER BY ar.period_start DESC, ar.uploaded_at DESC
                 """, (artist_id,))
             else:
                 cursor.execute("""

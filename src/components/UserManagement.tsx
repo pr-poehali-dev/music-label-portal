@@ -19,8 +19,9 @@ interface UserManagementProps {
     username: string;
     full_name: string;
     role: string;
+    revenue_share_percent?: number;
   };
-  onNewUserChange: (user: { username: string; full_name: string; role: string }) => void;
+  onNewUserChange: (user: { username: string; full_name: string; role: string; revenue_share_percent?: number }) => void;
   onCreateUser: () => void;
 }
 
@@ -38,7 +39,7 @@ export default function UserManagement({
           <CardDescription>Добавьте артиста или менеджера в систему</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="new_username">Логин</Label>
               <Input
@@ -70,6 +71,20 @@ export default function UserManagement({
                 </SelectContent>
               </Select>
             </div>
+            {newUser.role === 'artist' && (
+              <div className="space-y-2">
+                <Label htmlFor="revenue_share">% артиста</Label>
+                <Input
+                  id="revenue_share"
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="50"
+                  value={newUser.revenue_share_percent || 50}
+                  onChange={(e) => onNewUserChange({ ...newUser, revenue_share_percent: parseInt(e.target.value) || 50 })}
+                />
+              </div>
+            )}
           </div>
           <Button onClick={onCreateUser} className="w-full bg-secondary hover:bg-secondary/90">
             <Icon name="UserPlus" size={16} className="mr-2" />

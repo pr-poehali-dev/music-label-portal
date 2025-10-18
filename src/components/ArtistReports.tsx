@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
@@ -21,18 +22,21 @@ interface Report {
   author_reward_license: number;
   author_reward_license_changed: number;
   total_reward: number;
+  revenue_share_percent: number;
   uploaded_at: string;
 }
 
 interface ArtistReportsProps {
   userId: number;
+  userName: string;
 }
 
-export default function ArtistReports({ userId }: ArtistReportsProps) {
+export default function ArtistReports({ userId, userName }: ArtistReportsProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
+  const [exporting, setExporting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,6 +72,9 @@ export default function ArtistReports({ userId }: ArtistReportsProps) {
 
   const totalPlays = filteredReports.reduce((sum, r) => sum + r.plays, 0);
   const totalReward = filteredReports.reduce((sum, r) => sum + r.total_reward, 0);
+  const artistShare = filteredReports.length > 0 ? filteredReports[0].revenue_share_percent || 50 : 50;
+  const artistReward = totalReward * (artistShare / 100);
+  const labelReward = totalReward - artistReward;
   const uniqueTracks = new Set(filteredReports.map(r => r.track_name)).size;
 
   if (loading) {
@@ -82,7 +89,7 @@ export default function ArtistReports({ userId }: ArtistReportsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-400">Всего прослушиваний</CardTitle>
@@ -92,12 +99,23 @@ export default function ArtistReports({ userId }: ArtistReportsProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+        <Card className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border-yellow-500/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400">Вознаграждение</CardTitle>
+            <CardTitle className="text-sm text-gray-400">Общее вознаграждение</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{totalReward.toFixed(2)} ₽</div>
+            <div className="text-2xl font-bold text-white">{totalReward.toFixed(2)} ₽</div>
+            <div className="text-xs text-gray-400 mt-1">100% от стриминга</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-400">Ваша доля ({artistShare}%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-400">{artistReward.toFixed(2)} ₽</div>
+            <div className="text-xs text-gray-400 mt-1">Лейбл: {labelReward.toFixed(2)} ₽</div>
           </CardContent>
         </Card>
 
@@ -113,13 +131,66 @@ export default function ArtistReports({ userId }: ArtistReportsProps) {
 
       <Card className="bg-black/40 border-white/10">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Icon name="BarChart3" size={20} />
-            Детализация отчётов
-          </CardTitle>
-          <CardDescription className="text-gray-400">
-            Данные по прослушиваниям и вознаграждениям
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Icon name="BarChart3" size={20} />
+                Детализация отчётов
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Данные по прослушиваниям и вознаграждениям
+              </CardDescription>
+            </div>
+            <Button
+              onClick={async () => {
+                setExporting(true);
+                try {
+                  const params = new URLSearchParams({
+                    artist_id: String(userId),
+                    period: selectedPeriod,
+                    platform: selectedPlatform
+                  });
+                  
+                  const response = await fetch(`https://functions.poehali.dev/033ebc6b-dfd1-4e6e-9307-00440b3e19b1?${params}`);
+                  const data = await response.json();
+                  
+                  if (data.success && data.pdf) {
+                    const linkSource = `data:application/pdf;base64,${data.pdf}`;
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = linkSource;
+                    downloadLink.download = data.filename;
+                    downloadLink.click();
+                    
+                    toast({ title: '✅ PDF сформирован', description: 'Файл загружен' });
+                  } else {
+                    throw new Error(data.error || 'Ошибка генерации PDF');
+                  }
+                } catch (error: any) {
+                  toast({
+                    title: '❌ Ошибка экспорта',
+                    description: error.message,
+                    variant: 'destructive'
+                  });
+                } finally {
+                  setExporting(false);
+                }
+              }}
+              disabled={exporting || filteredReports.length === 0}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            >
+              {exporting ? (
+                <>
+                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                  Формирование...
+                </>
+              ) : (
+                <>
+                  <Icon name="FileDown" size={16} className="mr-2" />
+                  Экспорт в PDF
+                </>
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">

@@ -32,17 +32,32 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
     setUploading(true);
 
     try {
+      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+      
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const content = event.target?.result as string;
-        const base64Content = btoa(unescape(encodeURIComponent(content)));
+        const result = event.target?.result;
+        let base64Content: string;
+        
+        if (isExcel) {
+          const arrayBuffer = result as ArrayBuffer;
+          const bytes = new Uint8Array(arrayBuffer);
+          let binary = '';
+          for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          base64Content = btoa(binary);
+        } else {
+          const content = result as string;
+          base64Content = btoa(unescape(encodeURIComponent(content)));
+        }
 
         const response = await fetch('https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             file_content: base64Content,
-            file_type: 'csv',
+            file_type: isExcel ? 'xlsx' : 'csv',
             uploaded_by: userId
           })
         });
@@ -66,7 +81,11 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
         setUploading(false);
       };
 
-      reader.readAsText(file);
+      if (isExcel) {
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.readAsText(file);
+      }
     } catch (error) {
       toast({
         title: '❌ Ошибка',
@@ -85,19 +104,19 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
           Загрузка отчётов артистов
         </CardTitle>
         <CardDescription className="text-yellow-300/70">
-          Загрузите CSV-файл с данными по стримингу. Система автоматически распределит данные по артистам.
+          Загрузите CSV или Excel файл с данными по стримингу. Система автоматически распределит данные по артистам.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="file-upload" className="text-yellow-100">
-            Выберите CSV файл
+            Выберите CSV или XLSX файл
           </Label>
           <div className="flex gap-2">
             <Input
               id="file-upload"
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls"
               onChange={handleFileChange}
               className="bg-black/20 border-yellow-700/30 text-yellow-100"
             />

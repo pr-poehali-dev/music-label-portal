@@ -56,7 +56,7 @@ export default function Index() {
   const [newTicket, setNewTicket] = useState({ title: '', description: '', priority: 'medium' });
   const [managers, setManagers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist' });
+  const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist', revenue_share_percent: 50 });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -259,7 +259,7 @@ export default function Index() {
             </TabsContent>
 
             <TabsContent value="reports">
-              <ArtistReports userId={user.id} />
+              <ArtistReports userId={user.id} userName={user.full_name} />
             </TabsContent>
 
             <TabsContent value="create">

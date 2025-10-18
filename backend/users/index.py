@@ -154,7 +154,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'GET':
         role_filter = query_params.get('role')
         
-        query = 'SELECT id, username, role, full_name, created_at FROM users WHERE 1=1'
+        query = 'SELECT id, username, role, full_name, revenue_share_percent, created_at FROM users WHERE 1=1'
         params = []
         
         if role_filter:
@@ -182,6 +182,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         username = body_data.get('username')
         full_name = body_data.get('full_name')
         role = body_data.get('role')
+        revenue_share_percent = body_data.get('revenue_share_percent', 50)
         password = body_data.get('password', '12345')
         
         if not all([username, full_name, role]):
@@ -208,9 +209,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         try:
             cur.execute(
-                '''INSERT INTO users (username, password_hash, role, full_name)
-                   VALUES (%s, %s, %s, %s) RETURNING id''',
-                (username, password_hash, role, full_name)
+                '''INSERT INTO users (username, password_hash, role, full_name, revenue_share_percent)
+                   VALUES (%s, %s, %s, %s, %s) RETURNING id''',
+                (username, password_hash, role, full_name, revenue_share_percent)
             )
             user_id = cur.fetchone()['id']
             conn.commit()
