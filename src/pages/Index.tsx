@@ -11,12 +11,25 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import StatsCards from '@/components/StatsCards';
 import UserManagement from '@/components/UserManagement';
 import ReminderSetup from '@/components/ReminderSetup';
+import SocialLinksForm from '@/components/SocialLinksForm';
+import ArtistDashboard from '@/components/ArtistDashboard';
+import UserBlockingPanel from '@/components/UserBlockingPanel';
 
 interface User {
   id: number;
   username: string;
   role: 'artist' | 'manager' | 'director';
   full_name: string;
+  social_links_filled?: boolean;
+  yandex_music_url?: string;
+  vk_group_url?: string;
+  tiktok_url?: string;
+  is_blocked?: boolean;
+  is_frozen?: boolean;
+  frozen_until?: string;
+  blocked_reason?: string;
+  last_ip?: string;
+  device_fingerprint?: string;
 }
 
 interface Ticket {
@@ -224,8 +237,65 @@ export default function Index() {
     return colors[status as keyof typeof colors] || 'bg-gray-600';
   };
 
+  const handleSocialLinksComplete = (links: any) => {
+    if (user) {
+      const updatedUser = { ...user, ...links, social_links_filled: true };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      toast({ title: '✅ Социальные сети сохранены', description: 'Теперь ты можешь отслеживать статистику' });
+    }
+  };
+
+  const handleBlockUser = (userId: number, reason: string, permanent: boolean) => {
+    const updatedUsers = allUsers.map(u => 
+      u.id === userId 
+        ? { ...u, is_blocked: true, blocked_reason: reason, blocked_at: new Date().toISOString() }
+        : u
+    );
+    setAllUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    toast({ title: '🚫 Пользователь заблокирован', description: reason });
+  };
+
+  const handleUnblockUser = (userId: number) => {
+    const updatedUsers = allUsers.map(u => 
+      u.id === userId 
+        ? { ...u, is_blocked: false, blocked_reason: undefined }
+        : u
+    );
+    setAllUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    toast({ title: '✅ Пользователь разблокирован' });
+  };
+
+  const handleFreezeUser = (userId: number, until: Date) => {
+    const updatedUsers = allUsers.map(u => 
+      u.id === userId 
+        ? { ...u, is_frozen: true, frozen_until: until.toISOString() }
+        : u
+    );
+    setAllUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    toast({ title: '❄️ Аккаунт заморожен', description: `До ${until.toLocaleString('ru-RU')}` });
+  };
+
+  const handleUnfreezeUser = (userId: number) => {
+    const updatedUsers = allUsers.map(u => 
+      u.id === userId 
+        ? { ...u, is_frozen: false, frozen_until: undefined }
+        : u
+    );
+    setAllUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    toast({ title: '✅ Аккаунт разморожен' });
+  };
+
   if (!user) {
     return <LoginForm onLogin={login} />;
+  }
+
+  if (user.role === 'artist' && !user.social_links_filled) {
+    return <SocialLinksForm onComplete={handleSocialLinksComplete} />;
   }
 
   return (
@@ -251,13 +321,19 @@ export default function Index() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue={user.role === 'artist' ? 'create' : 'manage'} className="w-full">
-          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-4' : user.role === 'artist' ? 'grid-cols-2' : 'grid-cols-1'} mb-8`}>
+        <Tabs defaultValue={user.role === 'artist' ? 'stats' : 'manage'} className="w-full">
+          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-5' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
             {user.role === 'artist' && (
-              <TabsTrigger value="create">
-                <Icon name="Plus" size={16} className="mr-2" />
-                Создать тикет
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="stats">
+                  <Icon name="BarChart3" size={16} className="mr-2" />
+                  Статистика
+                </TabsTrigger>
+                <TabsTrigger value="create">
+                  <Icon name="Plus" size={16} className="mr-2" />
+                  Создать тикет
+                </TabsTrigger>
+              </>
             )}
             <TabsTrigger value="manage">
               <Icon name="List" size={16} className="mr-2" />
@@ -269,6 +345,10 @@ export default function Index() {
                   <Icon name="Users" size={16} className="mr-2" />
                   Пользователи
                 </TabsTrigger>
+                <TabsTrigger value="blocking">
+                  <Icon name="ShieldAlert" size={16} className="mr-2" />
+                  Блокировки
+                </TabsTrigger>
                 <TabsTrigger value="reminders">
                   <Icon name="Bell" size={16} className="mr-2" />
                   Напоминания
@@ -278,13 +358,19 @@ export default function Index() {
           </TabsList>
 
           {user.role === 'artist' && (
-            <TabsContent value="create">
-              <CreateTicketForm
-                newTicket={newTicket}
-                onTicketChange={setNewTicket}
-                onCreateTicket={createTicket}
-              />
-            </TabsContent>
+            <>
+              <TabsContent value="stats">
+                <ArtistDashboard userId={user.id} />
+              </TabsContent>
+
+              <TabsContent value="create">
+                <CreateTicketForm
+                  newTicket={newTicket}
+                  onTicketChange={setNewTicket}
+                  onCreateTicket={createTicket}
+                />
+              </TabsContent>
+            </>
           )}
 
           <TabsContent value="manage">
@@ -351,6 +437,16 @@ export default function Index() {
                   newUser={newUser}
                   onNewUserChange={setNewUser}
                   onCreateUser={createUser}
+                />
+              </TabsContent>
+
+              <TabsContent value="blocking">
+                <UserBlockingPanel
+                  users={allUsers}
+                  onBlockUser={handleBlockUser}
+                  onUnblockUser={handleUnblockUser}
+                  onFreezeUser={handleFreezeUser}
+                  onUnfreezeUser={handleUnfreezeUser}
                 />
               </TabsContent>
 

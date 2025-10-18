@@ -76,6 +76,7 @@ def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) 
             '📊 /stats - Статистика тикетов\n'
             '📋 /tickets - Список активных тикетов\n'
             '📢 /broadcast - Отправить сообщение артистам\n'
+            '✍️ /report - Отчитаться о прогрессе\n'
             '❓ /help - Помощь\n\n'
             'Пример: /link manager'
         )
@@ -87,6 +88,7 @@ def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) 
             '🔗 <b>/link username</b> - Привязать аккаунт\n'
             '📊 <b>/stats</b> - Статистика по тикетам\n'
             '📋 <b>/tickets</b> - Активные тикеты\n'
+            '✍️ <b>/report</b> - Отчёт по работе (для менеджеров)\n'
             '📢 <b>/broadcast текст</b> - Сообщение артистам\n'
             '✅ <b>/close ticket_id</b> - Закрыть тикет\n'
             '🔄 <b>/status ticket_id</b> - Статус тикета'
@@ -114,6 +116,42 @@ def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) 
                     f'Роль: {role_emoji.get(result[2], "")} {result[2]}')
             else:
                 send_message(bot_token, chat_id, '❌ Пользователь не найден')
+        return {'statusCode': 200, 'body': ''}
+    
+    if text == '/report' and db_url:
+        conn = psycopg2.connect(db_url)
+        cur = conn.cursor()
+        
+        cur.execute("SELECT id, role, full_name FROM users WHERE telegram_chat_id = %s", (str(chat_id),))
+        user = cur.fetchone()
+        
+        if user and user[1] == 'manager':
+            cur.execute(
+                "SELECT id, title, priority, status FROM tickets WHERE assigned_to = %s AND status != 'closed' ORDER BY created_at DESC",
+                (user[0],)
+            )
+            tickets = cur.fetchall()
+            
+            if tickets:
+                msg = '✍️ <b>Выберите тикет для отчёта:</b>\n\n'
+                priority_emoji = {'low': '📋', 'medium': '📌', 'high': '⚠️', 'urgent': '🔥'}
+                keyboard = []
+                
+                for tid, title, priority, status in tickets:
+                    msg += f"{priority_emoji.get(priority, '📌')} #{tid} - {title[:30]}...\n"
+                    keyboard.append([{
+                        'text': f'#{tid} - {title[:25]}',
+                        'callback_data': f'report_{tid}'
+                    }])
+                
+                send_message_with_keyboard(bot_token, chat_id, msg, keyboard)
+            else:
+                send_message(bot_token, chat_id, '📋 У вас нет активных тикетов')
+        else:
+            send_message(bot_token, chat_id, '❌ Команда доступна только менеджерам')
+        
+        cur.close()
+        conn.close()
         return {'statusCode': 200, 'body': ''}
     
     if text == '/stats' and db_url:
@@ -219,68 +257,161 @@ def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) 
             user = cur.fetchone()
             
             if user and user[0] in ['director', 'manager']:
-                cur.execute("UPDATE tickets SET status = 'closed' WHERE id = %s", (ticket_id,))
+                cur.execute("UPDATE tickets SET status = 'closed' WHERE id = %s RETURNING title", (ticket_id,))
+                ticket = cur.fetchone()
                 conn.commit()
-                send_message(bot_token, chat_id, f'✅ Тикет #{ticket_id} закрыт')
+                
+                if ticket:
+                    send_message(bot_token, chat_id, f'✅ Тикет #{ticket_id} "{ticket[0]}" закрыт')
+                else:
+                    send_message(bot_token, chat_id, f'❌ Тикет #{ticket_id} не найден')
+            else:
+                send_message(bot_token, chat_id, '❌ Недостаточно прав')
             
             cur.close()
             conn.close()
         return {'statusCode': 200, 'body': ''}
     
-    if text.startswith('/status ') and db_url:
-        parts = text.split()
-        if len(parts) >= 2:
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': ''
+    }
+
+def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
+    callback = update.get('callback_query', {})
+    chat_id = callback.get('message', {}).get('chat', {}).get('id')
+    callback_id = callback.get('id')
+    data = callback.get('data', '')
+    
+    if not chat_id or not db_url:
+        return {'statusCode': 200, 'body': ''}
+    
+    if data.startswith('report_'):
+        ticket_id = data.replace('report_', '')
+        
+        conn = psycopg2.connect(db_url)
+        cur = conn.cursor()
+        
+        cur.execute("SELECT id FROM users WHERE telegram_chat_id = %s", (str(chat_id),))
+        user = cur.fetchone()
+        
+        if user:
+            msg = (
+                f'✍️ <b>Отчёт по тикету #{ticket_id}</b>\n\n'
+                f'Выберите процент выполнения:'
+            )
+            
+            keyboard = [
+                [
+                    {'text': '25%', 'callback_data': f'progress_{ticket_id}_25'},
+                    {'text': '50%', 'callback_data': f'progress_{ticket_id}_50'},
+                    {'text': '75%', 'callback_data': f'progress_{ticket_id}_75'}
+                ],
+                [
+                    {'text': '100% ✅', 'callback_data': f'progress_{ticket_id}_100'}
+                ]
+            ]
+            
+            send_message_with_keyboard(bot_token, chat_id, msg, keyboard)
+            answer_callback(bot_token, callback_id, 'Выберите прогресс')
+        
+        cur.close()
+        conn.close()
+        return {'statusCode': 200, 'body': ''}
+    
+    if data.startswith('progress_'):
+        parts = data.split('_')
+        if len(parts) == 3:
             ticket_id = parts[1]
+            progress = parts[2]
             
             conn = psycopg2.connect(db_url)
             cur = conn.cursor()
             
-            cur.execute(
-                "SELECT t.title, t.description, t.status, t.priority, u.full_name as creator, m.full_name as assigned "
-                "FROM tickets t "
-                "JOIN users u ON t.created_by = u.id "
-                "LEFT JOIN users m ON t.assigned_to = m.id "
-                "WHERE t.id = %s",
-                (ticket_id,)
-            )
-            ticket = cur.fetchone()
+            cur.execute("SELECT id, full_name FROM users WHERE telegram_chat_id = %s", (str(chat_id),))
+            user = cur.fetchone()
             
-            if ticket:
-                priority_emoji = {'low': '📋', 'medium': '📌', 'high': '⚠️', 'urgent': '🔥'}
-                msg = (
-                    f'{priority_emoji.get(ticket[3], "📌")} <b>Тикет #{ticket_id}</b>\n\n'
-                    f'<b>Тема:</b> {ticket[0]}\n'
-                    f'<b>Описание:</b> {ticket[1]}\n'
-                    f'<b>Статус:</b> {ticket[2]}\n'
-                    f'<b>Приоритет:</b> {ticket[3]}\n'
-                    f'<b>Автор:</b> {ticket[4]}\n'
+            if user:
+                cur.execute(
+                    "SELECT title, assigned_to FROM tickets WHERE id = %s",
+                    (ticket_id,)
                 )
-                if ticket[5]:
-                    msg += f'<b>Назначен:</b> {ticket[5]}'
-                send_message(bot_token, chat_id, msg)
-            else:
-                send_message(bot_token, chat_id, f'❌ Тикет #{ticket_id} не найден')
+                ticket = cur.fetchone()
+                
+                if ticket:
+                    cur.execute(
+                        "SELECT telegram_chat_id FROM users WHERE role = 'director'"
+                    )
+                    directors = cur.fetchall()
+                    
+                    manager_msg = f'✅ Отчёт отправлен руководству!\n\nТикет #{ticket_id}\nПрогресс: {progress}%'
+                    send_message(bot_token, chat_id, manager_msg)
+                    
+                    director_msg = (
+                        f'📋 <b>Отчёт от менеджера</b>\n\n'
+                        f'Менеджер: {user[1]}\n'
+                        f'Тикет: #{ticket_id} - {ticket[0]}\n'
+                        f'Прогресс: {progress}%\n'
+                        f'Время: {datetime.now().strftime("%d.%m.%Y %H:%M")}'
+                    )
+                    
+                    for director in directors:
+                        if director[0]:
+                            send_message(bot_token, director[0], director_msg)
+                    
+                    if progress == '100':
+                        cur.execute(
+                            "UPDATE tickets SET status = 'completed' WHERE id = %s",
+                            (ticket_id,)
+                        )
+                        conn.commit()
+                    
+                    answer_callback(bot_token, callback_id, f'Отчёт {progress}% отправлен')
             
             cur.close()
             conn.close()
-        return {'statusCode': 200, 'body': ''}
     
-    send_message(bot_token, chat_id, 
-        'ℹ️ Используйте /help для списка команд'
-    )
-    
-    return {'statusCode': 200, 'body': ''}
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': ''
+    }
 
 def send_ticket_notification(data: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
-    ticket = data.get('ticket', {})
+    ticket_id = data.get('ticket_id')
+    recipient_role = data.get('recipient_role')
     
-    if not db_url:
-        return {'statusCode': 500, 'body': json.dumps({'error': 'Database not configured'})}
+    if not ticket_id or not db_url:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Missing parameters'})
+        }
     
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
-    cur.execute("SELECT telegram_chat_id FROM users WHERE role = 'director' AND telegram_chat_id IS NOT NULL")
-    directors = cur.fetchall()
+    
+    cur.execute(
+        '''SELECT t.id, t.title, t.priority, t.status, t.description,
+                  u.full_name as creator, m.full_name as manager
+           FROM tickets t
+           JOIN users u ON t.created_by = u.id
+           LEFT JOIN users m ON t.assigned_to = m.id
+           WHERE t.id = %s''',
+        (ticket_id,)
+    )
+    
+    ticket = cur.fetchone()
+    
+    if not ticket:
+        cur.close()
+        conn.close()
+        return {
+            'statusCode': 404,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Ticket not found'})
+        }
     
     priority_emoji = {
         'low': '📋',
@@ -289,158 +420,99 @@ def send_ticket_notification(data: Dict[str, Any], bot_token: str, db_url: str) 
         'urgent': '🔥'
     }
     
-    message_text = (
-        f"{priority_emoji.get(ticket.get('priority', 'medium'), '📌')} <b>Новый тикет #{ticket.get('id')}</b>\n\n"
-        f"<b>Тема:</b> {ticket.get('title')}\n"
-        f"<b>Описание:</b> {ticket.get('description')}\n"
-        f"<b>Приоритет:</b> {ticket.get('priority')}\n"
-        f"<b>Автор:</b> {ticket.get('creator_name')}\n\n"
-        f"Выберите менеджера для назначения:"
+    message = (
+        f"{priority_emoji.get(ticket[2], '📌')} <b>Новый тикет #{ticket[0]}</b>\n\n"
+        f"<b>Название:</b> {ticket[1]}\n"
+        f"<b>Приоритет:</b> {ticket[2]}\n"
+        f"<b>От:</b> {ticket[5]}\n"
     )
     
-    cur.execute("SELECT username, full_name FROM users WHERE role = 'manager' ORDER BY full_name")
-    managers = cur.fetchall()
+    if ticket[6]:
+        message += f"<b>Исполнитель:</b> {ticket[6]}\n"
+    
+    if ticket[4]:
+        message += f"\n{ticket[4]}"
+    
+    cur.execute(
+        "SELECT telegram_chat_id FROM users WHERE role = %s AND telegram_chat_id IS NOT NULL",
+        (recipient_role,)
+    )
+    
+    recipients = cur.fetchall()
+    sent_count = 0
+    
+    for recipient in recipients:
+        try:
+            send_message(bot_token, recipient[0], message)
+            sent_count += 1
+        except:
+            pass
+    
     cur.close()
     conn.close()
-    
-    for director in directors:
-        chat_id = director[0]
-        send_message_with_buttons(bot_token, chat_id, message_text, ticket.get('id'), managers)
     
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'status': 'sent', 'recipients': len(directors)})
+        'body': json.dumps({'sent': sent_count})
     }
 
-def send_message(bot_token: str, chat_id: int, text: str):
+def set_webhook(bot_token: str, webhook_url: str) -> Dict[str, Any]:
+    try:
+        url = f'https://api.telegram.org/bot{bot_token}/setWebhook'
+        payload = {'url': webhook_url}
+        
+        data = json.dumps(payload).encode('utf-8')
+        req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
+        response = request.urlopen(req, timeout=10)
+        result = json.loads(response.read().decode('utf-8'))
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps(result)
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)})
+        }
+
+def send_message(bot_token: str, chat_id: str, text: str):
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-    data = parse.urlencode({
+    payload = {
         'chat_id': chat_id,
         'text': text,
         'parse_mode': 'HTML'
-    }).encode()
+    }
     
-    req = request.Request(url, data=data, method='POST')
-    request.urlopen(req)
+    data = json.dumps(payload).encode('utf-8')
+    req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
+    request.urlopen(req, timeout=5)
 
-def send_message_with_buttons(bot_token: str, chat_id: int, text: str, ticket_id: int, managers: list):
+def send_message_with_keyboard(bot_token: str, chat_id: str, text: str, keyboard: list):
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-    
-    keyboard = []
-    for username, full_name in managers:
-        keyboard.append([{
-            'text': f'👤 {full_name}',
-            'callback_data': f'assign_{ticket_id}_{username}'
-        }])
-    
-    keyboard.append([
-        {'text': '⏰ 1 день', 'callback_data': f'deadline_{ticket_id}_1'},
-        {'text': '⏰ 3 дня', 'callback_data': f'deadline_{ticket_id}_3'},
-        {'text': '⏰ 7 дней', 'callback_data': f'deadline_{ticket_id}_7'}
-    ])
-    
     payload = {
         'chat_id': chat_id,
         'text': text,
         'parse_mode': 'HTML',
-        'reply_markup': json.dumps({'inline_keyboard': keyboard})
+        'reply_markup': {
+            'inline_keyboard': keyboard
+        }
     }
     
     data = json.dumps(payload).encode('utf-8')
     req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
-    request.urlopen(req)
+    request.urlopen(req, timeout=5)
 
-def handle_callback_query(update: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
-    callback_query = update.get('callback_query', {})
-    callback_data = callback_query.get('data', '')
-    chat_id = callback_query.get('message', {}).get('chat', {}).get('id')
-    message_id = callback_query.get('message', {}).get('message_id')
-    
-    if callback_data.startswith('assign_'):
-        parts = callback_data.split('_')
-        if len(parts) >= 3:
-            ticket_id = parts[1]
-            manager_username = parts[2]
-            
-            if db_url:
-                conn = psycopg2.connect(db_url)
-                cur = conn.cursor()
-                
-                cur.execute("SELECT id, full_name FROM users WHERE username = %s AND role = 'manager'", (manager_username,))
-                manager = cur.fetchone()
-                
-                if manager:
-                    cur.execute(
-                        "UPDATE tickets SET assigned_to = %s, status = 'in_progress' WHERE id = %s",
-                        (manager[0], ticket_id)
-                    )
-                    conn.commit()
-                    
-                    answer_callback_query(bot_token, callback_query.get('id'), f'✅ Назначено на {manager[1]}')
-                    edit_message(bot_token, chat_id, message_id, 
-                        f'✅ Тикет #{ticket_id} назначен на {manager[1]} (@{manager_username})')
-                else:
-                    answer_callback_query(bot_token, callback_query.get('id'), '❌ Менеджер не найден')
-                
-                cur.close()
-                conn.close()
-    
-    if callback_data.startswith('deadline_'):
-        parts = callback_data.split('_')
-        if len(parts) >= 3:
-            ticket_id = parts[1]
-            days = int(parts[2])
-            
-            if db_url:
-                conn = psycopg2.connect(db_url)
-                cur = conn.cursor()
-                
-                deadline = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')
-                
-                cur.execute("UPDATE tickets SET deadline = %s WHERE id = %s", (deadline, ticket_id))
-                conn.commit()
-                
-                answer_callback_query(bot_token, callback_query.get('id'), f'⏰ Дедлайн установлен: {days} дней')
-                
-                cur.close()
-                conn.close()
-    
-    return {'statusCode': 200, 'body': ''}
-
-def answer_callback_query(bot_token: str, callback_query_id: str, text: str):
+def answer_callback(bot_token: str, callback_id: str, text: str):
     url = f'https://api.telegram.org/bot{bot_token}/answerCallbackQuery'
-    data = parse.urlencode({
-        'callback_query_id': callback_query_id,
-        'text': text
-    }).encode()
-    
-    req = request.Request(url, data=data, method='POST')
-    request.urlopen(req)
-
-def edit_message(bot_token: str, chat_id: int, message_id: int, text: str):
-    url = f'https://api.telegram.org/bot{bot_token}/editMessageText'
     payload = {
-        'chat_id': chat_id,
-        'message_id': message_id,
-        'text': text,
-        'parse_mode': 'HTML'
+        'callback_query_id': callback_id,
+        'text': text
     }
     
     data = json.dumps(payload).encode('utf-8')
     req = request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
-    request.urlopen(req)
-
-def set_webhook(bot_token: str, webhook_url: Optional[str]) -> Dict[str, Any]:
-    url = f'https://api.telegram.org/bot{bot_token}/setWebhook'
-    data = parse.urlencode({'url': webhook_url or ''}).encode()
-    
-    req = request.Request(url, data=data, method='POST')
-    response = request.urlopen(req)
-    result = json.loads(response.read().decode())
-    
-    return {
-        'statusCode': 200,
-        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps(result)
-    }
+    request.urlopen(req, timeout=5)
