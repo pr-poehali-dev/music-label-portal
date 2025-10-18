@@ -24,7 +24,7 @@ export default function CreateTicketForm({ newTicket, onTicketChange, onCreateTi
   return (
     <Card className="border-primary/20 bg-card/95">
       <CardHeader>
-        <CardTitle className="text-primary">Создать новую заявку</CardTitle>
+        <CardTitle className="text-primary">Создать новый тикет</CardTitle>
         <CardDescription>Опишите вашу проблему или запрос</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -90,7 +90,7 @@ export default function CreateTicketForm({ newTicket, onTicketChange, onCreateTi
         </div>
         <Button onClick={onCreateTicket} disabled={uploading} className="w-full bg-secondary hover:bg-secondary/90">
           <Icon name={uploading ? "Loader2" : "Send"} size={16} className={`mr-2 ${uploading ? 'animate-spin' : ''}`} />
-          {uploading ? 'Загрузка...' : 'Отправить заявку'}
+          {uploading ? 'Загрузка...' : 'Отправить тикет'}
         </Button>
       </CardContent>
     </Card>

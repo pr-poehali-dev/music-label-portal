@@ -92,7 +92,7 @@ export default function TicketManagement({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Всего заявок</CardTitle>
+            <CardTitle className="text-sm font-medium">Всего тикетов</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -126,8 +126,8 @@ export default function TicketManagement({
 
       <Card>
         <CardHeader>
-          <CardTitle>Управление заявками</CardTitle>
-          <CardDescription>Просмотр и управление всеми заявками</CardDescription>
+          <CardTitle>Управление тикетами</CardTitle>
+          <CardDescription>Просмотр и управление всеми тикетами</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
@@ -136,7 +136,7 @@ export default function TicketManagement({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Все заявки</SelectItem>
+                <SelectItem value="all">Все тикеты</SelectItem>
                 <SelectItem value="open">Открытые</SelectItem>
                 <SelectItem value="in_progress">В работе</SelectItem>
                 <SelectItem value="resolved">Решённые</SelectItem>
@@ -149,7 +149,7 @@ export default function TicketManagement({
             {tickets.length === 0 ? (
               <div className="col-span-full text-center py-8 text-gray-500">
                 <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
-                <p>Заявок не найдено</p>
+                <p>Тикетов не найдено</p>
               </div>
             ) : (
               tickets.map(ticket => (
