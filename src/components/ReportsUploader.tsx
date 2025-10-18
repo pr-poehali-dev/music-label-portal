@@ -35,7 +35,15 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
       return;
     }
 
-    alert('Начинаю загрузку файла: ' + file.name);
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: '❌ Файл слишком большой',
+        description: 'Максимальный размер файла: 2 MB. Попробуйте разбить файл на части.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setUploading(true);
 
     try {
