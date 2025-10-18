@@ -267,66 +267,88 @@ export default function TaskAnalyticsDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <div className="min-w-max space-y-2">
-              {dailyStats.map(day => {
-                const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)));
-                const createdWidth = maxValue > 0 ? (day.created / maxValue) * 100 : 0;
-                const acceptedWidth = maxValue > 0 ? (day.accepted / maxValue) * 100 : 0;
-                const completedWidth = maxValue > 0 ? (day.completed / maxValue) * 100 : 0;
+          <div className="space-y-6">
+            <div className="flex gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span className="text-gray-400">Создано</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-400">Принято</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="text-gray-400">Завершено</span>
+              </div>
+            </div>
+
+            <div className="relative h-64 flex items-end justify-between gap-2 border-b border-border pb-2">
+              <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
+                {(() => {
+                  const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)), 1);
+                  return [maxValue, Math.floor(maxValue * 0.75), Math.floor(maxValue * 0.5), Math.floor(maxValue * 0.25), 0].map((val, i) => (
+                    <div key={i} className="flex items-center">
+                      <span className="text-xs text-muted-foreground w-8">{val}</span>
+                      <div className="flex-1 border-t border-border/30"></div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              {dailyStats.map((day, idx) => {
+                const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)), 1);
+                const createdHeight = (day.created / maxValue) * 100;
+                const acceptedHeight = (day.accepted / maxValue) * 100;
+                const completedHeight = (day.completed / maxValue) * 100;
                 
                 return (
-                  <div key={day.date} className="space-y-1 hover:bg-yellow-500/5 p-2 rounded transition-colors">
-                    <div className="flex items-center justify-between text-sm gap-4">
-                      <div className="flex items-center gap-2 min-w-[100px]">
-                        <span className="text-gray-400 font-medium">{day.dayOfWeek}</span>
-                        <span className="text-gray-500 text-xs">
-                          {new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
-                        </span>
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-2 relative z-10">
+                    <div className="flex-1 w-full flex items-end justify-center gap-1">
+                      <div className="relative group flex-1 max-w-[16px]">
+                        <div 
+                          className="bg-yellow-500 rounded-t hover:bg-yellow-400 transition-colors cursor-pointer"
+                          style={{ height: `${createdHeight}%`, minHeight: day.created > 0 ? '4px' : '0' }}
+                        />
+                        {day.created > 0 && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                            Создано: {day.created}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex gap-4 text-xs flex-wrap">
-                        <span className="text-yellow-400">
-                          <Icon name="Plus" size={12} className="inline mr-1" />
-                          Создано: {day.created}
-                        </span>
-                        <span className="text-blue-400">
-                          <Icon name="Play" size={12} className="inline mr-1" />
-                          Принято: {day.accepted}
-                        </span>
-                        <span className="text-green-400">
-                          <Icon name="CheckCircle" size={12} className="inline mr-1" />
-                          Завершено: {day.completed}
-                        </span>
+                      
+                      <div className="relative group flex-1 max-w-[16px]">
+                        <div 
+                          className="bg-blue-500 rounded-t hover:bg-blue-400 transition-colors cursor-pointer"
+                          style={{ height: `${acceptedHeight}%`, minHeight: day.accepted > 0 ? '4px' : '0' }}
+                        />
+                        {day.accepted > 0 && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                            Принято: {day.accepted}
+                          </div>
+                        )}
                       </div>
-                      {Object.keys(day.tasks_by_manager).length > 0 && (
-                        <div className="flex gap-2 text-xs text-gray-400">
-                          {Object.entries(day.tasks_by_manager).map(([manager, count]) => (
-                            <span key={manager} className="bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">
-                              {manager}: {count}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      
+                      <div className="relative group flex-1 max-w-[16px]">
+                        <div 
+                          className="bg-green-500 rounded-t hover:bg-green-400 transition-colors cursor-pointer"
+                          style={{ height: `${completedHeight}%`, minHeight: day.completed > 0 ? '4px' : '0' }}
+                        />
+                        {day.completed > 0 && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                            Завершено: {day.completed}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      <div 
-                        className="h-6 bg-yellow-500/30 border border-yellow-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-yellow-100"
-                        style={{ width: `${createdWidth}%`, minWidth: day.created > 0 ? '30px' : '0' }}
-                      >
-                        {day.created > 0 && day.created}
-                      </div>
-                      <div 
-                        className="h-6 bg-blue-500/30 border border-blue-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-blue-100"
-                        style={{ width: `${acceptedWidth}%`, minWidth: day.accepted > 0 ? '30px' : '0' }}
-                      >
-                        {day.accepted > 0 && day.accepted}
-                      </div>
-                      <div 
-                        className="h-6 bg-green-500/30 border border-green-500/50 rounded transition-all flex items-center justify-center text-xs font-bold text-green-100"
-                        style={{ width: `${completedWidth}%`, minWidth: day.completed > 0 ? '30px' : '0' }}
-                      >
-                        {day.completed > 0 && day.completed}
-                      </div>
+                    
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-xs font-medium text-foreground">
+                        {day.dayOfWeek}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }).replace(' ', '.')}
+                      </span>
                     </div>
                   </div>
                 );
