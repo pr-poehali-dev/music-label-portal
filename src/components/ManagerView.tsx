@@ -43,6 +43,7 @@ export default function ManagerView({
           onMessagesClick={() => onMessagesOpenChange(true)}
           onLogout={onLogout}
           userRole="manager"
+          userId={user.id}
         />
 
         <MessagesModal 

@@ -120,6 +120,25 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
       if (response.ok) {
         const count = newTask.assigned_to.length;
         toast({ title: `✅ Задача создана для ${count} ${count === 1 ? 'менеджера' : 'менеджеров'}` });
+        
+        // Отправка уведомлений каждому менеджеру
+        for (const managerId of newTask.assigned_to) {
+          try {
+            await fetch('https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sender_id: directorId,
+                receiver_id: managerId,
+                message: `📋 Новая задача: "${newTask.title}"\n\n${newTask.description}\n\nСрок: ${new Date(newTask.deadline).toLocaleDateString('ru-RU')}\nПриоритет: ${newTask.priority === 'low' ? 'Низкий' : newTask.priority === 'medium' ? 'Средний' : newTask.priority === 'high' ? 'Высокий' : 'Срочный'}`,
+                is_from_boss: true
+              })
+            });
+          } catch (error) {
+            console.error('Failed to send notification:', error);
+          }
+        }
+        
         setNewTask({ title: '', description: '', assigned_to: [], deadline: '', priority: 'medium' });
         setSelectedFile(null);
         loadTasks();

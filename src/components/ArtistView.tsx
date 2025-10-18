@@ -47,6 +47,7 @@ export default function ArtistView({
           onMessagesClick={() => onMessagesOpenChange(true)}
           onLogout={onLogout}
           userRole="artist"
+          userId={user.id}
         />
 
         <MessagesModal 

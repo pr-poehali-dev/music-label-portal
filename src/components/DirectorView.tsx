@@ -57,6 +57,7 @@ export default function DirectorView({
           onMessagesClick={() => onMessagesOpenChange(true)}
           onLogout={onLogout}
           userRole="director"
+          userId={user.id}
         />
 
         <MessagesModal 

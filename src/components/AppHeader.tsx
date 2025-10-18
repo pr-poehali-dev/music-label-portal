@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
@@ -5,9 +6,31 @@ interface AppHeaderProps {
   onMessagesClick: () => void;
   onLogout: () => void;
   userRole: 'artist' | 'manager' | 'director';
+  userId: number;
 }
 
-export default function AppHeader({ onMessagesClick, onLogout, userRole }: AppHeaderProps) {
+export default function AppHeader({ onMessagesClick, onLogout, userRole, userId }: AppHeaderProps) {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 5000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7?user_id=${userId}&list_dialogs=true`);
+      if (response.ok) {
+        const data = await response.json();
+        const total = data.dialogs?.reduce((sum: number, dialog: any) => sum + (dialog.unread_count || 0), 0) || 0;
+        setUnreadCount(total);
+      }
+    } catch (error) {
+      console.error('Failed to load unread count:', error);
+    }
+  };
+
   const getMessagesLabel = () => {
     if (userRole === 'artist') return 'Написать руководителю';
     if (userRole === 'manager') return 'Написать руководителю';
@@ -28,10 +51,15 @@ export default function AppHeader({ onMessagesClick, onLogout, userRole }: AppHe
         <Button
           onClick={onMessagesClick}
           variant="outline"
-          className="flex items-center gap-2"
+          className={`flex items-center gap-2 relative ${unreadCount > 0 ? 'animate-pulse border-red-500' : ''}`}
         >
           <Icon name="MessageSquare" size={18} />
           {getMessagesLabel()}
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </Button>
         <button 
           onClick={onLogout}
