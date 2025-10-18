@@ -145,13 +145,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     elif method == 'POST':
-        if user_role not in ['director']:
+        if user_role not in ['director', 'manager']:
             cur.close()
             conn.close()
             return {
                 'statusCode': 403,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Only directors can create tasks'}),
+                'body': json.dumps({'error': 'Only directors and managers can create tasks'}),
                 'isBase64Encoded': False
             }
         
