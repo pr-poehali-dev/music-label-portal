@@ -218,13 +218,13 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                   <button
                     key={user.user_id}
                     onClick={() => handleUserSelect(user)}
-                    className="w-full p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left"
+                    className="w-full p-4 rounded-lg border border-gray-700 bg-gray-800 hover:bg-gray-700 transition-colors text-left"
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                         user.role === 'manager' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-purple-100 text-purple-700'
+                          ? 'bg-green-600 text-white' 
+                          : 'bg-purple-600 text-white'
                       }`}>
                         <Icon 
                           name={user.role === 'manager' ? 'UserCheck' : 'Music'} 
@@ -233,18 +233,18 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="font-semibold text-base truncate">{user.name}</p>
+                          <p className="font-semibold text-base truncate text-white">{user.name}</p>
                           {user.last_message_time && (
-                            <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                            <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
                               {formatDate(user.last_message_time)}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mb-1">
+                        <p className="text-xs text-gray-400 mb-1">
                           {user.role === 'manager' ? 'Менеджер' : 'Артист'}
                         </p>
                         {user.last_message && (
-                          <p className="text-sm text-gray-600 truncate">{user.last_message}</p>
+                          <p className="text-sm text-gray-300 truncate">{user.last_message}</p>
                         )}
                       </div>
                       {user.unread_count > 0 && (
@@ -267,8 +267,8 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[700px] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="max-w-2xl max-h-[700px] flex flex-col p-0 bg-gray-900 text-white border-gray-700">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-700 bg-gray-800">
           <DialogTitle className="flex items-center gap-2">
             {userRole === 'boss' && (
               <Button
@@ -283,9 +283,9 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
               userRole === 'boss' 
                 ? selectedUser?.role === 'manager' 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-purple-100 text-purple-700'
-                : 'bg-yellow-100 text-yellow-700'
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-purple-600 text-white'
+                : 'bg-yellow-600 text-white'
             }`}>
               <Icon 
                 name={
@@ -297,10 +297,10 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
               />
             </div>
             <div>
-              <p className="font-semibold">
+              <p className="font-semibold text-white">
                 {userRole === 'boss' ? selectedUser?.name : 'Руководитель'}
               </p>
-              <p className="text-xs text-muted-foreground font-normal">
+              <p className="text-xs text-gray-400 font-normal">
                 {userRole === 'boss' 
                   ? selectedUser?.role === 'manager' ? 'Менеджер' : 'Артист'
                   : 'Онлайн'}
@@ -309,13 +309,13 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4 h-[400px]">
+        <ScrollArea className="flex-1 px-6 py-4 h-[400px] bg-gray-900">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Icon name="Loader2" className="animate-spin" size={32} />
             </div>
           ) : messages.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-gray-400">
               <Icon name="MessageCircle" size={48} className="mx-auto mb-3 opacity-30" />
               <p className="text-lg">Начните диалог</p>
               <p className="text-sm">Напишите первое сообщение</p>
@@ -333,8 +333,8 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                       <div
                         className={`rounded-2xl px-4 py-3 ${
                           isMyMessage
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-gray-100 text-gray-900'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-700 text-white'
                         }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
@@ -342,7 +342,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                         </p>
                       </div>
                       <div className={`mt-1 px-2 flex items-center gap-1 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-gray-400">
                           {formatDate(msg.created_at)}
                         </span>
                         {isMyMessage && msg.is_read && (
@@ -357,7 +357,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
           )}
         </ScrollArea>
 
-        <div className="px-6 py-4 border-t bg-gray-50">
+        <div className="px-6 py-4 border-t border-gray-700 bg-gray-800">
           <div className="flex items-end gap-2">
             <Input
               value={newMessage}
@@ -369,7 +369,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                 }
               }}
               placeholder="Введите сообщение..."
-              className="flex-1 bg-white"
+              className="flex-1 bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               disabled={sending}
             />
             <Button 
