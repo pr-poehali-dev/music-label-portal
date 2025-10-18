@@ -52,49 +52,48 @@ export default function TicketCard({
 
   return (
     <Card className={`border-primary/20 bg-card/95 hover:border-primary/40 transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <CardTitle className="text-primary mb-2">{ticket.title}</CardTitle>
-            <CardDescription className="text-foreground/80">{ticket.description}</CardDescription>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Badge className={`${getPriorityColor(ticket.priority)} text-white`}>
-              {ticket.priority === 'urgent' ? '🔥 Срочно' : 
-               ticket.priority === 'high' ? '⚠️ Высокий' :
-               ticket.priority === 'medium' ? '📌 Средний' : '📋 Низкий'}
-            </Badge>
-            <Badge className={`${getStatusColor(ticket.status)} text-white`}>
-              {ticket.status === 'open' ? 'Открыт' :
-               ticket.status === 'in_progress' ? 'В работе' :
-               ticket.status === 'resolved' ? 'Решён' : 'Закрыт'}
-            </Badge>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <CardTitle className="text-primary text-base truncate">{ticket.title}</CardTitle>
+              <div className="flex gap-1 shrink-0">
+                <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-xs px-1.5 py-0`}>
+                  {ticket.priority === 'urgent' ? '🔥' : 
+                   ticket.priority === 'high' ? '⚠️' :
+                   ticket.priority === 'medium' ? '📌' : '📋'}
+                </Badge>
+                <Badge variant="outline" className={`${getStatusColor(ticket.status)} text-white text-xs px-1.5 py-0`}>
+                  {ticket.status === 'open' ? 'Открыт' :
+                   ticket.status === 'in_progress' ? 'В работе' :
+                   ticket.status === 'resolved' ? 'Решён' : 'Закрыт'}
+                </Badge>
+              </div>
+            </div>
+            <CardDescription className="text-foreground/70 text-sm line-clamp-2">{ticket.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="text-muted-foreground">Автор:</span>
-            <p className="font-medium text-foreground">{ticket.creator_name}</p>
+      <CardContent className="space-y-2 pt-0">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Icon name="User" size={12} />
+            <span>{ticket.creator_name}</span>
           </div>
-          <div>
-            <span className="text-muted-foreground">Создан:</span>
-            <p className="font-medium text-foreground">{new Date(ticket.created_at).toLocaleString('ru-RU')}</p>
+          <div className="flex items-center gap-1">
+            <Icon name="Clock" size={12} />
+            <span>{new Date(ticket.created_at).toLocaleDateString('ru-RU')}</span>
           </div>
           {ticket.assigned_name && (
-            <div>
-              <span className="text-muted-foreground">Исполнитель:</span>
-              <p className="font-medium text-foreground">{ticket.assigned_name}</p>
+            <div className="flex items-center gap-1">
+              <Icon name="UserCheck" size={12} />
+              <span>{ticket.assigned_name}</span>
             </div>
           )}
           {ticket.deadline && (
-            <div>
-              <span className="text-muted-foreground">Дедлайн:</span>
-              <p className={`font-medium ${isOverdue ? 'text-red-500' : 'text-foreground'}`}>
-                {new Date(ticket.deadline).toLocaleString('ru-RU')}
-                {isOverdue && ' ⚠️'}
-              </p>
+            <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-medium' : ''}`}>
+              <Icon name="Calendar" size={12} />
+              <span>{new Date(ticket.deadline).toLocaleDateString('ru-RU')}{isOverdue && ' ⚠️'}</span>
             </div>
           )}
         </div>
