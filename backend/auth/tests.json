@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Successful login as manager",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "manager",
+        "password": "12345"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "user": {
+          "username": "string",
+          "role": "string"
+        },
+        "token": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Failed login with invalid credentials",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "invalid",
+        "password": "wrong"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
