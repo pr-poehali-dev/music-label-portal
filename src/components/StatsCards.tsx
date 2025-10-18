@@ -30,7 +30,7 @@ export default function StatsCards({ tickets }: StatsCardsProps) {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card className="border-primary/20 bg-card/95">
         <CardHeader className="pb-3">
-          <CardDescription>Всего тикетов</CardDescription>
+          <CardDescription>Всего заявок</CardDescription>
           <CardTitle className="text-3xl text-primary">{totalTickets}</CardTitle>
         </CardHeader>
       </Card>

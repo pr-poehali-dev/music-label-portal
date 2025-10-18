@@ -70,8 +70,8 @@ export default function MyTickets({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Мои тикеты</CardTitle>
-        <CardDescription>Тикеты, которые вы создали</CardDescription>
+        <CardTitle>Мои заявки</CardTitle>
+        <CardDescription>Заявки, которые вы создали</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4">
@@ -80,7 +80,7 @@ export default function MyTickets({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все тикеты</SelectItem>
+              <SelectItem value="all">Все заявки</SelectItem>
               <SelectItem value="open">Открытые</SelectItem>
               <SelectItem value="in_progress">В работе</SelectItem>
               <SelectItem value="resolved">Решённые</SelectItem>
@@ -93,7 +93,7 @@ export default function MyTickets({
           {tickets.length === 0 ? (
             <div className="col-span-full text-center py-8 text-gray-500">
               <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
-              <p>У вас пока нет тикетов</p>
+              <p>У вас пока нет заявок</p>
             </div>
           ) : (
             tickets.map(ticket => (

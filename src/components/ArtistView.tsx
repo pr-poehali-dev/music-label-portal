@@ -61,8 +61,8 @@ export default function ArtistView({
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="stats">📊 Статистика</TabsTrigger>
               <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
-              <TabsTrigger value="create">✉️ Создать тикет</TabsTrigger>
-              <TabsTrigger value="my-tickets">🎫 Мои тикеты</TabsTrigger>
+              <TabsTrigger value="create">✉️ Создать заявку</TabsTrigger>
+              <TabsTrigger value="my-tickets">🎫 Мои заявки</TabsTrigger>
             </TabsList>
           </div>
 

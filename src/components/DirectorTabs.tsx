@@ -105,8 +105,8 @@ export default function DirectorTabs({
         <Tabs defaultValue="assignment" className="w-full">
           <TabsList className="mb-4">
             <TabsTrigger value="assignment">Назначение задач</TabsTrigger>
-            <TabsTrigger value="tickets">Тикеты техподдержки</TabsTrigger>
-            <TabsTrigger value="create">Создать тикет</TabsTrigger>
+            <TabsTrigger value="tickets">Заявки техподдержки</TabsTrigger>
+            <TabsTrigger value="create">Создать заявку</TabsTrigger>
           </TabsList>
           
           <TabsContent value="assignment">
@@ -141,7 +141,7 @@ export default function DirectorTabs({
         <Tabs defaultValue="tasks" className="w-full">
           <TabsList className="mb-4">
             <TabsTrigger value="tasks">Аналитика задач</TabsTrigger>
-            <TabsTrigger value="tickets">Аналитика тикетов</TabsTrigger>
+            <TabsTrigger value="tickets">Аналитика заявок</TabsTrigger>
           </TabsList>
           
           <TabsContent value="tasks">

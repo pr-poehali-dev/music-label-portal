@@ -58,7 +58,7 @@ export default function ManagerView({
           <div className="w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="tasks">✅ Мои задачи</TabsTrigger>
-              <TabsTrigger value="tickets">🎫 Тикеты</TabsTrigger>
+              <TabsTrigger value="tickets">🎫 Заявки</TabsTrigger>
               <TabsTrigger value="submissions">🎵 Послушайте мой трек</TabsTrigger>
             </TabsList>
           </div>
