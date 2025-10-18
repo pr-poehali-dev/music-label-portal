@@ -165,7 +165,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             params.append(int(user_id))
             params.append(int(user_id))
         
-        query += ' ORDER BY t.created_at DESC'
+        query += ''' ORDER BY 
+            CASE t.status 
+                WHEN 'open' THEN 1 
+                WHEN 'in_progress' THEN 2 
+                WHEN 'closed' THEN 3 
+            END,
+            t.created_at DESC'''
         
         cur.execute(query, params)
         tickets = cur.fetchall()
