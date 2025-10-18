@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import TicketCard from '@/components/TicketCard';
 import { useToast } from '@/hooks/use-toast';
@@ -56,7 +56,7 @@ const getStatusColor = (status: string) => {
   return colors[status as keyof typeof colors] || 'bg-gray-500';
 };
 
-export default function TicketManagement({ 
+const TicketManagement = React.memo(function TicketManagement({ 
   user, 
   tickets, 
   managers, 
@@ -205,4 +205,6 @@ export default function TicketManagement({
       )}
     </div>
   );
-}
+});
+
+export default TicketManagement;

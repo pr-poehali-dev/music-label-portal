@@ -1,3 +1,4 @@
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
 
 interface User {
   id: number;
@@ -39,7 +39,7 @@ interface UserManagementProps {
   onUpdateUser?: (userId: number, userData: Partial<User>) => void;
 }
 
-export default function UserManagement({ 
+const UserManagement = React.memo(function UserManagement({ 
   allUsers, 
   newUser, 
   onNewUserChange, 
@@ -330,4 +330,6 @@ export default function UserManagement({
       )}
     </div>
   );
-}
+});
+
+export default UserManagement;

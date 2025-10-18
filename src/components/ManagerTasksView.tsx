@@ -1,3 +1,4 @@
+import React, { useMemo, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +10,8 @@ interface ManagerTasksViewProps {
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
 }
 
-export default function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
-  const getPriorityColor = (priority: string) => {
+const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
+  const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case 'urgent': return 'destructive';
       case 'high': return 'default';
@@ -18,18 +19,18 @@ export default function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerT
       case 'low': return 'outline';
       default: return 'secondary';
     }
-  };
+  }, []);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'completed': return 'default';
       case 'in_progress': return 'secondary';
       case 'open': return 'outline';
       default: return 'outline';
     }
-  };
+  }, []);
 
-  const getPriorityIcon = (priority: string) => {
+  const getPriorityIcon = useCallback((priority: string) => {
     switch (priority) {
       case 'urgent': return 'Flame';
       case 'high': return 'AlertTriangle';
@@ -37,19 +38,21 @@ export default function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerT
       case 'low': return 'Info';
       default: return 'AlertCircle';
     }
-  };
+  }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case 'completed': return 'CheckCircle2';
       case 'in_progress': return 'Clock';
       case 'open': return 'Circle';
       default: return 'Circle';
     }
-  };
+  }, []);
 
-  const activeTasks = tasks.filter(t => t.status !== 'completed');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const { activeTasks, completedTasks } = useMemo(() => ({
+    activeTasks: tasks.filter(t => t.status !== 'completed'),
+    completedTasks: tasks.filter(t => t.status === 'completed')
+  }), [tasks]);
 
   return (
     <div className="space-y-6">
@@ -182,4 +185,6 @@ export default function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerT
       )}
     </div>
   );
-}
+});
+
+export default ManagerTasksView;

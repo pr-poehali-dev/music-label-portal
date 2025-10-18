@@ -1,3 +1,4 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,7 @@ interface TicketCardProps {
   getStatusColor: (status: string) => string;
 }
 
-export default function TicketCard({ 
+const TicketCard = React.memo(function TicketCard({ 
   ticket, 
   user, 
   userRole,
@@ -219,4 +220,6 @@ export default function TicketCard({
       </CardContent>
     </Card>
   );
-}
+});
+
+export default TicketCard;

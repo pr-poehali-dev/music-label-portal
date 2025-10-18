@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ interface TasksTabProps {
   onDeleteTask: (taskId: number) => Promise<boolean>;
 }
 
-export default function TasksTab({
+const TasksTab = React.memo(function TasksTab({
   tasks,
   tickets,
   managers,
@@ -282,4 +282,6 @@ export default function TasksTab({
       </div>
     </div>
   );
-}
+});
+
+export default TasksTab;

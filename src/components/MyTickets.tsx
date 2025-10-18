@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
@@ -56,7 +56,7 @@ const getStatusColor = (status: string) => {
   return colors[status as keyof typeof colors] || 'bg-gray-500';
 };
 
-export default function MyTickets({ 
+const MyTickets = React.memo(function MyTickets({ 
   user, 
   tickets, 
   statusFilter, 
@@ -112,4 +112,6 @@ export default function MyTickets({
       </CardContent>
     </Card>
   );
-}
+});
+
+export default MyTickets;

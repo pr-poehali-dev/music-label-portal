@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Ticket {
@@ -19,7 +19,7 @@ interface StatsCardsProps {
   tickets: Ticket[];
 }
 
-export default function StatsCards({ tickets }: StatsCardsProps) {
+const StatsCards = React.memo(function StatsCards({ tickets }: StatsCardsProps) {
   const stats = useMemo(() => {
     const now = new Date();
     return {
@@ -60,4 +60,6 @@ export default function StatsCards({ tickets }: StatsCardsProps) {
       </Card>
     </div>
   );
-}
+});
+
+export default StatsCards;
