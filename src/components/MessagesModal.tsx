@@ -218,7 +218,11 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                   <button
                     key={user.user_id}
                     onClick={() => handleUserSelect(user)}
-                    className="w-full p-4 rounded-lg border border-gray-700 bg-gray-800 hover:bg-gray-700 transition-colors text-left"
+                    className={`w-full p-4 rounded-lg border transition-all text-left ${
+                      user.unread_count > 0
+                        ? 'border-primary bg-primary/10 hover:bg-primary/20 shadow-lg shadow-primary/20'
+                        : 'border-gray-700 bg-gray-800 hover:bg-gray-700'
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
