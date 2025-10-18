@@ -122,6 +122,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             created_by = body_data.get('created_by')
             assigned_to = body_data.get('assigned_to')
             deadline = body_data.get('deadline')
+            attachment_url = body_data.get('attachment_url')
+            attachment_name = body_data.get('attachment_name')
+            attachment_size = body_data.get('attachment_size')
             
             if not all([title, created_by, assigned_to, deadline]):
                 cur.close()
@@ -134,9 +137,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                '''INSERT INTO tasks (title, description, priority, created_by, assigned_to, deadline, status, is_read)
-                   VALUES (%s, %s, %s, %s, %s, %s, 'pending', false) RETURNING id''',
-                (title, description, priority, created_by, assigned_to, deadline)
+                '''INSERT INTO tasks (title, description, priority, created_by, assigned_to, deadline, status, is_read, 
+                                     attachment_url, attachment_name, attachment_size)
+                   VALUES (%s, %s, %s, %s, %s, %s, 'pending', false, %s, %s, %s) RETURNING id''',
+                (title, description, priority, created_by, assigned_to, deadline, 
+                 attachment_url, attachment_name, attachment_size)
             )
             task_id = cur.fetchone()['id']
             
@@ -170,6 +175,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         description = body_data.get('description')
         priority = body_data.get('priority', 'medium')
         created_by = body_data.get('created_by')
+        attachment_url = body_data.get('attachment_url')
+        attachment_name = body_data.get('attachment_name')
+        attachment_size = body_data.get('attachment_size')
         
         if not all([title, description, created_by]):
             cur.close()
@@ -182,9 +190,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cur.execute(
-            '''INSERT INTO tickets (title, description, priority, created_by, status)
-               VALUES (%s, %s, %s, %s, 'open') RETURNING id''',
-            (title, description, priority, created_by)
+            '''INSERT INTO tickets (title, description, priority, created_by, status, 
+                                   attachment_url, attachment_name, attachment_size)
+               VALUES (%s, %s, %s, %s, 'open', %s, %s, %s) RETURNING id''',
+            (title, description, priority, created_by, attachment_url, attachment_name, attachment_size)
         )
         ticket_id = cur.fetchone()['id']
         

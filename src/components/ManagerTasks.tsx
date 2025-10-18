@@ -18,6 +18,9 @@ interface Task {
   created_at: string;
   completed_at?: string;
   is_read: boolean;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
 }
 
 interface ManagerTasksProps {
@@ -157,6 +160,18 @@ export default function ManagerTasks({ userId }: ManagerTasksProps) {
 
                       {task.description && (
                         <p className="text-sm text-gray-300">{task.description}</p>
+                      )}
+
+                      {task.attachment_url && (
+                        <a 
+                          href={task.attachment_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <Icon name="Paperclip" size={14} />
+                          {task.attachment_name} ({(task.attachment_size! / 1024 / 1024).toFixed(2)} МБ)
+                        </a>
                       )}
 
                       <div className="space-y-2 text-sm">

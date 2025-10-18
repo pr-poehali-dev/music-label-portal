@@ -24,6 +24,9 @@ interface Task {
   status: 'pending' | 'in_progress' | 'completed';
   created_at: string;
   created_by_name: string;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
 }
 
 interface TaskAssignmentProps {
@@ -32,6 +35,7 @@ interface TaskAssignmentProps {
 }
 
 const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
+const UPLOAD_URL = 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa';
 
 export default function TaskAssignment({ managers, directorId }: TaskAssignmentProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -42,6 +46,8 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     deadline: '',
     priority: 'medium'
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   const loadTasks = async () => {
@@ -54,6 +60,36 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     }
   };
 
+  const uploadFile = async (file: File) => {
+    const reader = new FileReader();
+    return new Promise<{url: string, name: string, size: number}>((resolve, reject) => {
+      reader.onload = async () => {
+        try {
+          const response = await fetch(UPLOAD_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: reader.result,
+              fileName: file.name,
+              fileSize: file.size
+            })
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            resolve({ url: data.url, name: data.fileName, size: data.fileSize });
+          } else {
+            reject(new Error('Upload failed'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const createTask = async () => {
     if (!newTask.title || !newTask.assigned_to || !newTask.deadline) {
       toast({ title: '❌ Заполните все обязательные поля', variant: 'destructive' });
@@ -61,12 +97,31 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     }
 
     try {
+      setUploading(true);
+      let fileData = {};
+      
+      if (selectedFile) {
+        if (selectedFile.size > 10 * 1024 * 1024) {
+          toast({ title: '❌ Файл слишком большой', description: 'Максимум 10 МБ', variant: 'destructive' });
+          setUploading(false);
+          return;
+        }
+        
+        const uploaded = await uploadFile(selectedFile);
+        fileData = {
+          attachment_url: uploaded.url,
+          attachment_name: uploaded.name,
+          attachment_size: uploaded.size
+        };
+      }
+      
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'task',
           ...newTask,
+          ...fileData,
           created_by: directorId
         })
       });
@@ -74,6 +129,7 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
       if (response.ok) {
         toast({ title: '✅ Задача создана и назначена' });
         setNewTask({ title: '', description: '', assigned_to: '', deadline: '', priority: 'medium' });
+        setSelectedFile(null);
         loadTasks();
       } else {
         const data = await response.json();
@@ -81,6 +137,8 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
       }
     } catch (error) {
       toast({ title: '❌ Ошибка создания задачи', variant: 'destructive' });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -174,6 +232,21 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
               />
             </div>
 
+            <div>
+              <label className="text-sm text-gray-400 mb-1 block">Прикрепить файл (необязательно, до 10 МБ)</label>
+              <Input
+                type="file"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                className="bg-black/60 border-yellow-500/30"
+                accept="*/*"
+              />
+              {selectedFile && (
+                <p className="text-xs text-gray-400 mt-1">
+                  {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} МБ)
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm text-gray-400 mb-1 block">Менеджер *</label>
@@ -219,10 +292,11 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
 
             <Button
               onClick={createTask}
-              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold hover:shadow-lg hover:shadow-yellow-500/50"
+              disabled={uploading}
+              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold hover:shadow-lg hover:shadow-yellow-500/50 disabled:opacity-50"
             >
-              <Icon name="Send" size={18} className="mr-2" />
-              Назначить задачу
+              <Icon name={uploading ? "Loader2" : "Send"} size={18} className={`mr-2 ${uploading ? 'animate-spin' : ''}`} />
+              {uploading ? 'Загрузка...' : 'Назначить задачу'}
             </Button>
           </CardContent>
         </Card>
@@ -254,6 +328,18 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
 
                       {task.description && (
                         <p className="text-sm text-gray-300">{task.description}</p>
+                      )}
+
+                      {task.attachment_url && (
+                        <a 
+                          href={task.attachment_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <Icon name="Paperclip" size={14} />
+                          {task.attachment_name} ({(task.attachment_size! / 1024 / 1024).toFixed(2)} МБ)
+                        </a>
                       )}
 
                       <div className="space-y-2 text-sm">
