@@ -62,9 +62,19 @@ export const useTasks = (user: any, ticketId?: number) => {
   };
 
   const createTask = async (taskData: CreateTaskData) => {
-    if (!user?.token) return false;
+    if (!user?.token) {
+      console.error('No user token available');
+      return false;
+    }
 
     try {
+      const requestBody = {
+        ...taskData,
+        created_by: user.id,
+      };
+      
+      console.log('Creating task:', requestBody);
+
       const response = await fetch(`${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`, {
         method: 'POST',
         headers: {
@@ -72,19 +82,23 @@ export const useTasks = (user: any, ticketId?: number) => {
           'X-User-Id': user.id.toString(),
           'X-Auth-Token': user.token,
         },
-        body: JSON.stringify({
-          ...taskData,
-          created_by: user.id,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) throw new Error('Ошибка создания задачи');
+      console.log('Task creation response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating task:', errorData);
+        toast.error(errorData.error || 'Не удалось создать задачу');
+        return false;
+      }
 
       toast.success('Задача создана');
       await loadTasks();
       return true;
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error('Exception creating task:', error);
       toast.error('Не удалось создать задачу');
       return false;
     }

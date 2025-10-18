@@ -51,25 +51,37 @@ export const useTickets = (user: User | null, statusFilter: string) => {
         }
       }
 
+      const requestBody = { 
+        ...newTicket, 
+        created_by: user.id,
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName,
+        attachment_size: attachmentSize
+      };
+      
+      console.log('Creating ticket:', requestBody);
+
       const response = await fetch(API_URLS.tickets, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          ...newTicket, 
-          created_by: user.id,
-          attachment_url: attachmentUrl,
-          attachment_name: attachmentName,
-          attachment_size: attachmentSize
-        })
+        body: JSON.stringify(requestBody)
       });
       
-      if (response.ok) {
-        logActivity(user.id, 'create_ticket', `Создан тикет: ${newTicket.title}`, { priority: newTicket.priority });
-        toast({ title: '✅ Тикет создан' });
-        loadTickets();
-        return true;
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating ticket:', errorData);
+        toast({ title: '❌ ' + (errorData.error || 'Ошибка создания тикета'), variant: 'destructive' });
+        return false;
       }
+      
+      logActivity(user.id, 'create_ticket', `Создан тикет: ${newTicket.title}`, { priority: newTicket.priority });
+      toast({ title: '✅ Тикет создан' });
+      loadTickets();
+      return true;
     } catch (error) {
+      console.error('Exception creating ticket:', error);
       toast({ title: '❌ Ошибка создания тикета', variant: 'destructive' });
     } finally {
       setUploadingTicket(false);
