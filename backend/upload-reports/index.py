@@ -112,29 +112,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if not performer_column:
                     print(f"DEBUG: Column name not found, analyzing data patterns...")
-                    performer_indicators = ['feat', 'ft.', 'ип ', 'ооо', ' & ', 'band', 'group']
+                    
+                    best_column = None
+                    max_unique_ratio = 0
                     
                     for col_name in all_columns:
-                        sample_values = [str(row.get(col_name, '')).lower().strip() 
-                                       for row in rows[:100] 
-                                       if row.get(col_name)]
+                        values = [str(row.get(col_name, '')).strip() 
+                                 for row in rows[:200] 
+                                 if row.get(col_name) is not None]
                         
-                        if not sample_values:
+                        non_empty = [v for v in values if v and v.lower() not in ['none', 'null', '']]
+                        
+                        if len(non_empty) < 50:
                             continue
                         
-                        matches = sum(1 for val in sample_values 
-                                    if any(indicator in val for indicator in performer_indicators))
+                        unique_count = len(set(non_empty))
+                        total_count = len(non_empty)
+                        unique_ratio = unique_count / total_count if total_count > 0 else 0
                         
-                        non_empty = len([v for v in sample_values if v and v != 'none'])
+                        avg_length = sum(len(v) for v in non_empty) / len(non_empty) if non_empty else 0
                         
-                        if non_empty > 50 and matches > 5:
-                            performer_column = col_name
-                            print(f"DEBUG: Auto-detected performer column: {col_name} (matches: {matches}/{non_empty})")
-                            print(f"DEBUG: Sample values: {sample_values[:3]}")
-                            break
+                        if unique_ratio > max_unique_ratio and avg_length > 5 and avg_length < 150:
+                            max_unique_ratio = unique_ratio
+                            best_column = col_name
+                            print(f"DEBUG: Candidate {col_name}: {unique_count} unique / {total_count} total = {unique_ratio:.2%}, avg_len={avg_length:.0f}")
+                    
+                    if best_column and max_unique_ratio > 0.3:
+                        performer_column = best_column
+                        sample = [str(row.get(best_column, '')).strip() for row in rows[:5] if row.get(best_column)]
+                        print(f"DEBUG: Auto-detected performer column: {best_column} (unique ratio: {max_unique_ratio:.2%})")
+                        print(f"DEBUG: Sample values: {sample[:3]}")
             
             if not performer_column:
-                print(f"DEBUG: Performer column not found! Using first non-empty text column as fallback")
+                print(f"DEBUG: Performer column not found! All data will go to 'Без исполнителя'")
             
             artist_data = defaultdict(list)
             
