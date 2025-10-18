@@ -216,6 +216,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             release_id = body_data.get('release_id')
             action = body_data.get('action')
             
+            cur.execute(f"""
+                SELECT artist_id, release_name FROM {schema}.releases WHERE id = %s
+            """, (release_id,))
+            release_info = cur.fetchone()
+            artist_id = release_info['artist_id']
+            release_name = release_info['release_name']
+            
             if action == 'approve':
                 cur.execute(f"""
                     UPDATE {schema}.releases
@@ -223,6 +230,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         review_comment = %s
                     WHERE id = %s
                 """, (user_id, body_data.get('comment', ''), release_id))
+                
+                cur.execute(f"""
+                    INSERT INTO {schema}.notifications 
+                    (user_id, title, message, type, related_entity_type, related_entity_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    artist_id,
+                    'Релиз одобрен ✅',
+                    f'Ваш релиз "{release_name}" был одобрен и готов к публикации!',
+                    'success',
+                    'release',
+                    release_id
+                ))
+                
             elif action == 'reject':
                 cur.execute(f"""
                     UPDATE {schema}.releases
@@ -230,6 +251,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         review_comment = %s
                     WHERE id = %s
                 """, (user_id, body_data.get('comment', ''), release_id))
+                
+                comment = body_data.get('comment', 'Не указана')
+                cur.execute(f"""
+                    INSERT INTO {schema}.notifications 
+                    (user_id, title, message, type, related_entity_type, related_entity_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    artist_id,
+                    'Релиз отклонён ❌',
+                    f'Ваш релиз "{release_name}" был отклонён. Причина: {comment}',
+                    'error',
+                    'release',
+                    release_id
+                ))
             else:
                 return {
                     'statusCode': 400,

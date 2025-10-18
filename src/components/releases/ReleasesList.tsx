@@ -1,14 +1,19 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Release } from './types';
+import ReleasePlayer from './ReleasePlayer';
 
 interface ReleasesListProps {
   releases: Release[];
   getStatusBadge: (status: string) => JSX.Element;
+  onEdit?: (release: Release) => void;
 }
 
-export default function ReleasesList({ releases, getStatusBadge }: ReleasesListProps) {
+export default function ReleasesList({ releases, getStatusBadge, onEdit }: ReleasesListProps) {
+  const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
@@ -44,7 +49,20 @@ export default function ReleasesList({ releases, getStatusBadge }: ReleasesListP
                     <p className="text-muted-foreground text-sm mb-2">{release.artist_name}</p>
                   )}
                 </div>
-                {getStatusBadge(release.status)}
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(release.status)}
+                  {release.status === 'pending' && onEdit && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEdit(release)}
+                      className="gap-1"
+                    >
+                      <Icon name="Edit" size={14} />
+                      Редактировать
+                    </Button>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-3 text-sm mb-3">
@@ -73,6 +91,26 @@ export default function ReleasesList({ releases, getStatusBadge }: ReleasesListP
                 </div>
               )}
 
+              {release.tracks_count && release.tracks_count > 0 && (
+                <div className="mt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
+                    className="gap-2 -ml-2"
+                  >
+                    <Icon name="Play" size={16} />
+                    {expandedRelease === release.id ? 'Скрыть плеер' : 'Прослушать альбом'}
+                  </Button>
+                </div>
+              )}
+
+              {expandedRelease === release.id && (
+                <div className="mt-4">
+                  <ReleasePlayer releaseId={release.id} />
+                </div>
+              )}
+
               {(release.status === 'rejected' && release.review_comment) && (
                 <div className="mt-4 bg-destructive/10 border border-destructive/20 p-4 rounded-lg">
                   <div className="flex items-start gap-2">
@@ -84,6 +122,18 @@ export default function ReleasesList({ releases, getStatusBadge }: ReleasesListP
                         <p className="text-xs text-muted-foreground mt-2">— {release.reviewer_name}</p>
                       )}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {(release.status === 'approved' || release.status === 'rejected') && (
+                <div className="mt-4 bg-muted/50 border p-3 rounded-lg">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Icon name={release.status === 'approved' ? 'CheckCircle' : 'XCircle'} size={16} className={release.status === 'approved' ? 'text-green-600' : 'text-destructive'} />
+                    <span className="text-muted-foreground">
+                      {release.status === 'approved' ? 'Релиз одобрен' : 'Релиз отклонён'}
+                      {release.reviewer_name && ` — ${release.reviewer_name}`}
+                    </span>
                   </div>
                 </div>
               )}

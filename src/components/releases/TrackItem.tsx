@@ -76,9 +76,9 @@ export default function TrackItem({ track, index, totalTracks, updateTrack, remo
             />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Композитор *</label>
+            <label className="text-sm font-medium mb-1.5 block">Артист *</label>
             <Input
-              placeholder="Композитор"
+              placeholder="Имя артиста"
               value={track.composer}
               onChange={(e) => updateTrack(index, 'composer', e.target.value)}
             />

@@ -26,6 +26,7 @@ interface ReleaseFormProps {
   removeTrack: (index: number) => void;
   updateTrack: (index: number, field: keyof Track, value: any) => void;
   moveTrack: (index: number, direction: 'up' | 'down') => void;
+  handleBatchUpload: (files: FileList) => void;
   handleSubmit: () => void;
   uploading: boolean;
   onCancel: () => void;
@@ -41,6 +42,7 @@ export default function ReleaseForm({
   removeTrack,
   updateTrack,
   moveTrack,
+  handleBatchUpload,
   handleSubmit,
   uploading,
   onCancel
@@ -226,10 +228,25 @@ export default function ReleaseForm({
                 <Icon name="Music" size={20} />
                 Треки ({tracks.length})
               </h3>
-              <Button onClick={addTrack} size="sm" className="gap-2">
-                <Icon name="Plus" size={16} />
-                Добавить трек
-              </Button>
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".mp3,.wav,.flac,.m4a"
+                    onChange={(e) => e.target.files && handleBatchUpload(e.target.files)}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                  <Button size="sm" variant="outline" className="gap-2">
+                    <Icon name="Upload" size={16} />
+                    Загрузить несколько
+                  </Button>
+                </div>
+                <Button onClick={addTrack} size="sm" className="gap-2">
+                  <Icon name="Plus" size={16} />
+                  Добавить трек
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-4">

@@ -19,6 +19,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
   const [uploading, setUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'approved' | 'pending' | 'rejected'>('all');
+  const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const { toast } = useToast();
 
   const [newRelease, setNewRelease] = useState({
@@ -147,6 +148,51 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
     setTracks(updated);
   };
 
+  const handleBatchUpload = (files: FileList) => {
+    const audioFiles = Array.from(files).filter(file => 
+      file.type.startsWith('audio/') || 
+      /\.(mp3|wav|flac|m4a)$/i.test(file.name)
+    );
+
+    if (audioFiles.length === 0) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не найдено аудио файлов',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const newTracks = audioFiles.map((file, i) => {
+      const trackNumber = tracks.length + i + 1;
+      const fileName = file.name.replace(/\.[^/.]+$/, '');
+      
+      const track: Track = {
+        track_number: trackNumber,
+        title: fileName,
+        composer: '',
+        language_audio: 'Русский',
+        explicit_content: false,
+        file: file
+      };
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        track.preview_url = e.target?.result as string;
+        setTracks(prev => [...prev]);
+      };
+      reader.readAsDataURL(file);
+
+      return track;
+    });
+
+    setTracks([...tracks, ...newTracks]);
+    toast({
+      title: 'Успешно',
+      description: `Добавлено ${audioFiles.length} треков`
+    });
+  };
+
   const handleSubmit = async () => {
     if (!newRelease.release_name || !coverFile || !newRelease.release_date) {
       toast({
@@ -207,10 +253,11 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
 
       toast({
         title: 'Успешно',
-        description: 'Релиз отправлен на модерацию'
+        description: editingRelease ? 'Релиз обновлён' : 'Релиз отправлен на модерацию'
       });
 
       setShowForm(false);
+      setEditingRelease(null);
       setNewRelease({
         release_name: '',
         release_date: '',
@@ -262,14 +309,16 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
           'X-User-Id': userId.toString()
         },
         body: JSON.stringify({
-          releaseId,
-          status,
-          reviewComment: comment
+          release_id: releaseId,
+          action: status,
+          comment: comment
         })
       });
 
       if (!response.ok) throw new Error('Failed to review release');
 
+      const artistRelease = releases.find(r => r.id === releaseId);
+      
       toast({
         title: 'Успешно',
         description: status === 'approved' ? 'Релиз одобрен' : 'Релиз отклонён'
@@ -318,6 +367,28 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
       />
     );
   }
+
+  const handleEdit = async (release: Release) => {
+    setEditingRelease(release);
+    setNewRelease({
+      release_name: release.release_name,
+      release_date: release.release_date || '',
+      preorder_date: release.preorder_date || '',
+      sales_start_date: release.sales_start_date || '',
+      genre: release.genre || '',
+      copyright: release.copyright || '',
+      price_category: release.price_category || '0.99',
+      title_language: release.title_language || 'Русский'
+    });
+    
+    if (release.cover_url) {
+      setCoverPreview(release.cover_url);
+    }
+    
+    const releaseTracks = await loadTracks(release.id);
+    setTracks(releaseTracks);
+    setShowForm(true);
+  };
 
   const filteredReleases = activeTab === 'all' 
     ? releases 
@@ -394,6 +465,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
           removeTrack={removeTrack}
           updateTrack={updateTrack}
           moveTrack={moveTrack}
+          handleBatchUpload={handleBatchUpload}
           handleSubmit={handleSubmit}
           uploading={uploading}
           onCancel={() => setShowForm(false)}
@@ -401,7 +473,11 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
       )}
 
       {!showForm && (
-        <ReleasesList releases={filteredReleases} getStatusBadge={getStatusBadge} />
+        <ReleasesList 
+          releases={filteredReleases} 
+          getStatusBadge={getStatusBadge}
+          onEdit={handleEdit}
+        />
       )}
     </div>
   );
