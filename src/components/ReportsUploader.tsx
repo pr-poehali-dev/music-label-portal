@@ -148,6 +148,7 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
               className="bg-black/20 border-yellow-700/30 text-yellow-100"
             />
             <Button
+              type="button"
               onClick={handleUpload}
               disabled={!file || uploading}
               className="bg-yellow-600 hover:bg-yellow-700 text-white"
