@@ -18,14 +18,18 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-zinc-800 p-4">
-      <Card className="w-full max-w-md border-primary/20 bg-card/95 backdrop-blur">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-yellow-950/20 to-black p-4">
+      <Card className="w-full max-w-md border-yellow-500/20 bg-black/60 backdrop-blur-xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-24 h-24 rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center">
-            <span className="text-4xl font-bold text-black">420</span>
+          <div className="mx-auto mb-4 w-32 h-32 rounded-full overflow-hidden shadow-2xl shadow-yellow-500/50">
+            <img 
+              src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
+              alt="420 Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
-          <CardTitle className="text-3xl font-bold text-primary">420 SMM</CardTitle>
-          <CardDescription className="text-muted-foreground">Музыкальный лейбл • Техподдержка</CardDescription>
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">420 SMM</CardTitle>
+          <CardDescription className="text-gray-400">Музыкальный лейбл • Техподдержка</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -49,13 +53,13 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             />
           </div>
-          <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-primary to-yellow-600 hover:opacity-90 text-black font-semibold">
+          <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:shadow-lg hover:shadow-yellow-500/50 text-black font-semibold transition-all">
             <Icon name="LogIn" size={16} className="mr-2" />
             Войти
           </Button>
-          <div className="text-xs text-center text-muted-foreground space-y-1">
+          <div className="text-xs text-center text-gray-500 space-y-1">
             <p>Тестовые аккаунты:</p>
-            <p>manager / 12345 • artist1 / 12345</p>
+            <p className="text-yellow-500/70">manager / 12345 • artist1 / 12345</p>
           </div>
         </CardContent>
       </Card>

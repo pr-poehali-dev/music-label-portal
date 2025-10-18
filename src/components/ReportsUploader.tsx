@@ -85,19 +85,19 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
   };
 
   return (
-    <Card className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 border-yellow-700/30">
+    <Card className="bg-gradient-to-br from-black/60 via-yellow-950/20 to-black/60 border-yellow-500/20 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-yellow-100 flex items-center gap-2">
-          <Icon name="Upload" size={24} className="text-yellow-400" />
+        <CardTitle className="text-yellow-400 flex items-center gap-2">
+          <Icon name="Upload" size={24} className="text-yellow-500" />
           Загрузка отчётов артистов
         </CardTitle>
-        <CardDescription className="text-yellow-300/70">
+        <CardDescription className="text-gray-400">
           Загрузите CSV или Excel файл с данными по стримингу. Система автоматически распределит данные по артистам.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <div className="text-sm font-medium text-yellow-100 mb-2">
+          <div className="text-sm font-medium text-yellow-400 mb-2">
             Выберите CSV или XLSX файл
           </div>
           <div className="flex gap-2">
@@ -105,13 +105,13 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileChange}
-              className="bg-black/20 border-yellow-700/30 text-yellow-100"
+              className="bg-black/40 border-yellow-500/20 text-yellow-100"
             />
             <Button
               type="button"
               onClick={handleUpload}
               disabled={!file || uploading}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:shadow-lg hover:shadow-yellow-500/50 text-black font-semibold"
             >
               {uploading ? (
                 <>
@@ -127,7 +127,7 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
             </Button>
           </div>
           {file && (
-            <p className="text-sm text-yellow-300/70">
+            <p className="text-sm text-gray-400">
               Выбран файл: {file.name} ({(file.size / 1024).toFixed(2)} KB)
             </p>
           )}

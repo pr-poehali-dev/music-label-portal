@@ -108,20 +108,20 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
   }
 
   return (
-    <Card className="bg-gradient-to-br from-black via-yellow-950/20 to-black border-yellow-700/30">
+    <Card className="bg-gradient-to-br from-black/60 via-yellow-950/20 to-black/60 border-yellow-500/20 backdrop-blur-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-2xl font-bold text-yellow-100 flex items-center gap-2">
-              <Icon name="FileText" size={24} className="text-yellow-400" />
+            <CardTitle className="text-2xl font-bold text-yellow-400 flex items-center gap-2">
+              <Icon name="FileText" size={24} className="text-yellow-500" />
               Отчёты по исполнителям
             </CardTitle>
-            <CardDescription className="text-yellow-300/70">
+            <CardDescription className="text-gray-400">
               Скачайте отдельный CSV-файл для каждого исполнителя
             </CardDescription>
           </div>
           {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-yellow-300 hover:text-yellow-100">
+            <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-yellow-400">
               <Icon name="X" size={20} />
             </Button>
           )}
@@ -129,7 +129,7 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
       </CardHeader>
       <CardContent className="space-y-4">
         {files.length === 0 ? (
-          <div className="text-center py-8 text-yellow-300/50">
+          <div className="text-center py-8 text-gray-500">
             <Icon name="FileQuestion" size={48} className="mx-auto mb-4 opacity-30" />
             <p>Нет файлов для обработки</p>
           </div>
@@ -137,11 +137,11 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
           <div className="space-y-4">
             <div className="flex gap-4 items-end">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-yellow-100 mb-2">
+                <label className="block text-sm font-medium text-yellow-400 mb-2">
                   Выберите исполнителя
                 </label>
                 <Select value={selectedArtist} onValueChange={setSelectedArtist}>
-                  <SelectTrigger className="bg-black/20 border-yellow-700/30 text-yellow-100">
+                  <SelectTrigger className="bg-black/40 border-yellow-500/20 text-yellow-100">
                     <SelectValue placeholder="Выберите исполнителя..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -159,7 +159,7 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
                   if (file) downloadCSV(file);
                 }}
                 disabled={!selectedArtist}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:shadow-lg hover:shadow-yellow-500/50 text-black font-semibold"
               >
                 <Icon name="Download" size={16} className="mr-2" />
                 Скачать CSV
@@ -167,15 +167,15 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm text-yellow-300/70">Доступные исполнители:</p>
+              <p className="text-sm text-gray-400">Доступные исполнители:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {files.map((file) => (
-                  <Card key={file.id} className="bg-black/40 border-yellow-700/20">
+                  <Card key={file.id} className="bg-black/40 border-yellow-500/10">
                     <CardContent className="p-3">
                       <div className="flex items-center gap-2">
-                        <Icon name="User" size={14} className="text-yellow-400" />
+                        <Icon name="User" size={14} className="text-yellow-500" />
                         <span className="text-sm text-yellow-100">{file.artist_full_name}</span>
-                        <span className="text-xs text-yellow-300/50 ml-auto">{file.rows_count} записей</span>
+                        <span className="text-xs text-gray-500 ml-auto">{file.rows_count} записей</span>
                       </div>
                     </CardContent>
                   </Card>

@@ -80,17 +80,17 @@ export default function DirectorTabs({
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="stats" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-10 bg-yellow-900/30 border border-yellow-700/30 p-1 gap-1">
-        <TabsTrigger value="stats" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Статистика</TabsTrigger>
-        <TabsTrigger value="create" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Создать тикет</TabsTrigger>
-        <TabsTrigger value="manage" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Управление тикетами</TabsTrigger>
-        <TabsTrigger value="users" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Пользователи</TabsTrigger>
-        <TabsTrigger value="blocking" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Блокировки</TabsTrigger>
-        <TabsTrigger value="reminders" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Напоминания</TabsTrigger>
-        <TabsTrigger value="collector" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Автосбор</TabsTrigger>
-        <TabsTrigger value="monitoring" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Мониторинг</TabsTrigger>
-        <TabsTrigger value="reports" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Отчёты</TabsTrigger>
-        <TabsTrigger value="home" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white">Дом</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-10 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-2 gap-2 rounded-xl">
+        <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Статистика</TabsTrigger>
+        <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Создать тикет</TabsTrigger>
+        <TabsTrigger value="manage" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Управление тикетами</TabsTrigger>
+        <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Пользователи</TabsTrigger>
+        <TabsTrigger value="blocking" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Блокировки</TabsTrigger>
+        <TabsTrigger value="reminders" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Напоминания</TabsTrigger>
+        <TabsTrigger value="collector" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Автосбор</TabsTrigger>
+        <TabsTrigger value="monitoring" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Мониторинг</TabsTrigger>
+        <TabsTrigger value="reports" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Отчёты</TabsTrigger>
+        <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Дом</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stats">
