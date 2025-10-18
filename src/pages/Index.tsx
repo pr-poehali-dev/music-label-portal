@@ -66,11 +66,12 @@ export default function Index() {
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist', revenue_share_percent: 50 });
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user && user.role === 'director') {
-      collectStatsIfNeeded();
-    }
-  }, [user]);
+  // Отключили автосбор статистики - теперь только вручную через кнопку
+  // useEffect(() => {
+  //   if (user && user.role === 'director') {
+  //     collectStatsIfNeeded();
+  //   }
+  // }, [user]);
 
   const login = async (username: string, password: string) => {
     try {
