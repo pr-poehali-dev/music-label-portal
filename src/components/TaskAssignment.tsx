@@ -43,10 +43,13 @@ interface Task {
 
 interface TaskAssignmentProps {
   managers: User[];
-  directorId: number;
+  tickets: any[];
+  onAssignTicket: any;
+  onLoadTickets: any;
 }
 
-export default function TaskAssignment({ managers, directorId }: TaskAssignmentProps) {
+export default function TaskAssignment({ managers }: TaskAssignmentProps) {
+  const directorId = 1; // Hardcoded for now
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({
     title: '',
@@ -73,7 +76,15 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
 
   const loadTasks = async () => {
     try {
-      const response = await fetch(`${API_URL}?type=tasks`);
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
+      const response = await fetch(API_URL, {
+        headers: {
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        }
+      });
       const data = await response.json();
       setTasks(data.tasks || []);
     } catch (error) {
@@ -106,45 +117,96 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
         };
       }
       
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'task',
-          ...newTask,
-          ...fileData,
-          created_by: directorId
-        })
-      });
-
-      if (response.ok) {
-        const count = newTask.assigned_to.length;
-        toast({ title: `✅ Задача создана для ${count} ${count === 1 ? 'менеджера' : 'менеджеров'}` });
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
+      // Создаём задачу для каждого выбранного менеджера
+      const count = newTask.assigned_to.length || 0;
+      let successCount = 0;
+      
+      if (count === 0) {
+        // Создаём задачу без назначения
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': userId,
+            'X-Auth-Token': token
+          },
+          body: JSON.stringify({
+            title: newTask.title,
+            description: newTask.description,
+            priority: newTask.priority,
+            deadline: newTask.deadline || null,
+            assigned_to: null,
+            ticket_id: null
+          })
+        });
         
-        // Отправка уведомлений каждому менеджеру
+        if (response.ok) {
+          successCount = 1;
+        } else {
+          const errorData = await response.json();
+          console.error('Error creating task:', errorData);
+        }
+      } else {
+        // Создаём задачу для каждого менеджера
         for (const managerId of newTask.assigned_to) {
           try {
-            await fetch('https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7', {
+            const response = await fetch(API_URL, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'X-User-Id': userId,
+                'X-Auth-Token': token
+              },
               body: JSON.stringify({
-                sender_id: directorId,
-                receiver_id: managerId,
-                message: `📋 Новая задача: "${newTask.title}"\n\n${newTask.description}\n\nСрок: ${new Date(newTask.deadline).toLocaleDateString('ru-RU')}\nПриоритет: ${newTask.priority === 'low' ? 'Низкий' : newTask.priority === 'medium' ? 'Средний' : newTask.priority === 'high' ? 'Высокий' : 'Срочный'}`,
-                is_from_boss: true
+                title: newTask.title,
+                description: newTask.description,
+                priority: newTask.priority,
+                deadline: newTask.deadline || null,
+                assigned_to: managerId,
+                ticket_id: null
               })
             });
+            
+            if (response.ok) {
+              successCount++;
+              
+              // Отправка уведомления менеджеру
+              if (newTask.deadline) {
+                try {
+                  await fetch('https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      sender_id: parseInt(userId),
+                      receiver_id: managerId,
+                      message: `📋 Новая задача: "${newTask.title}"\n\n${newTask.description}${newTask.deadline ? `\n\nСрок: ${new Date(newTask.deadline).toLocaleDateString('ru-RU')}` : ''}\nПриоритет: ${newTask.priority === 'low' ? 'Низкий' : newTask.priority === 'medium' ? 'Средний' : newTask.priority === 'high' ? 'Высокий' : 'Срочный'}`,
+                      is_from_boss: true
+                    })
+                  });
+                } catch (error) {
+                  console.error('Failed to send notification:', error);
+                }
+              }
+            } else {
+              const errorData = await response.json();
+              console.error('Error creating task for manager:', managerId, errorData);
+            }
           } catch (error) {
-            console.error('Failed to send notification:', error);
+            console.error('Failed to create task for manager:', managerId, error);
           }
         }
-        
+      }
+      
+      if (successCount > 0) {
+        toast({ title: `✅ Создано задач: ${successCount}${count > 0 ? ` для ${count} ${count === 1 ? 'менеджера' : 'менеджеров'}` : ''}` });
         setNewTask({ title: '', description: '', assigned_to: [], deadline: '', priority: 'medium' });
         setSelectedFile(null);
         loadTasks();
       } else {
-        const data = await response.json();
-        toast({ title: '❌ Ошибка', description: data.error, variant: 'destructive' });
+        toast({ title: '❌ Не удалось создать задачу', variant: 'destructive' });
       }
     } catch (error) {
       toast({ title: '❌ Ошибка создания задачи', variant: 'destructive' });
@@ -155,10 +217,17 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
 
   const updateTaskStatus = async (taskId: number, status: string) => {
     try {
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
       const response = await fetch(API_URL, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'task', id: taskId, status })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        },
+        body: JSON.stringify({ task_id: taskId, status })
       });
 
       if (response.ok) {

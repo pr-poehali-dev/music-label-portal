@@ -1,4 +1,4 @@
-export const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
+export const API_URL = 'https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890';
 export const UPLOAD_URL = 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa';
 
 export const getPriorityColor = (priority: string) => {
