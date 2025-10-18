@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Dict, Any
+from urllib import request, parse
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -96,10 +97,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             (title, description, priority, created_by)
         )
         ticket_id = cur.fetchone()['id']
-        conn.commit()
         
+        cur.execute(
+            '''SELECT t.*, u.full_name as creator_name
+               FROM tickets t
+               JOIN users u ON t.created_by = u.id
+               WHERE t.id = %s''',
+            (ticket_id,)
+        )
+        ticket_data = dict(cur.fetchone())
+        
+        conn.commit()
         cur.close()
         conn.close()
+        
+        send_telegram_notification(ticket_data)
         
         return {
             'statusCode': 201,
@@ -164,3 +176,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'isBase64Encoded': False,
         'body': json.dumps({'error': 'Method not allowed'})
     }
+
+def send_telegram_notification(ticket: Dict[str, Any]):
+    try:
+        telegram_bot_url = 'https://functions.poehali.dev/ae7c32d8-5b08-4870-9606-e750de3c31a9'
+        data = json.dumps({
+            'action': 'notify',
+            'ticket': ticket
+        }).encode('utf-8')
+        
+        req = request.Request(
+            telegram_bot_url,
+            data=data,
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
+        request.urlopen(req, timeout=5)
+    except Exception:
+        pass
