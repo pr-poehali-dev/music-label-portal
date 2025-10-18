@@ -16,11 +16,13 @@ interface Task {
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
+  completion_report?: string;
 }
 
 interface TaskListProps {
   tasks: Task[];
   onUpdateStatus: (taskId: number, status: string) => void;
+  onComplete: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: number) => void;
   getPriorityColor: (priority: string) => string;
@@ -32,6 +34,7 @@ interface TaskListProps {
 export default function TaskList({
   tasks,
   onUpdateStatus,
+  onComplete,
   onEdit,
   onDelete,
   getPriorityColor,
@@ -57,6 +60,7 @@ export default function TaskList({
           key={task.id}
           task={task}
           onUpdateStatus={onUpdateStatus}
+          onComplete={onComplete}
           onEdit={onEdit}
           onDelete={onDelete}
           getPriorityColor={getPriorityColor}

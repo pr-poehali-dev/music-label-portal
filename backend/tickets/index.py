@@ -242,6 +242,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             priority = body_data.get('priority')
             deadline = body_data.get('deadline')
             assigned_to = body_data.get('assigned_to')
+            completion_report = body_data.get('completion_report')
             
             if not task_id:
                 cur.close()
@@ -289,6 +290,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 params.append(status)
                 if status == 'completed':
                     updates.append('completed_at = CURRENT_TIMESTAMP')
+            
+            if completion_report is not None:
+                updates.append('completion_report = %s')
+                params.append(completion_report)
             
             if is_read is not None:
                 updates.append('is_read = %s')

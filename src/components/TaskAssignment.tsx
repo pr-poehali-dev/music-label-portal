@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import TaskForm from './tasks/TaskForm';
 import TaskList from './tasks/TaskList';
 import TaskEditDialog from './tasks/TaskEditDialog';
+import TaskCompletionDialog from './tasks/TaskCompletionDialog';
 import {
   API_URL,
   UPLOAD_URL,
@@ -34,6 +35,7 @@ interface Task {
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
+  completion_report?: string;
 }
 
 interface TaskAssignmentProps {
@@ -59,6 +61,9 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     priority: 'medium'
   });
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCompletionDialogOpen, setIsCompletionDialogOpen] = useState(false);
+  const [completingTaskId, setCompletingTaskId] = useState<number | null>(null);
+  const [completionReport, setCompletionReport] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
@@ -202,6 +207,42 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     }
   };
 
+  const openCompletionDialog = (taskId: number) => {
+    setCompletingTaskId(taskId);
+    setCompletionReport('');
+    setIsCompletionDialogOpen(true);
+  };
+
+  const completeTask = async () => {
+    if (!completionReport.trim()) {
+      toast({ title: '❌ Опишите итоги выполнения', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          type: 'task', 
+          id: completingTaskId, 
+          status: 'completed',
+          completion_report: completionReport
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: '✅ Задача завершена' });
+        setIsCompletionDialogOpen(false);
+        setCompletingTaskId(null);
+        setCompletionReport('');
+        loadTasks();
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка завершения', variant: 'destructive' });
+    }
+  };
+
   const toggleManager = (managerId: number, isEdit: boolean = false) => {
     if (isEdit) {
       setEditForm(prev => ({
@@ -250,6 +291,7 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
       <TaskList
         tasks={tasks}
         onUpdateStatus={updateTaskStatus}
+        onComplete={openCompletionDialog}
         onEdit={openEditDialog}
         onDelete={deleteTask}
         getPriorityColor={getPriorityColor}
@@ -266,6 +308,14 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
         onFormChange={setEditForm}
         onSubmit={updateTask}
         onToggleManager={(managerId) => toggleManager(managerId, true)}
+      />
+
+      <TaskCompletionDialog
+        isOpen={isCompletionDialogOpen}
+        completionReport={completionReport}
+        onOpenChange={setIsCompletionDialogOpen}
+        onReportChange={setCompletionReport}
+        onSubmit={completeTask}
       />
     </div>
   );

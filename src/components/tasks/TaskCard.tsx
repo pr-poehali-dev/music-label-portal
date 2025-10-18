@@ -17,11 +17,13 @@ interface Task {
   attachment_url?: string;
   attachment_name?: string;
   attachment_size?: number;
+  completion_report?: string;
 }
 
 interface TaskCardProps {
   task: Task;
   onUpdateStatus: (taskId: number, status: string) => void;
+  onComplete: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: number) => void;
   getPriorityColor: (priority: string) => string;
@@ -33,6 +35,7 @@ interface TaskCardProps {
 export default function TaskCard({
   task,
   onUpdateStatus,
+  onComplete,
   onEdit,
   onDelete,
   getPriorityColor,
@@ -52,6 +55,13 @@ export default function TaskCard({
 
         {task.description && (
           <p className="text-sm text-muted-foreground">{task.description}</p>
+        )}
+
+        {task.completion_report && (
+          <div className="border-l-4 border-green-500 bg-green-500/10 p-3 rounded">
+            <p className="text-xs font-semibold text-green-600 mb-1">Итоги выполнения:</p>
+            <p className="text-sm text-muted-foreground">{task.completion_report}</p>
+          </div>
         )}
 
         {task.attachment_url && (
@@ -99,7 +109,7 @@ export default function TaskCard({
             {task.status !== 'completed' && (
               <Button
                 size="sm"
-                onClick={() => onUpdateStatus(task.id, 'completed')}
+                onClick={() => onComplete(task.id)}
                 className="flex-1"
               >
                 Завершить
