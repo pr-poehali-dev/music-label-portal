@@ -41,8 +41,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if 'message' in body_data or 'callback_query' in body_data:
             return handle_telegram_update(body_data, bot_token, db_url)
         
-        if 'action' in body_data and body_data['action'] == 'notify':
-            return send_ticket_notification(body_data, bot_token, db_url)
+        if 'action' in body_data:
+            if body_data['action'] == 'notify':
+                return send_ticket_notification(body_data, bot_token, db_url)
+            elif body_data['action'] == 'send_message':
+                chat_id = body_data.get('chat_id')
+                message_text = body_data.get('message')
+                if chat_id and message_text:
+                    send_message(bot_token, chat_id, message_text)
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'status': 'sent'})
+                }
     
     if method == 'GET':
         params = event.get('queryStringParameters', {})

@@ -101,9 +101,9 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     loadTasks();
-  });
+  }, []);
 
   const getPriorityColor = (priority: string) => {
     const colors = {
