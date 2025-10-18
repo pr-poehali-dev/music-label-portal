@@ -104,9 +104,9 @@ export default function TicketManagement({
             </h3>
           </div>
           {openTickets.length === 0 ? (
-            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
-              <p className="text-xs">Нет открытых тикетов</p>
+            <div className="text-center py-8 text-muted-foreground/50">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Нет открытых тикетов</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -138,9 +138,9 @@ export default function TicketManagement({
             </h3>
           </div>
           {inProgressTickets.length === 0 ? (
-            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
-              <p className="text-xs">Нет тикетов в работе</p>
+            <div className="text-center py-8 text-muted-foreground/50">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Нет тикетов в работе</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -172,9 +172,9 @@ export default function TicketManagement({
             </h3>
           </div>
           {resolvedTickets.length === 0 ? (
-            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
-              <p className="text-xs">Нет решённых тикетов</p>
+            <div className="text-center py-8 text-muted-foreground/50">
+              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Нет решённых тикетов</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
