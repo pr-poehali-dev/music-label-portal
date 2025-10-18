@@ -1,22 +1,22 @@
 {
   "tests": [
     {
-      "name": "Test GET reports endpoint",
+      "name": "Test GET all artist files",
       "method": "GET",
       "path": "/",
       "expectedStatus": 200,
       "expectedBody": {
-        "reports": "array"
+        "files": []
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Test GET reports by artist",
+      "name": "Test GET files by upload ID",
       "method": "GET",
-      "path": "/?artist_id=1",
+      "path": "/?uploaded_report_id=1",
       "expectedStatus": 200,
       "expectedBody": {
-        "reports": "array"
+        "files": []
       },
       "bodyMatcher": "partial"
     }

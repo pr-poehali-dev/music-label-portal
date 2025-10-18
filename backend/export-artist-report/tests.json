@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Test export endpoint exists",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "file_id": 999,
+        "artist_id": 999
+      },
+      "expectedStatus": 404,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

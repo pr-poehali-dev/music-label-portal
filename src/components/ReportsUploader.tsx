@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import ProcessReports from './ProcessReports';
 
 interface ReportsUploaderProps {
   userId: number;
@@ -58,6 +59,7 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
           body: JSON.stringify({
             file_content: base64Content,
             file_type: isExcel ? 'xlsx' : 'csv',
+            file_name: file.name,
             uploaded_by: userId
           })
         });
@@ -67,8 +69,8 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
         if (response.ok && data.success) {
           setResult(data);
           toast({
-            title: '✅ Отчёт загружен',
-            description: `Обработано: ${data.inserted} записей, пропущено: ${data.skipped}`
+            title: '✅ Файл разбит по артистам',
+            description: `Создано ${data.artist_files.length} файлов для артистов`
           });
         } else {
           toast({
@@ -146,39 +148,40 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
         </div>
 
         {result && (
-          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-            <h4 className="text-green-400 font-semibold mb-2 flex items-center gap-2">
-              <Icon name="CheckCircle" size={20} />
-              Результаты загрузки
-            </h4>
-            <div className="space-y-1 text-sm text-green-300">
-              <p>✅ Обработано записей: <strong>{result.inserted}</strong></p>
-              <p>⚠️ Пропущено записей: <strong>{result.skipped}</strong></p>
-              {result.errors && result.errors.length > 0 && (
+          <div className="space-y-4">
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <h4 className="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                <Icon name="CheckCircle" size={20} />
+                Результаты загрузки
+              </h4>
+              <div className="space-y-1 text-sm text-green-300">
+                <p>✅ Всего записей: <strong>{result.total_rows}</strong></p>
+                <p>📁 Создано файлов: <strong>{result.artist_files.length}</strong></p>
                 <div className="mt-2">
-                  <p className="text-yellow-400">⚠️ Ошибки:</p>
-                  <ul className="list-disc list-inside text-yellow-300 text-xs mt-1">
-                    {result.errors.map((err: string, idx: number) => (
-                      <li key={idx}>{err}</li>
+                  <p className="text-yellow-300 mb-1">Артисты:</p>
+                  <ul className="list-disc list-inside text-yellow-200 text-xs">
+                    {result.artist_files.map((af: any, idx: number) => (
+                      <li key={idx}>{af.artist_full_name} ({af.rows_count} записей)</li>
                     ))}
                   </ul>
                 </div>
-              )}
+              </div>
             </div>
+            <ProcessReports uploadedReportId={result.uploaded_report_id} />
           </div>
         )}
 
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
           <h4 className="text-blue-400 font-semibold mb-2 flex items-center gap-2">
             <Icon name="Info" size={20} />
-            Формат файла
+            Как работает система?
           </h4>
-          <ul className="text-sm text-blue-300 space-y-1 list-disc list-inside">
-            <li>CSV файл с заголовками</li>
-            <li>Колонка "Название альбома" должна содержать username артиста</li>
-            <li>Обязательные поля: Период использования, Площадка, Количество</li>
-            <li>Данные автоматически привязываются к артистам по username в названии альбома</li>
-          </ul>
+          <ol className="text-sm text-blue-300 space-y-1 list-decimal list-inside">
+            <li>Загрузите общий CSV/XLSX файл со всеми артистами</li>
+            <li>Система автоматически разобьёт файл по артистам (по username в названии альбома)</li>
+            <li>Для каждого файла установите % удержания (комиссия лейбла)</li>
+            <li>Нажмите "Экспорт и отправить" - файл скачается и отправится в ЛК артиста</li>
+          </ol>
         </div>
       </CardContent>
     </Card>
