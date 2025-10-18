@@ -160,9 +160,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         title = body_data.get('title')
         description = body_data.get('description', '')
         priority = body_data.get('priority', 'medium')
-        assigned_to = body_data.get('assigned_to') or None
-        deadline = body_data.get('deadline') or None
-        ticket_id = body_data.get('ticket_id') or None
+        assigned_to = body_data.get('assigned_to')
+        deadline = body_data.get('deadline')
+        ticket_id = body_data.get('ticket_id')
         
         if not title:
             cur.close()
@@ -173,6 +173,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Title is required'}),
                 'isBase64Encoded': False
             }
+        
+        # assigned_to и deadline обязательны в текущей структуре БД
+        if not assigned_to:
+            assigned_to = user_id  # Назначаем создателю по умолчанию
+        
+        if not deadline:
+            # Устанавливаем дедлайн через 7 дней если не указан
+            from datetime import datetime, timedelta
+            deadline = (datetime.now() + timedelta(days=7)).isoformat()
         
         cur.execute("""
             INSERT INTO tasks (title, description, priority, status, created_by, assigned_to, deadline, ticket_id, created_at)
