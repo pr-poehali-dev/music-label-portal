@@ -213,22 +213,30 @@ export default function TaskAssignment({ managers, directorId }: TaskAssignmentP
     setIsCompletionDialogOpen(true);
   };
 
-  const completeTask = async () => {
+  const completeTask = async (attachmentData?: { url: string; name: string; size: number }) => {
     if (!completionReport.trim()) {
       toast({ title: '❌ Опишите итоги выполнения', variant: 'destructive' });
       return;
     }
 
     try {
+      const body: any = { 
+        type: 'task', 
+        id: completingTaskId, 
+        status: 'completed',
+        completion_report: completionReport
+      };
+
+      if (attachmentData) {
+        body.completion_attachment_url = attachmentData.url;
+        body.completion_attachment_name = attachmentData.name;
+        body.completion_attachment_size = attachmentData.size;
+      }
+
       const response = await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: 'task', 
-          id: completingTaskId, 
-          status: 'completed',
-          completion_report: completionReport
-        })
+        body: JSON.stringify(body)
       });
 
       if (response.ok) {

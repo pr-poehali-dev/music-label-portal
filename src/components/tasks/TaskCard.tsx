@@ -18,6 +18,9 @@ interface Task {
   attachment_name?: string;
   attachment_size?: number;
   completion_report?: string;
+  completion_attachment_url?: string;
+  completion_attachment_name?: string;
+  completion_attachment_size?: number;
 }
 
 interface TaskCardProps {
@@ -58,9 +61,23 @@ export default function TaskCard({
         )}
 
         {task.completion_report && (
-          <div className="border-l-4 border-green-500 bg-green-500/10 p-3 rounded">
+          <div className="border-l-4 border-green-500 bg-green-500/10 p-3 rounded space-y-2">
             <p className="text-xs font-semibold text-green-600 mb-1">Итоги выполнения:</p>
             <p className="text-sm text-muted-foreground">{task.completion_report}</p>
+            {task.completion_attachment_url && (
+              <a 
+                href={task.completion_attachment_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 transition-colors"
+              >
+                <Icon name="FileText" size={14} />
+                <span className="font-medium">{task.completion_attachment_name}</span>
+                <span className="text-xs text-muted-foreground">
+                  ({(task.completion_attachment_size! / 1024 / 1024).toFixed(2)} МБ)
+                </span>
+              </a>
+            )}
           </div>
         )}
 
