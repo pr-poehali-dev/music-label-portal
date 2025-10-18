@@ -25,14 +25,17 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
   };
 
   const handleUpload = async (e?: React.MouseEvent) => {
+    console.log('handleUpload called!', e);
     e?.preventDefault();
     e?.stopPropagation();
     
     if (!file) {
+      console.log('No file selected');
       toast({ title: '❌ Выберите файл', variant: 'destructive' });
       return;
     }
 
+    console.log('Starting upload for file:', file.name);
     setUploading(true);
 
     try {
