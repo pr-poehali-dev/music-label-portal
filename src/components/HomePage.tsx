@@ -83,25 +83,28 @@ export default function HomePage() {
     }
   };
 
-  if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-          <Icon name="Music" size={24} className="text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-yellow-900 via-yellow-800 to-black">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
+              <Icon name="Music" size={24} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-yellow-100">420 SMM</h1>
+              <p className="text-sm text-yellow-300/70">Музыкальный лейбл</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => navigate('/app')}
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2"
+          >
+            <Icon name="LogIn" size={18} className="mr-2" />
+            Войти
+          </Button>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-white">420 SMM — Публичная страница</h1>
-          <p className="text-sm text-gray-400">Обзор лейбла, артистов и релизов</p>
-        </div>
-      </div>
 
       <div className="space-y-12">
         <section className="text-center space-y-4">
@@ -240,6 +243,7 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+      </div>
       </div>
     </div>
   );
