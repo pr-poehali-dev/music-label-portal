@@ -43,6 +43,9 @@ interface Ticket {
   assigned_to?: number | null;
   assigned_name?: string | null;
   deadline?: string | null;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
 }
 
 const API_URLS = {
@@ -56,6 +59,8 @@ export default function Index() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [newTicket, setNewTicket] = useState({ title: '', description: '', priority: 'medium' });
+  const [selectedTicketFile, setSelectedTicketFile] = useState<File | null>(null);
+  const [uploadingTicket, setUploadingTicket] = useState(false);
   const [managers, setManagers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist', revenue_share_percent: 50 });
@@ -107,21 +112,53 @@ export default function Index() {
   const createTicket = async () => {
     if (!newTicket.title || !newTicket.description || !user) return;
     
+    setUploadingTicket(true);
     try {
+      let attachmentUrl = null;
+      let attachmentName = null;
+      let attachmentSize = null;
+
+      // Загрузка файла если выбран
+      if (selectedTicketFile) {
+        const formData = new FormData();
+        formData.append('file', selectedTicketFile);
+
+        const uploadResponse = await fetch('https://functions.poehali.dev/f7d3af63-4868-4f2e-a1bd-73dad1c7c7d5', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (uploadResponse.ok) {
+          const uploadData = await uploadResponse.json();
+          attachmentUrl = uploadData.url;
+          attachmentName = selectedTicketFile.name;
+          attachmentSize = selectedTicketFile.size;
+        }
+      }
+
       const response = await fetch(API_URLS.tickets, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newTicket, created_by: user.id })
+        body: JSON.stringify({ 
+          ...newTicket, 
+          created_by: user.id,
+          attachment_url: attachmentUrl,
+          attachment_name: attachmentName,
+          attachment_size: attachmentSize
+        })
       });
       
       if (response.ok) {
         logActivity(user.id, 'create_ticket', `Создан тикет: ${newTicket.title}`, { priority: newTicket.priority });
         setNewTicket({ title: '', description: '', priority: 'medium' });
+        setSelectedTicketFile(null);
         toast({ title: '✅ Тикет создан' });
         loadTickets();
       }
     } catch (error) {
       toast({ title: '❌ Ошибка создания тикета', variant: 'destructive' });
+    } finally {
+      setUploadingTicket(false);
     }
   };
 
@@ -320,8 +357,11 @@ export default function Index() {
             <TabsContent value="create">
               <CreateTicketForm
                 newTicket={newTicket}
-                onNewTicketChange={setNewTicket}
+                onTicketChange={setNewTicket}
                 onCreateTicket={createTicket}
+                selectedFile={selectedTicketFile}
+                onFileChange={setSelectedTicketFile}
+                uploading={uploadingTicket}
               />
             </TabsContent>
 

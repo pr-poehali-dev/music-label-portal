@@ -23,6 +23,9 @@ interface Ticket {
   assigned_to?: number | null;
   assigned_name?: string | null;
   deadline?: string | null;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
 }
 
 interface MyTicketsProps {

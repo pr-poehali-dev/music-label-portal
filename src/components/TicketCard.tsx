@@ -24,6 +24,9 @@ interface Ticket {
   assigned_to?: number | null;
   assigned_name?: string | null;
   deadline?: string | null;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
 }
 
 interface TicketCardProps {
@@ -108,6 +111,19 @@ export default function TicketCard({
             <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-medium' : ''}`}>
               <Icon name="Calendar" size={12} />
               <span>{new Date(ticket.deadline).toLocaleDateString('ru-RU')}{isOverdue && ' ⚠️'}</span>
+            </div>
+          )}
+          {ticket.attachment_url && (
+            <div className="flex items-center gap-1">
+              <Icon name="Paperclip" size={12} />
+              <a 
+                href={ticket.attachment_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                {ticket.attachment_name}
+              </a>
             </div>
           )}
         </div>
