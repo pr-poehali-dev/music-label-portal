@@ -7,6 +7,7 @@ import ReminderSetup from '@/components/ReminderSetup';
 import TelegramBotSettings from '@/components/TelegramBotSettings';
 
 import UserActivityMonitor from '@/components/UserActivityMonitor';
+import UserActivityStats from '@/components/UserActivityStats';
 import HomePage from '@/components/HomePage';
 import ReportsUploader from '@/components/ReportsUploader';
 import SubmissionsManager from '@/components/SubmissionsManager';
@@ -17,6 +18,7 @@ import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface User {
   id: number;
@@ -104,6 +106,7 @@ export default function DirectorTabs({
 
   const { unreadCounts, refreshCounts } = useNotifications();
   const { isUserOnline, getUserLastSeen } = useOnlineStatus(user.id);
+  useActivityTracking(user.id);
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
@@ -214,6 +217,7 @@ export default function DirectorTabs({
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="mb-4">
             <TabsTrigger value="users">Пользователи</TabsTrigger>
+            <TabsTrigger value="activity">Статистика активности</TabsTrigger>
             <TabsTrigger value="monitoring">Мониторинг активности</TabsTrigger>
           </TabsList>
           
@@ -224,6 +228,14 @@ export default function DirectorTabs({
               onNewUserChange={onNewUserChange}
               onCreateUser={onCreateUser}
               onUpdateUser={onUpdateUser}
+              isUserOnline={isUserOnline}
+              getUserLastSeen={getUserLastSeen}
+            />
+          </TabsContent>
+          
+          <TabsContent value="activity">
+            <UserActivityStats 
+              users={allUsers}
               isUserOnline={isUserOnline}
               getUserLastSeen={getUserLastSeen}
             />

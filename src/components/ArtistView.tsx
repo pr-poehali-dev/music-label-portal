@@ -10,6 +10,7 @@ import UserProfile from '@/components/UserProfile';
 import { User, Ticket, NewTicket } from '@/types';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ArtistViewProps {
   user: User;
@@ -53,6 +54,7 @@ export default function ArtistView({
 
   const { unreadCounts } = useNotifications();
   useOnlineStatus(user.id);
+  useActivityTracking(user.id);
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;

@@ -12,6 +12,7 @@ import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ManagerViewProps {
   user: User;
@@ -55,6 +56,7 @@ export default function ManagerView({
 
   const { unreadCounts } = useNotifications();
   useOnlineStatus(user.id);
+  useActivityTracking(user.id);
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
