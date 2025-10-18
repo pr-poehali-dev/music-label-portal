@@ -319,18 +319,18 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
         <div className="container mx-auto p-4 animate-fadeIn">
-          <div className="flex justify-between items-center mb-6 bg-black/40 backdrop-blur-sm border border-yellow-500/20 rounded-xl p-4 animate-slideIn">
+          <div className="flex justify-between items-center mb-6 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-4 animate-slideIn">
             <div className="flex items-center gap-4">
               <img 
                 src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
                 alt="420 Logo" 
-                className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
+                className="w-12 h-12 rounded-full shadow-lg shadow-primary/50 animate-glow"
               />
-              <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
+              <h1 className="text-3xl font-bold text-primary">420.рф</h1>
             </div>
             <button 
               onClick={logout}
-              className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold rounded-lg hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
+              className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
             >
               Выйти
             </button>
@@ -338,11 +338,11 @@ export default function Index() {
 
           <Tabs defaultValue="stats" className="w-full">
             <div className="w-full overflow-x-auto pb-2">
-              <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-4 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
-                <TabsTrigger value="stats" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Статистика</TabsTrigger>
-                <TabsTrigger value="reports" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Отчёты</TabsTrigger>
-                <TabsTrigger value="create" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
-                <TabsTrigger value="my-tickets" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Мои тикеты</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="stats">📊 Статистика</TabsTrigger>
+                <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
+                <TabsTrigger value="create">✉️ Создать тикет</TabsTrigger>
+                <TabsTrigger value="my-tickets">🎫 Мои тикеты</TabsTrigger>
               </TabsList>
             </div>
 
@@ -384,18 +384,18 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
         <div className="container mx-auto p-4 animate-fadeIn">
-          <div className="flex justify-between items-center mb-6 bg-black/40 backdrop-blur-sm border border-yellow-500/20 rounded-xl p-4 animate-slideIn">
+          <div className="flex justify-between items-center mb-6 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-4 animate-slideIn">
             <div className="flex items-center gap-4">
               <img 
                 src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
                 alt="420 Logo" 
-                className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
+                className="w-12 h-12 rounded-full shadow-lg shadow-primary/50 animate-glow"
               />
-              <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
+              <h1 className="text-3xl font-bold text-primary">420.рф</h1>
             </div>
             <button 
               onClick={logout}
-              className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold rounded-lg hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
+              className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
             >
               Выйти
             </button>
@@ -403,10 +403,10 @@ export default function Index() {
 
           <Tabs defaultValue="tasks" className="w-full">
             <div className="w-full overflow-x-auto pb-2">
-              <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-3 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
-                <TabsTrigger value="tasks" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Мои задачи</TabsTrigger>
-                <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Заявки</TabsTrigger>
-                <TabsTrigger value="tickets" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Тикеты</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="tasks">✅ Мои задачи</TabsTrigger>
+                <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
+                <TabsTrigger value="tickets">🎫 Тикеты</TabsTrigger>
               </TabsList>
             </div>
 
@@ -440,18 +440,18 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto p-4 animate-fadeIn">
-        <div className="flex justify-between items-center mb-6 bg-black/40 backdrop-blur-sm border border-yellow-500/20 rounded-xl p-4 animate-slideIn">
+        <div className="flex justify-between items-center mb-6 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-4 animate-slideIn">
           <div className="flex items-center gap-4">
             <img 
               src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
               alt="420 Logo" 
-              className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
+              className="w-12 h-12 rounded-full shadow-lg shadow-primary/50 animate-glow"
             />
-            <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
+            <h1 className="text-3xl font-bold text-primary">420.рф</h1>
           </div>
           <button 
             onClick={logout}
-            className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold rounded-lg hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
+            className="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
           >
             Выйти
           </button>

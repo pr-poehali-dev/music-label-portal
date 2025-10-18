@@ -87,13 +87,13 @@ export default function DirectorTabs({
   return (
     <Tabs defaultValue="submissions" className="w-full">
       <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="grid w-full grid-cols-6 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
-          <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📋 Заявки</TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">✅ Задачи</TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📊 Аналитика</TabsTrigger>
-          <TabsTrigger value="team" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">👥 Команда</TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">📁 Отчёты</TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">⚙️ Настройки</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="submissions">📋 Заявки</TabsTrigger>
+          <TabsTrigger value="tasks">✅ Задачи</TabsTrigger>
+          <TabsTrigger value="analytics">📊 Аналитика</TabsTrigger>
+          <TabsTrigger value="team">👥 Команда</TabsTrigger>
+          <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
+          <TabsTrigger value="settings">⚙️ Настройки</TabsTrigger>
         </TabsList>
       </div>
 

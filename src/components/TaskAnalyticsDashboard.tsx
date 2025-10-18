@@ -207,62 +207,55 @@ export default function TaskAnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Всего задач</p>
-                <p className="text-3xl font-bold text-white">{totalTasks}</p>
-              </div>
-              <Icon name="ListTodo" size={40} className="text-yellow-400 opacity-50" />
-            </div>
+    <div className="space-y-6 p-6">
+      <div className="flex items-center gap-3 mb-2">
+        <Icon name="BarChart3" size={32} className="text-yellow-400" />
+        <h1 className="text-3xl font-bold">Аналитика задач</h1>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Всего задач</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalTasks}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 border-green-500/20 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Завершено</p>
-                <p className="text-3xl font-bold text-green-400">{completedTasks}</p>
-                <p className="text-xs text-gray-500">{completionRate}% от всех</p>
-              </div>
-              <Icon name="CheckCircle" size={40} className="text-green-400 opacity-50" />
-            </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Завершено</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-500">{completedTasks}</div>
+            <p className="text-xs text-muted-foreground mt-1">{completionRate}% от всех</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 border-blue-500/20 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">В работе</p>
-                <p className="text-3xl font-bold text-blue-400">{inProgressTasks}</p>
-              </div>
-              <Icon name="Play" size={40} className="text-blue-400 opacity-50" />
-            </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">В работе</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-500">{inProgressTasks}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/40 border-red-500/20 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Просрочено</p>
-                <p className="text-3xl font-bold text-red-400">{overdueTasks}</p>
-              </div>
-              <Icon name="AlertCircle" size={40} className="text-red-400 opacity-50" />
-            </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Просрочено</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-500">{overdueTasks}</div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-yellow-400 flex items-center gap-2">
-            <Icon name="TrendingUp" size={24} />
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="TrendingUp" size={20} />
             Статистика по рабочим дням (последние 30 дней)
           </CardTitle>
         </CardHeader>
@@ -358,55 +351,55 @@ export default function TaskAnalyticsDashboard() {
         </CardContent>
       </Card>
 
-      <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-yellow-400 flex items-center gap-2">
-            <Icon name="Users" size={24} />
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="Users" size={20} />
             Рейтинг менеджеров
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {managerStats.map((manager, index) => (
-              <div key={manager.manager_id} className="bg-black/60 border border-yellow-500/20 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
+              <div key={manager.manager_id} className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-bold">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-bold text-sm">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{manager.manager_name}</p>
-                      <p className="text-xs text-gray-400">{manager.total_tasks} задач всего</p>
+                      <p className="font-semibold">{manager.manager_name}</p>
+                      <p className="text-xs text-muted-foreground">{manager.total_tasks} задач всего</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-green-400">{manager.on_time_completion_rate}%</p>
-                    <p className="text-xs text-gray-400">в срок</p>
+                    <p className="text-xl font-bold text-green-500">{manager.on_time_completion_rate}%</p>
+                    <p className="text-xs text-muted-foreground">в срок</p>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                  <div className="bg-green-500/10 border border-green-500/30 rounded p-2">
-                    <p className="text-green-400 font-bold">{manager.completed_tasks}</p>
-                    <p className="text-xs text-gray-400">Готово</p>
+                <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                  <div>
+                    <p className="text-green-500 font-bold text-lg">{manager.completed_tasks}</p>
+                    <p className="text-muted-foreground">Готово</p>
                   </div>
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded p-2">
-                    <p className="text-blue-400 font-bold">{manager.in_progress_tasks}</p>
-                    <p className="text-xs text-gray-400">В работе</p>
+                  <div>
+                    <p className="text-blue-500 font-bold text-lg">{manager.in_progress_tasks}</p>
+                    <p className="text-muted-foreground">В работе</p>
                   </div>
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2">
-                    <p className="text-yellow-400 font-bold">{manager.pending_tasks}</p>
-                    <p className="text-xs text-gray-400">Ожидают</p>
+                  <div>
+                    <p className="text-yellow-500 font-bold text-lg">{manager.pending_tasks}</p>
+                    <p className="text-muted-foreground">Ожидают</p>
                   </div>
-                  <div className="bg-red-500/10 border border-red-500/30 rounded p-2">
-                    <p className="text-red-400 font-bold">{manager.overdue_tasks}</p>
-                    <p className="text-xs text-gray-400">Просрочено</p>
+                  <div>
+                    <p className="text-red-500 font-bold text-lg">{manager.overdue_tasks}</p>
+                    <p className="text-muted-foreground">Просрочено</p>
                   </div>
                 </div>
                 
-                <div className="mt-3 h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all"
+                    className="h-full bg-green-500 transition-all"
                     style={{ width: `${manager.total_tasks > 0 ? (manager.completed_tasks / manager.total_tasks) * 100 : 0}%` }}
                   />
                 </div>
