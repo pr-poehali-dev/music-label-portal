@@ -88,11 +88,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             performer_column = None
             possible_names = ['Исполнитель', 'исполнитель', 'Performer', 'performer', 'Artist', 'artist', 'Артист', 'артист']
             
+            print(f"DEBUG: Total rows parsed: {len(rows)}")
             if rows:
+                print(f"DEBUG: First row keys: {list(rows[0].keys())}")
                 for name in possible_names:
                     if name in rows[0]:
                         performer_column = name
+                        print(f"DEBUG: Found performer column: {performer_column}")
                         break
+            
+            if not performer_column:
+                print(f"DEBUG: Performer column not found! Available columns: {list(rows[0].keys()) if rows else 'No rows'}")
             
             artist_data = defaultdict(list)
             
@@ -105,6 +111,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     artist_data[performer].append(row)
                 else:
                     artist_data['Без исполнителя'].append(row)
+            
+            print(f"DEBUG: Found {len(artist_data)} unique performers")
             
             cursor.execute(
                 "INSERT INTO t_p35759334_music_label_portal.uploaded_reports (file_name, uploaded_by, total_rows, processed) VALUES (%s, %s, %s, %s) RETURNING id",
