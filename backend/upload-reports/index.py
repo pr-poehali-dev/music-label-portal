@@ -101,7 +101,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             print(f"DEBUG: Total rows parsed: {len(rows)}")
             if rows:
-                print(f"DEBUG: First row keys: {list(rows[0].keys())}")
+                all_columns = list(rows[0].keys())
+                print(f"DEBUG: All columns ({len(all_columns)}): {all_columns}")
+                print(f"DEBUG: First data row sample: {list(rows[0].values())[:10]}")
+                
                 for name in possible_names:
                     if name in rows[0]:
                         performer_column = name
@@ -109,7 +112,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         break
             
             if not performer_column:
-                print(f"DEBUG: Performer column not found! Available columns: {list(rows[0].keys()) if rows else 'No rows'}")
+                print(f"DEBUG: Performer column not found! Please specify column number (0-{len(all_columns)-1 if rows else 0})")
             
             artist_data = defaultdict(list)
             
