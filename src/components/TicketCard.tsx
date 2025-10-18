@@ -73,77 +73,66 @@ export default function TicketCard({
   };
 
   return (
-    <Card className={`border-primary/20 bg-card/95 hover:border-primary/40 transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <CardTitle className="text-primary text-base truncate">{ticket.title}</CardTitle>
-              <div className="flex items-center gap-1 shrink-0">
-                {effectiveRole === 'director' && onDelete && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(ticket.id)}
-                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-500/10"
-                  >
-                    <Icon name="Trash2" size={14} />
-                  </Button>
-                )}
-                <div className="flex gap-1">
-                <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-xs px-1.5 py-0`}>
-                  {ticket.priority === 'urgent' ? '🔥' : 
-                   ticket.priority === 'high' ? '⚠️' :
-                   ticket.priority === 'medium' ? '📌' : '📋'}
-                </Badge>
-                <Badge variant="outline" className={`${getStatusColor(ticket.status)} text-white text-xs px-1.5 py-0`}>
-                  {ticket.status === 'open' ? 'Открыт' :
-                   ticket.status === 'in_progress' ? 'В работе' :
-                   ticket.status === 'resolved' ? 'Решён' : 'Закрыт'}
-                </Badge>
-                </div>
-              </div>
-            </div>
-            <CardDescription className="text-foreground/70 text-sm line-clamp-2">{ticket.description}</CardDescription>
-          </div>
+    <Card className={`border-primary/20 bg-card/95 hover:shadow-lg transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
+      <CardHeader className="pb-2 space-y-2">
+        <div className="flex items-start justify-between gap-2">
+          <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-xs px-2 py-0.5 shrink-0`}>
+            {ticket.priority === 'urgent' ? '🔥' : 
+             ticket.priority === 'high' ? '⚠️' :
+             ticket.priority === 'medium' ? '📌' : '📋'}
+          </Badge>
+          {effectiveRole === 'director' && onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(ticket.id)}
+              className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-500/10 shrink-0"
+            >
+              <Icon name="Trash2" size={14} />
+            </Button>
+          )}
         </div>
+        <CardTitle className="text-primary text-sm font-semibold line-clamp-2 leading-tight">{ticket.title}</CardTitle>
+        <CardDescription className="text-foreground/60 text-xs line-clamp-2 leading-snug">{ticket.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 pt-0">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Icon name="User" size={12} />
-            <span>{ticket.creator_name}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Icon name="Clock" size={12} />
-            <span>{new Date(ticket.created_at).toLocaleDateString('ru-RU')}</span>
+      <CardContent className="space-y-2 pt-0 pb-3">
+        <div className="space-y-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 truncate">
+              <Icon name="User" size={11} />
+              <span className="truncate">{ticket.creator_name}</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Icon name="Clock" size={11} />
+              <span>{new Date(ticket.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}</span>
+            </div>
           </div>
           {ticket.assigned_name && (
-            <div className="flex items-center gap-1">
-              <Icon name="UserCheck" size={12} />
-              <span>{ticket.assigned_name}</span>
+            <div className="flex items-center gap-1 truncate text-primary/80">
+              <Icon name="UserCheck" size={11} />
+              <span className="truncate">{ticket.assigned_name}</span>
             </div>
           )}
           {ticket.tasks_total !== undefined && ticket.tasks_total > 0 && (
             <div className="flex items-center gap-1 text-primary font-medium">
-              <Icon name="CheckSquare" size={12} />
-              <span>Задачи: {ticket.tasks_completed}/{ticket.tasks_total}</span>
+              <Icon name="CheckSquare" size={11} />
+              <span>{ticket.tasks_completed}/{ticket.tasks_total}</span>
             </div>
           )}
           {ticket.deadline && (
             <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-medium' : ''}`}>
-              <Icon name="Calendar" size={12} />
-              <span>{new Date(ticket.deadline).toLocaleDateString('ru-RU')}{isOverdue && ' ⚠️'}</span>
+              <Icon name="Calendar" size={11} />
+              <span>{new Date(ticket.deadline).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}{isOverdue && ' ⚠️'}</span>
             </div>
           )}
           {ticket.attachment_url && (
-            <div className="flex items-center gap-1">
-              <Icon name="Paperclip" size={12} />
+            <div className="flex items-center gap-1 truncate">
+              <Icon name="Paperclip" size={11} />
               <a 
                 href={ticket.attachment_url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary hover:underline truncate"
               >
                 {ticket.attachment_name}
               </a>
@@ -151,25 +140,25 @@ export default function TicketCard({
           )}
           {ticket.status === 'closed' && getTimeSpent() && (
             <div className="flex items-center gap-1 text-green-600 font-medium">
-              <Icon name="Timer" size={12} />
-              <span>Выполнено за: {getTimeSpent()}</span>
+              <Icon name="Timer" size={11} />
+              <span>{getTimeSpent()}</span>
             </div>
           )}
         </div>
 
         {effectiveRole === 'director' && ticket.status === 'open' && onAssign && (
-          <div className="flex gap-2">
+          <div className="space-y-1.5">
             <Select
               onValueChange={(val) => {
                 const managerId = val === 'unassign' ? null : Number(val);
                 onAssign(ticket.id, managerId);
               }}
             >
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Назначить менеджера" />
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Назначить" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="unassign">Снять назначение</SelectItem>
+                <SelectItem value="unassign">Снять</SelectItem>
                 {managers.map((manager) => (
                   <SelectItem key={manager.id} value={String(manager.id)}>
                     {manager.full_name}
@@ -178,28 +167,29 @@ export default function TicketCard({
               </SelectContent>
             </Select>
             <Input
-              type="datetime-local"
+              type="date"
               onChange={(e) => {
                 if (e.target.value && ticket.assigned_to) {
                   onAssign(ticket.id, ticket.assigned_to, e.target.value);
                 }
               }}
-              className="flex-1"
+              className="h-8 text-xs"
+              placeholder="Дедлайн"
             />
           </div>
         )}
 
         {(effectiveRole === 'manager' || effectiveRole === 'director') && ticket.status !== 'closed' && (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {ticket.status === 'open' && (
               <Button 
                 onClick={() => onUpdateStatus(ticket.id, 'in_progress')} 
                 variant="outline" 
                 size="sm"
-                className="flex-1"
+                className="flex-1 h-8 text-xs"
               >
-                <Icon name="Play" size={14} className="mr-1" />
-                Взять в работу
+                <Icon name="Play" size={12} className="mr-1" />
+                В работу
               </Button>
             )}
             {ticket.status === 'in_progress' && (
@@ -207,9 +197,9 @@ export default function TicketCard({
                 onClick={() => onUpdateStatus(ticket.id, 'resolved')} 
                 variant="outline" 
                 size="sm"
-                className="flex-1"
+                className="flex-1 h-8 text-xs"
               >
-                <Icon name="Check" size={14} className="mr-1" />
+                <Icon name="Check" size={12} className="mr-1" />
                 Решить
               </Button>
             )}
@@ -218,9 +208,9 @@ export default function TicketCard({
                 onClick={() => onUpdateStatus(ticket.id, 'closed')} 
                 variant="outline" 
                 size="sm"
-                className="flex-1"
+                className="flex-1 h-8 text-xs"
               >
-                <Icon name="X" size={14} className="mr-1" />
+                <Icon name="X" size={12} className="mr-1" />
                 Закрыть
               </Button>
             )}

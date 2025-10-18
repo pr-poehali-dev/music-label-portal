@@ -120,91 +120,97 @@ export default function TicketManagement({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="space-y-4">
-          <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 border-2 border-blue-300 dark:border-blue-700">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-              <Icon name="Circle" size={16} />
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-2.5 border-2 border-blue-300 dark:border-blue-700">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2 text-sm">
+              <Icon name="Circle" size={14} />
               Открыто ({openTickets.length})
             </h3>
           </div>
           {openTickets.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Нет открытых тикетов</p>
+            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
+              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
+              <p className="text-xs">Нет открытых тикетов</p>
             </div>
           ) : (
-            openTickets.map(ticket => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                user={user}
-                managers={managers}
-                onUpdateStatus={onUpdateStatus}
-                onAssign={onAssignTicket}
-                onDelete={onDeleteTicket}
-                getPriorityColor={getPriorityColor}
-                getStatusColor={getStatusColor}
-              />
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {openTickets.map(ticket => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  user={user}
+                  managers={managers}
+                  onUpdateStatus={onUpdateStatus}
+                  onAssign={onAssignTicket}
+                  onDelete={onDeleteTicket}
+                  getPriorityColor={getPriorityColor}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </div>
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg p-3 border-2 border-yellow-300 dark:border-yellow-700">
-            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
-              <Icon name="Clock" size={16} />
+        <div className="space-y-3">
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg p-2.5 border-2 border-yellow-300 dark:border-yellow-700">
+            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2 text-sm">
+              <Icon name="Clock" size={14} />
               В работе ({inProgressTickets.length})
             </h3>
           </div>
           {inProgressTickets.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Нет тикетов в работе</p>
+            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
+              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
+              <p className="text-xs">Нет тикетов в работе</p>
             </div>
           ) : (
-            inProgressTickets.map(ticket => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                user={user}
-                managers={managers}
-                onUpdateStatus={onUpdateStatus}
-                onAssign={onAssignTicket}
-                onDelete={onDeleteTicket}
-                getPriorityColor={getPriorityColor}
-                getStatusColor={getStatusColor}
-              />
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {inProgressTickets.map(ticket => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  user={user}
+                  managers={managers}
+                  onUpdateStatus={onUpdateStatus}
+                  onAssign={onAssignTicket}
+                  onDelete={onDeleteTicket}
+                  getPriorityColor={getPriorityColor}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </div>
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border-2 border-green-300 dark:border-green-700">
-            <h3 className="font-semibold text-green-800 dark:text-green-200 flex items-center gap-2">
-              <Icon name="CheckCircle" size={16} />
+        <div className="space-y-3">
+          <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-2.5 border-2 border-green-300 dark:border-green-700">
+            <h3 className="font-semibold text-green-800 dark:text-green-200 flex items-center gap-2 text-sm">
+              <Icon name="CheckCircle" size={14} />
               Решено ({resolvedTickets.length})
             </h3>
           </div>
           {resolvedTickets.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Нет решённых тикетов</p>
+            <div className="text-center py-6 text-gray-400 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
+              <Icon name="Inbox" size={24} className="mx-auto mb-1 opacity-50" />
+              <p className="text-xs">Нет решённых тикетов</p>
             </div>
           ) : (
-            resolvedTickets.map(ticket => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                user={user}
-                managers={managers}
-                onUpdateStatus={onUpdateStatus}
-                onAssign={onAssignTicket}
-                onDelete={onDeleteTicket}
-                getPriorityColor={getPriorityColor}
-                getStatusColor={getStatusColor}
-              />
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {resolvedTickets.map(ticket => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  user={user}
+                  managers={managers}
+                  onUpdateStatus={onUpdateStatus}
+                  onAssign={onAssignTicket}
+                  onDelete={onDeleteTicket}
+                  getPriorityColor={getPriorityColor}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
