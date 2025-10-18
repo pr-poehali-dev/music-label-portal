@@ -98,10 +98,14 @@ export default function DirectorTabs({
   return (
     <Tabs defaultValue="analytics" className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-        <TabsList className="grid w-full grid-cols-6 md:grid-cols-6 min-w-[600px] md:min-w-0">
+        <TabsList className="grid w-full grid-cols-7 md:grid-cols-7 min-w-[700px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">📊 Аналитика</span>
             <span className="md:hidden">📊</span>
+          </TabsTrigger>
+          <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4">
+            <span className="hidden md:inline">🎫 Тикеты</span>
+            <span className="md:hidden">🎫</span>
           </TabsTrigger>
           <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">✅ Задачи</span>
@@ -125,6 +129,20 @@ export default function DirectorTabs({
           </TabsTrigger>
         </TabsList>
       </div>
+
+      <TabsContent value="tickets" className="space-y-4">
+        <TicketManagement
+          user={user}
+          tickets={tickets}
+          managers={managers}
+          statusFilter={statusFilter}
+          onStatusFilterChange={onStatusFilterChange}
+          onUpdateStatus={onUpdateStatus}
+          onAssignTicket={onAssignTicket}
+          onLoadTickets={onLoadTickets}
+          onDeleteTicket={onDeleteTicket}
+        />
+      </TabsContent>
 
       <TabsContent value="submissions">
         <SubmissionsManager userId={user.id} />
