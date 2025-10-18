@@ -799,6 +799,11 @@ def handle_link_account(text: str, chat_id: int, bot_token: str, db_url: str):
 def handle_command(text: str, chat_id: int, bot_token: str, db_url: str, user: Dict):
     if text == '/menu':
         show_main_menu(bot_token, chat_id, user)
+    elif text == '/stats':
+        keyboard = [[{'text': '📊 Открыть аналитику', 'callback_data': 'analytics_tickets'}]]
+        send_message_with_keyboard(bot_token, chat_id, 'Для статистики используйте меню ниже:', keyboard)
+    else:
+        show_main_menu(bot_token, chat_id, user)
 
 def send_ticket_notification(data: Dict, bot_token: str, db_url: str) -> Dict[str, Any]:
     ticket_id = data.get('ticket_id')
