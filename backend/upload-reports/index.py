@@ -103,16 +103,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if rows:
                 all_columns = list(rows[0].keys())
                 print(f"DEBUG: All columns ({len(all_columns)}): {all_columns}")
-                print(f"DEBUG: First data row sample: {list(rows[0].values())[:10]}")
                 
                 for name in possible_names:
                     if name in rows[0]:
                         performer_column = name
-                        print(f"DEBUG: Found performer column: {performer_column}")
+                        print(f"DEBUG: Found performer column by name: {performer_column}")
                         break
+                
+                if not performer_column:
+                    print(f"DEBUG: Column name not found, analyzing data patterns...")
+                    performer_indicators = ['feat', 'ft.', 'ип ', 'ооо', ' & ', 'band', 'group']
+                    
+                    for col_name in all_columns:
+                        sample_values = [str(row.get(col_name, '')).lower().strip() 
+                                       for row in rows[:100] 
+                                       if row.get(col_name)]
+                        
+                        if not sample_values:
+                            continue
+                        
+                        matches = sum(1 for val in sample_values 
+                                    if any(indicator in val for indicator in performer_indicators))
+                        
+                        non_empty = len([v for v in sample_values if v and v != 'none'])
+                        
+                        if non_empty > 50 and matches > 5:
+                            performer_column = col_name
+                            print(f"DEBUG: Auto-detected performer column: {col_name} (matches: {matches}/{non_empty})")
+                            print(f"DEBUG: Sample values: {sample_values[:3]}")
+                            break
             
             if not performer_column:
-                print(f"DEBUG: Performer column not found! Please specify column number (0-{len(all_columns)-1 if rows else 0})")
+                print(f"DEBUG: Performer column not found! Using first non-empty text column as fallback")
             
             artist_data = defaultdict(list)
             
