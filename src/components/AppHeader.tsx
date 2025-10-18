@@ -22,8 +22,10 @@ export default function AppHeader({ onMessagesClick, onLogout, userRole, userId 
     try {
       const response = await fetch(`https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7?user_id=${userId}&list_dialogs=true`);
       if (response.ok) {
-        const data = await response.json();
-        const total = data.dialogs?.reduce((sum: number, dialog: any) => sum + (dialog.unread_count || 0), 0) || 0;
+        const dialogs = await response.json();
+        const total = Array.isArray(dialogs) 
+          ? dialogs.reduce((sum: number, dialog: any) => sum + (dialog.unread_count || 0), 0) 
+          : 0;
         setUnreadCount(total);
       }
     } catch (error) {
