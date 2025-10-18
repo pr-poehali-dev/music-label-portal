@@ -267,7 +267,7 @@ export default function Index() {
                 alt="420 Logo" 
                 className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
               />
-              <h1 className="text-3xl font-bold text-yellow-400">👋 {user.full_name}</h1>
+              <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
             </div>
             <button 
               onClick={logout}
@@ -329,7 +329,7 @@ export default function Index() {
                 alt="420 Logo" 
                 className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
               />
-              <h1 className="text-3xl font-bold text-yellow-400">👋 {user.full_name}</h1>
+              <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
             </div>
             <button 
               onClick={logout}
