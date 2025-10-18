@@ -36,6 +36,7 @@ interface TicketManagementProps {
   onUpdateStatus: (ticketId: number, status: string) => void;
   onAssignTicket: (ticketId: number, managerId: number | null, deadline?: string) => void;
   onLoadTickets: () => void;
+  onDeleteTicket?: (ticketId: number) => void;
 }
 
 const getPriorityColor = (priority: string) => {
@@ -66,7 +67,8 @@ export default function TicketManagement({
   onStatusFilterChange, 
   onUpdateStatus, 
   onAssignTicket,
-  onLoadTickets
+  onLoadTickets,
+  onDeleteTicket
 }: TicketManagementProps) {
   const { toast } = useToast();
 
@@ -158,6 +160,7 @@ export default function TicketManagement({
                   managers={managers}
                   onUpdateStatus={onUpdateStatus}
                   onAssign={onAssignTicket}
+                  onDelete={onDeleteTicket}
                   getPriorityColor={getPriorityColor}
                   getStatusColor={getStatusColor}
                 />

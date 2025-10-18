@@ -159,6 +159,30 @@ export default function Index() {
     }
   };
 
+  const deleteTicket = async (ticketId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить этот тикет?')) return;
+    
+    try {
+      const response = await fetch(API_URLS.tickets, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId })
+      });
+      
+      if (response.ok) {
+        if (user) {
+          logActivity(user.id, 'delete_ticket', `Удалён тикет #${ticketId}`, { ticketId });
+        }
+        toast({ title: '✅ Тикет удалён' });
+        loadTickets();
+      } else {
+        toast({ title: '❌ Ошибка удаления', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка удаления', variant: 'destructive' });
+    }
+  };
+
   const loadManagers = async () => {
     try {
       const response = await fetch(`${API_URLS.users}?role=manager`);
@@ -324,6 +348,7 @@ export default function Index() {
             onUpdateStatus={updateTicketStatus}
             onAssignTicket={assignTicket}
             onLoadTickets={loadTickets}
+            onDeleteTicket={deleteTicket}
           />
         </div>
       </div>
@@ -367,6 +392,7 @@ export default function Index() {
           onNewUserChange={setNewUser}
           onCreateUser={createUser}
           onLoadAllUsers={loadAllUsers}
+          onDeleteTicket={deleteTicket}
         />
       </div>
     </div>

@@ -33,6 +33,7 @@ interface TicketCardProps {
   managers: User[];
   onUpdateStatus: (ticketId: number, status: string) => void;
   onAssign?: (ticketId: number, managerId: number | null, deadline?: string) => void;
+  onDelete?: (ticketId: number) => void;
   getPriorityColor: (priority: string) => string;
   getStatusColor: (status: string) => string;
 }
@@ -44,6 +45,7 @@ export default function TicketCard({
   managers, 
   onUpdateStatus, 
   onAssign,
+  onDelete,
   getPriorityColor,
   getStatusColor
 }: TicketCardProps) {
@@ -57,7 +59,18 @@ export default function TicketCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <CardTitle className="text-primary text-base truncate">{ticket.title}</CardTitle>
-              <div className="flex gap-1 shrink-0">
+              <div className="flex items-center gap-1 shrink-0">
+                {effectiveRole === 'director' && onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(ticket.id)}
+                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-500/10"
+                  >
+                    <Icon name="Trash2" size={14} />
+                  </Button>
+                )}
+                <div className="flex gap-1">
                 <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-xs px-1.5 py-0`}>
                   {ticket.priority === 'urgent' ? '🔥' : 
                    ticket.priority === 'high' ? '⚠️' :
@@ -68,6 +81,7 @@ export default function TicketCard({
                    ticket.status === 'in_progress' ? 'В работе' :
                    ticket.status === 'resolved' ? 'Решён' : 'Закрыт'}
                 </Badge>
+                </div>
               </div>
             </div>
             <CardDescription className="text-foreground/70 text-sm line-clamp-2">{ticket.description}</CardDescription>
