@@ -1,5 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import StatsCards from '@/components/StatsCards';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
 import UserManagement from '@/components/UserManagement';
@@ -80,12 +79,11 @@ export default function DirectorTabs({
   onDeleteTicket
 }: DirectorTabsProps) {
   return (
-    <Tabs defaultValue="stats" className="w-full">
+    <Tabs defaultValue="manage" className="w-full">
       <div className="w-full overflow-x-auto pb-2">
-        <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-9 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
-          <TabsTrigger value="stats" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Статистика</TabsTrigger>
-          <TabsTrigger value="create" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
+        <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-8 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
           <TabsTrigger value="manage" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Управление</TabsTrigger>
+          <TabsTrigger value="create" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
           <TabsTrigger value="users" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Пользователи</TabsTrigger>
           <TabsTrigger value="reminders" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Напоминания</TabsTrigger>
           <TabsTrigger value="collector" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Автосбор</TabsTrigger>
@@ -94,10 +92,6 @@ export default function DirectorTabs({
           <TabsTrigger value="home" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Дом</TabsTrigger>
         </TabsList>
       </div>
-
-      <TabsContent value="stats">
-        <StatsCards tickets={tickets} />
-      </TabsContent>
 
       <TabsContent value="create">
         <CreateTicketForm
