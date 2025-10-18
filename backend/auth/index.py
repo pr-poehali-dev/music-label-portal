@@ -36,13 +36,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     username = body_data.get('username', '')
     password = body_data.get('password', '')
+    vk_data = body_data.get('vk_data')
     
-    if not username or not password:
+    if not username:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'isBase64Encoded': False,
-            'body': json.dumps({'error': 'Username and password required'})
+            'body': json.dumps({'error': 'Username required'})
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -50,9 +51,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
-    cur.execute("SELECT id, username, role, full_name FROM users WHERE username = %s AND password_hash = %s", 
-                (username, '$2a$10$N9qo8uLOickgx2ZMRZoMye1w8lQvN3s6W/KdDmrJmLZMDr1FzU7B2'))
-    user = cur.fetchone()
+    if vk_data:
+        vk_id = vk_data.get('vk_id')
+        
+        cur.execute(
+            "SELECT id, username, role, full_name, vk_photo FROM t_p35759334_music_label_portal.users WHERE vk_id = %s",
+            (vk_id,)
+        )
+        user = cur.fetchone()
+        
+        if user:
+            cur.execute(
+                """UPDATE t_p35759334_music_label_portal.users 
+                   SET vk_first_name = %s, vk_last_name = %s, vk_photo = %s, 
+                       vk_email = %s, vk_access_token = %s 
+                   WHERE vk_id = %s""",
+                (vk_data.get('first_name'), vk_data.get('last_name'), 
+                 vk_data.get('photo'), vk_data.get('email'), 
+                 vk_data.get('access_token'), vk_id)
+            )
+            conn.commit()
+        else:
+            full_name = f"{vk_data.get('first_name', '')} {vk_data.get('last_name', '')}".strip()
+            
+            cur.execute(
+                """INSERT INTO t_p35759334_music_label_portal.users 
+                   (username, password_hash, role, full_name, vk_id, vk_first_name, 
+                    vk_last_name, vk_photo, vk_email, vk_access_token) 
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+                   RETURNING id, username, role, full_name, vk_photo""",
+                (username, 'vk_oauth', 'artist', full_name, vk_id, 
+                 vk_data.get('first_name'), vk_data.get('last_name'), 
+                 vk_data.get('photo'), vk_data.get('email'), vk_data.get('access_token'))
+            )
+            user = cur.fetchone()
+            conn.commit()
+    else:
+        cur.execute(
+            "SELECT id, username, role, full_name, vk_photo FROM t_p35759334_music_label_portal.users WHERE username = %s AND password_hash = %s",
+            (username, '$2a$10$N9qo8uLOickgx2ZMRZoMye1w8lQvN3s6W/KdDmrJmLZMDr1FzU7B2')
+        )
+        user = cur.fetchone()
     
     cur.close()
     conn.close()
@@ -69,7 +108,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'id': user[0],
         'username': user[1],
         'role': user[2],
-        'full_name': user[3]
+        'full_name': user[3],
+        'vk_photo': user[4] if len(user) > 4 else None
     }
     
     return {

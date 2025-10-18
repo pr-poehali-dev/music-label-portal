@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormProps {
-  onLogin: (username: string, password: string) => void;
+  onLogin: (username: string, password: string, vkData?: any) => void;
 }
 
 export default function LoginForm({ onLogin }: LoginFormProps) {
@@ -55,7 +55,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
       
       if (data.vk_id) {
         const vkUsername = `vk_${data.vk_id}`;
-        onLogin(vkUsername, '');
+        onLogin(vkUsername, '', data);
         
         window.history.replaceState({}, document.title, window.location.pathname);
       } else {

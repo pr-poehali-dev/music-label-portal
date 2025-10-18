@@ -20,6 +20,9 @@ export interface User {
   isBlocked?: boolean;
   isFrozen?: boolean;
   freezeUntil?: string;
+  vk_photo?: string;
+  vk_first_name?: string;
+  vk_last_name?: string;
 }
 
 export interface Ticket {

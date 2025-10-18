@@ -7,9 +7,9 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string, vkData?: any) => {
     try {
-      if (!password) {
+      if (!password && !vkData) {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
           const userData = JSON.parse(savedUser);
@@ -18,10 +18,15 @@ export const useAuth = () => {
         return;
       }
 
+      const requestBody: any = { username, password };
+      if (vkData) {
+        requestBody.vk_data = vkData;
+      }
+
       const response = await fetch(API_URLS.auth, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify(requestBody)
       });
       
       const data = await response.json();
