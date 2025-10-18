@@ -3,7 +3,7 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
 import UserManagement from '@/components/UserManagement';
 import ReminderSetup from '@/components/ReminderSetup';
-import StatsCollector from '@/components/StatsCollector';
+
 import UserActivityMonitor from '@/components/UserActivityMonitor';
 import HomePage from '@/components/HomePage';
 import ReportsUploader from '@/components/ReportsUploader';
@@ -178,20 +178,7 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="reports">
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="upload">Загрузка отчётов</TabsTrigger>
-            <TabsTrigger value="collector">Автосбор статистики</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="upload">
-            <ReportsUploader userId={user.id} />
-          </TabsContent>
-          
-          <TabsContent value="collector">
-            <StatsCollector />
-          </TabsContent>
-        </Tabs>
+        <ReportsUploader userId={user.id} />
       </TabsContent>
 
       <TabsContent value="settings">
