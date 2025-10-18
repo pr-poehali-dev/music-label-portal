@@ -88,10 +88,13 @@ export default function TicketManagement({
 
   const stats = getTicketStats();
 
-  const allTickets = tickets;
-  const openTickets = tickets.filter(t => t.status === 'open');
-  const inProgressTickets = tickets.filter(t => t.status === 'in_progress');
-  const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
+  const sortByDate = (a: Ticket, b: Ticket) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+
+  const openTickets = tickets.filter(t => t.status === 'open').sort(sortByDate);
+  const inProgressTickets = tickets.filter(t => t.status === 'in_progress').sort(sortByDate);
+  const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').sort(sortByDate);
+  const allTickets = [...openTickets, ...inProgressTickets, ...resolvedTickets];
 
   return (
     <Tabs defaultValue="all" className="w-full">
