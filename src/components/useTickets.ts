@@ -1,24 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logActivity } from '@/utils/activityLogger';
-import { API_URLS, User } from './useAuth';
-
-export interface Ticket {
-  id: number;
-  title: string;
-  description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  created_by: number;
-  creator_name: string;
-  created_at: string;
-  assigned_to?: number | null;
-  assigned_name?: string | null;
-  deadline?: string | null;
-  attachment_url?: string;
-  attachment_name?: string;
-  attachment_size?: number;
-}
+import { User, Ticket, NewTicket, API_URLS } from '@/types';
 
 export const useTickets = (user: User | null, statusFilter: string) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -39,7 +22,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
   };
 
   const createTicket = async (
-    newTicket: { title: string; description: string; priority: string },
+    newTicket: NewTicket,
     selectedFile: File | null,
     setUploadingTicket: (uploading: boolean) => void
   ) => {

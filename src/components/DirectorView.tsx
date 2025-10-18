@@ -1,8 +1,7 @@
 import DirectorTabs from '@/components/DirectorTabs';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
-import { User } from './useAuth';
-import { Ticket } from './useTickets';
+import { User, Ticket, NewTicket, NewUser } from '@/types';
 
 interface DirectorViewProps {
   user: User;
@@ -10,16 +9,16 @@ interface DirectorViewProps {
   managers: User[];
   allUsers: User[];
   statusFilter: string;
-  newTicket: { title: string; description: string; priority: string };
-  newUser: { username: string; full_name: string; role: string };
+  newTicket: NewTicket;
+  newUser: NewUser;
   messagesOpen: boolean;
   onStatusFilterChange: (filter: string) => void;
-  onNewTicketChange: (ticket: { title: string; description: string; priority: string }) => void;
+  onNewTicketChange: (ticket: NewTicket) => void;
   onCreateTicket: () => void;
   onUpdateStatus: (ticketId: number, status: string) => void;
   onAssignTicket: (ticketId: number, managerId: number | null, deadline?: string) => void;
   onLoadTickets: () => void;
-  onNewUserChange: (user: { username: string; full_name: string; role: string }) => void;
+  onNewUserChange: (user: NewUser) => void;
   onCreateUser: () => void;
   onLoadAllUsers: () => void;
   onDeleteTicket: (ticketId: number) => void;

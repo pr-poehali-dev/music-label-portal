@@ -5,8 +5,7 @@ import ManagerTasks from '@/components/ManagerTasks';
 import ManagerStats from '@/components/ManagerStats';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
-import { User } from './useAuth';
-import { Ticket } from './useTickets';
+import { User, Ticket } from '@/types';
 
 interface ManagerViewProps {
   user: User;

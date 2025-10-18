@@ -1,29 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logActivity } from '@/utils/activityLogger';
-
-export interface User {
-  id: number;
-  username: string;
-  role: 'artist' | 'manager' | 'director';
-  full_name: string;
-  social_links_filled?: boolean;
-  yandex_music_url?: string;
-  vk_group_url?: string;
-  tiktok_url?: string;
-  is_blocked?: boolean;
-  is_frozen?: boolean;
-  frozen_until?: string;
-  blocked_reason?: string;
-  last_ip?: string;
-  device_fingerprint?: string;
-}
-
-const API_URLS = {
-  auth: 'https://functions.poehali.dev/d2601eec-1d55-4956-b655-187431987ed9',
-  tickets: 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296',
-  users: 'https://functions.poehali.dev/cf5d45c1-d64b-4400-af77-a51c7588d942'
-};
+import { User, API_URLS } from '@/types';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -67,5 +45,3 @@ export const useAuth = () => {
 
   return { user, login, logout };
 };
-
-export { API_URLS };

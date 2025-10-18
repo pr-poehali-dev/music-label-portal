@@ -5,19 +5,18 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
-import { User } from './useAuth';
-import { Ticket } from './useTickets';
+import { User, Ticket, NewTicket } from '@/types';
 
 interface ArtistViewProps {
   user: User;
   tickets: Ticket[];
   statusFilter: string;
-  newTicket: { title: string; description: string; priority: string };
+  newTicket: NewTicket;
   selectedTicketFile: File | null;
   uploadingTicket: boolean;
   messagesOpen: boolean;
   onStatusFilterChange: (filter: string) => void;
-  onTicketChange: (ticket: { title: string; description: string; priority: string }) => void;
+  onTicketChange: (ticket: NewTicket) => void;
   onCreateTicket: () => void;
   onFileChange: (file: File | null) => void;
   onLoadTickets: () => void;

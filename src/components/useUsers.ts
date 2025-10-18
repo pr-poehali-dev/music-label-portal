@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { API_URLS, User } from './useAuth';
+import { User, NewUser, API_URLS } from '@/types';
 
 export const useUsers = (user: User | null) => {
   const [managers, setManagers] = useState<User[]>([]);
@@ -27,7 +27,7 @@ export const useUsers = (user: User | null) => {
     }
   };
 
-  const createUser = async (newUser: { username: string; full_name: string; role: string }) => {
+  const createUser = async (newUser: NewUser) => {
     if (!newUser.username || !newUser.full_name) {
       toast({ title: '❌ Заполните все поля', variant: 'destructive' });
       return false;
