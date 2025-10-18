@@ -149,51 +149,12 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="tasks" className="space-y-4">
-        <Tabs defaultValue="manager-tasks">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="manager-tasks">
-              <span className="hidden md:inline">Задачи менеджеров</span>
-              <span className="md:hidden">Задачи</span>
-            </TabsTrigger>
-            <TabsTrigger value="assignment">
-              <span className="hidden md:inline">Назначение задач</span>
-              <span className="md:hidden">Назначение</span>
-            </TabsTrigger>
-            <TabsTrigger value="create">
-              <span className="hidden md:inline">Создать тикет</span>
-              <span className="md:hidden">Создать</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="manager-tasks">
-            <TasksTab
-              tasks={tasks}
-              tickets={tickets}
-              managers={managers}
-              onCreateTask={onCreateTask}
-              onUpdateTaskStatus={onUpdateTaskStatus}
-              onDeleteTask={onDeleteTask}
-            />
-          </TabsContent>
-
-          <TabsContent value="assignment">
-            <TaskAssignment
-              tickets={tickets}
-              managers={managers}
-              onAssignTicket={onAssignTicket}
-              onLoadTickets={onLoadTickets}
-            />
-          </TabsContent>
-
-          <TabsContent value="create">
-            <CreateTicketForm
-              newTicket={newTicket}
-              onTicketChange={onNewTicketChange}
-              onCreateTicket={onCreateTicket}
-              onLoadTickets={onLoadTickets}
-            />
-          </TabsContent>
-        </Tabs>
+        <TaskAssignment
+          tickets={tickets}
+          managers={managers}
+          onAssignTicket={onAssignTicket}
+          onLoadTickets={onLoadTickets}
+        />
       </TabsContent>
 
       <TabsContent value="analytics">
