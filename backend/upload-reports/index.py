@@ -169,10 +169,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         if len(non_empty) < 50:
                             continue
                         
-                        numeric_count = sum(1 for v in non_empty if v.replace('.', '').replace('-', '').replace('e', '').replace('+', '').replace('=', '').isdigit() or v.startswith('='))
+                        def is_numeric_or_formula(s):
+                            s_clean = s.strip()
+                            if s_clean.startswith('='):
+                                return True
+                            try:
+                                float(s_clean.replace(',', ''))
+                                return True
+                            except:
+                                return False
+                        
+                        numeric_count = sum(1 for v in non_empty if is_numeric_or_formula(v))
                         numeric_ratio = numeric_count / len(non_empty) if non_empty else 0
                         
-                        if numeric_ratio > 0.5:
+                        if numeric_ratio > 0.7:
                             continue
                         
                         unique_count = len(set(non_empty))
