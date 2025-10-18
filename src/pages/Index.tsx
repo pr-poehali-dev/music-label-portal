@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { collectStatsIfNeeded } from '@/utils/statsScheduler';
 import { useNavigate } from 'react-router-dom';
+import { logActivity } from '@/utils/activityLogger';
 import LoginForm from '@/components/LoginForm';
 import TicketCard from '@/components/TicketCard';
 import CreateTicketForm from '@/components/CreateTicketForm';
@@ -17,6 +18,8 @@ import SocialLinksForm from '@/components/SocialLinksForm';
 import ArtistDashboard from '@/components/ArtistDashboard';
 import UserBlockingPanel from '@/components/UserBlockingPanel';
 import StatsCollector from '@/components/StatsCollector';
+import UserActivityMonitor from '@/components/UserActivityMonitor';
+import HomePage from '@/components/HomePage';
 
 interface User {
   id: number;
@@ -85,6 +88,7 @@ export default function Index() {
       if (response.ok) {
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
+        logActivity(data.user.id, 'login', `Пользователь ${data.user.full_name} вошёл в систему`);
         toast({ title: '✅ Вход выполнен', description: `Добро пожаловать, ${data.user.full_name}` });
       } else {
         toast({ title: '❌ Ошибка', description: data.error, variant: 'destructive' });
@@ -119,6 +123,7 @@ export default function Index() {
       });
       
       if (response.ok) {
+        logActivity(user.id, 'create_ticket', `Создан тикет: ${newTicket.title}`, { priority: newTicket.priority });
         setNewTicket({ title: '', description: '', priority: 'medium' });
         toast({ title: '✅ Тикет создан' });
         loadTickets();
@@ -136,6 +141,9 @@ export default function Index() {
         body: JSON.stringify({ id: ticketId, status })
       });
       
+      if (user) {
+        logActivity(user.id, 'update_ticket_status', `Обновлён статус тикета #${ticketId} на ${status}`, { ticketId, status });
+      }
       toast({ title: '✅ Статус обновлен' });
       loadTickets();
     } catch (error) {
@@ -151,6 +159,9 @@ export default function Index() {
         body: JSON.stringify({ id: ticketId, assigned_to: managerId, deadline })
       });
       
+      if (user) {
+        logActivity(user.id, 'assign_ticket', `Назначен тикет #${ticketId}`, { ticketId, managerId, deadline });
+      }
       toast({ title: '✅ Тикет назначен' });
       loadTickets();
     } catch (error) {
@@ -323,24 +334,16 @@ export default function Index() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {user.role === 'director' && (
-              <Button onClick={() => navigate('/')} variant="outline">
-                <Icon name="Home" size={16} className="mr-2" />
-                Дом
-              </Button>
-            )}
-            <Button onClick={logout} variant="outline">
-              <Icon name="LogOut" size={16} className="mr-2" />
-              Выйти
-            </Button>
-          </div>
+          <Button onClick={logout} variant="outline">
+            <Icon name="LogOut" size={16} className="mr-2" />
+            Выйти
+          </Button>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue={user.role === 'artist' ? 'stats' : 'manage'} className="w-full">
-          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-6' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
+          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-8' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
             {user.role === 'artist' && (
               <>
                 <TabsTrigger value="stats">
@@ -374,6 +377,14 @@ export default function Index() {
                 <TabsTrigger value="stats">
                   <Icon name="Download" size={16} className="mr-2" />
                   Автосбор
+                </TabsTrigger>
+                <TabsTrigger value="monitoring">
+                  <Icon name="Activity" size={16} className="mr-2" />
+                  Мониторинг
+                </TabsTrigger>
+                <TabsTrigger value="home">
+                  <Icon name="Home" size={16} className="mr-2" />
+                  Дом
                 </TabsTrigger>
               </>
             )}
@@ -478,6 +489,14 @@ export default function Index() {
 
               <TabsContent value="stats">
                 <StatsCollector />
+              </TabsContent>
+
+              <TabsContent value="monitoring">
+                <UserActivityMonitor users={allUsers} />
+              </TabsContent>
+
+              <TabsContent value="home">
+                <HomePage />
               </TabsContent>
             </>
           )}

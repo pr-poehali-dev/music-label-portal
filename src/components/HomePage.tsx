@@ -37,18 +37,10 @@ export default function HomePage() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      navigate('/app');
-      return;
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
     }
 
-    const user = JSON.parse(storedUser);
-    if (user.role !== 'director') {
-      navigate('/app');
-      return;
-    }
-
-    setCurrentUser(user);
     const storedUsers = localStorage.getItem('users');
     if (storedUsers) {
       const users = JSON.parse(storedUsers);
@@ -91,44 +83,27 @@ export default function HomePage() {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    navigate('/app');
-  };
-
   if (!currentUser) {
-    return null;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900">
-      <header className="border-b border-white/10 backdrop-blur-sm bg-black/30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <Icon name="Music" size={24} className="text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">420 SMM</h1>
-                <p className="text-sm text-gray-400">{currentUser.full_name} • 👑 Руководитель</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button onClick={() => navigate('/app')} variant="outline" className="bg-white/10 hover:bg-white/20 border-white/20">
-                <Icon name="LayoutDashboard" size={16} className="mr-2" />
-                Панель управления
-              </Button>
-              <Button onClick={logout} variant="outline" className="bg-white/10 hover:bg-white/20 border-white/20">
-                <Icon name="LogOut" size={16} className="mr-2" />
-                Выйти
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+          <Icon name="Music" size={24} className="text-white" />
         </div>
-      </header>
+        <div>
+          <h1 className="text-2xl font-bold text-white">420 SMM — Публичная страница</h1>
+          <p className="text-sm text-gray-400">Обзор лейбла, артистов и релизов</p>
+        </div>
+      </div>
 
-      <main className="container mx-auto px-4 py-12 space-y-16">
+      <div className="space-y-12">
         <section className="text-center space-y-4">
           <h2 className="text-5xl font-bold text-white">
             Добро пожаловать в 420 SMM
@@ -265,15 +240,7 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-      </main>
-
-      <footer className="border-t border-white/10 mt-16">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-gray-400">
-            <p>&copy; 2024 420 SMM. Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
