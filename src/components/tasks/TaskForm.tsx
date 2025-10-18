@@ -69,8 +69,9 @@ export default function TaskForm({
   };
 
   return (
-    <Card>
-      <CardContent className="space-y-4 pt-6">
+    <TooltipProvider>
+      <Card>
+        <CardContent className="space-y-4 pt-6">
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-medium">Шаблоны задач</label>
@@ -183,32 +184,30 @@ export default function TaskForm({
                       </label>
                     </div>
                     {taskCount && (
-                      <TooltipProvider>
-                        <div className="flex gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge variant="secondary" className="text-xs px-1.5 py-0 cursor-help">
-                                <Icon name="Clock" size={10} className="mr-0.5" />
-                                {taskCount.active}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              <p>Активных задач (не завершённые)</p>
-                            </TooltipContent>
-                          </Tooltip>
+                      <div className="flex gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0 cursor-help">
+                              <Icon name="Clock" size={10} className="mr-0.5" />
+                              {taskCount.active}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            <p>Активных задач (не завершённые)</p>
+                          </TooltipContent>
+                        </Tooltip>
 
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge variant="outline" className="text-xs px-1.5 py-0 cursor-help">
-                                {taskCount.total}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              <p>Всего задач за всё время</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge variant="outline" className="text-xs px-1.5 py-0 cursor-help">
+                              {taskCount.total}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            <p>Всего задач за всё время</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     )}
                   </div>
                 );
@@ -256,5 +255,6 @@ export default function TaskForm({
         </Button>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 }
