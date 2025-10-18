@@ -86,9 +86,9 @@ export default function MyTickets({
           </Select>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {tickets.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="col-span-full text-center py-8 text-gray-500">
               <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
               <p>У вас пока нет тикетов</p>
             </div>
