@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 interface User {
   id: number;
   username: string;
-  role: 'artist' | 'manager';
+  role: 'artist' | 'manager' | 'director';
   full_name: string;
 }
 
@@ -26,11 +26,15 @@ interface Ticket {
   created_by: number;
   creator_name: string;
   created_at: string;
+  assigned_to?: number | null;
+  assigned_name?: string | null;
+  deadline?: string | null;
 }
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/d2601eec-1d55-4956-b655-187431987ed9',
-  tickets: 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296'
+  tickets: 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296',
+  users: 'https://functions.poehali.dev/cf5d45c1-d64b-4400-af77-a51c7588d942'
 };
 
 export default function Index() {
@@ -40,6 +44,9 @@ export default function Index() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [newTicket, setNewTicket] = useState({ title: '', description: '', priority: 'medium' });
+  const [managers, setManagers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist' });
   const { toast } = useToast();
 
   const login = async () => {
@@ -113,6 +120,67 @@ export default function Index() {
     }
   };
 
+  const assignTicket = async (ticketId: number, managerId: number | null, deadline?: string) => {
+    try {
+      await fetch(API_URLS.tickets, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId, assigned_to: managerId, deadline })
+      });
+      
+      toast({ title: '✅ Тикет назначен' });
+      loadTickets();
+    } catch (error) {
+      toast({ title: '❌ Ошибка назначения', variant: 'destructive' });
+    }
+  };
+
+  const loadManagers = async () => {
+    try {
+      const response = await fetch(`${API_URLS.users}?role=manager`);
+      const data = await response.json();
+      setManagers(data.users || []);
+    } catch (error) {
+      console.error('Failed to load managers:', error);
+    }
+  };
+
+  const loadAllUsers = async () => {
+    try {
+      const response = await fetch(API_URLS.users);
+      const data = await response.json();
+      setAllUsers(data.users || []);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
+  };
+
+  const createUser = async () => {
+    if (!newUser.username || !newUser.full_name) {
+      toast({ title: '❌ Заполните все поля', variant: 'destructive' });
+      return;
+    }
+    
+    try {
+      const response = await fetch(API_URLS.users, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser)
+      });
+      
+      if (response.ok) {
+        setNewUser({ username: '', full_name: '', role: 'artist' });
+        toast({ title: '✅ Пользователь создан', description: 'Пароль по умолчанию: 12345' });
+        loadAllUsers();
+      } else {
+        const data = await response.json();
+        toast({ title: '❌ Ошибка', description: data.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка создания', variant: 'destructive' });
+    }
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -123,6 +191,10 @@ export default function Index() {
   useEffect(() => {
     if (user) {
       loadTickets();
+      if (user.role === 'director') {
+        loadManagers();
+        loadAllUsers();
+      }
     }
   }, [user, statusFilter]);
 
@@ -214,7 +286,7 @@ export default function Index() {
             <div className="text-right">
               <p className="text-sm font-medium text-foreground">{user.full_name}</p>
               <p className="text-xs text-muted-foreground">
-                {user.role === 'manager' ? '🎯 Руководитель' : '🎤 Артист'}
+                {user.role === 'director' ? '👑 Руководитель' : user.role === 'manager' ? '🎯 Менеджер' : '🎤 Артист'}
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={logout} className="border-primary/30">
@@ -235,8 +307,14 @@ export default function Index() {
             )}
             <TabsTrigger value="manage" className="data-[state=active]:bg-primary data-[state=active]:text-black">
               <Icon name="List" size={16} className="mr-2" />
-              {user.role === 'manager' ? 'Управление' : 'Мои тикеты'}
+              {user.role === 'director' ? 'Управление тикетами' : user.role === 'manager' ? 'Мои задачи' : 'Мои тикеты'}
             </TabsTrigger>
+            {user.role === 'director' && (
+              <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-black">
+                <Icon name="Users" size={16} className="mr-2" />
+                Пользователи
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {user.role === 'artist' && (
@@ -351,28 +429,63 @@ export default function Index() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm text-muted-foreground">
-                            <p>Создатель: {ticket.creator_name}</p>
-                            <p>Дата: {new Date(ticket.created_at).toLocaleDateString('ru-RU')}</p>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm text-muted-foreground">
+                              <p>Создатель: {ticket.creator_name}</p>
+                              <p>Дата: {new Date(ticket.created_at).toLocaleDateString('ru-RU')}</p>
+                              {ticket.assigned_name && <p className="text-primary">Менеджер: {ticket.assigned_name}</p>}
+                              {ticket.deadline && (
+                                <p className={new Date(ticket.deadline) < new Date() ? 'text-red-500 font-semibold' : 'text-yellow-500'}>
+                                  Дедлайн: {new Date(ticket.deadline).toLocaleDateString('ru-RU')}
+                                </p>
+                              )}
+                            </div>
+                            {user.role === 'manager' && ticket.assigned_to === user.id && (
+                              <div className="flex gap-2">
+                                {ticket.status === 'open' && (
+                                  <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'in_progress')} className="bg-yellow-600 hover:bg-yellow-700">
+                                    В работу
+                                  </Button>
+                                )}
+                                {ticket.status === 'in_progress' && (
+                                  <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'resolved')} className="bg-green-600 hover:bg-green-700">
+                                    Решить
+                                  </Button>
+                                )}
+                                {ticket.status === 'resolved' && (
+                                  <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'closed')} variant="outline">
+                                    Закрыть
+                                  </Button>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          {user.role === 'manager' && (
-                            <div className="flex gap-2">
-                              {ticket.status === 'open' && (
-                                <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'in_progress')} className="bg-yellow-600 hover:bg-yellow-700">
-                                  В работу
-                                </Button>
-                              )}
-                              {ticket.status === 'in_progress' && (
-                                <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'resolved')} className="bg-green-600 hover:bg-green-700">
-                                  Решить
-                                </Button>
-                              )}
-                              {ticket.status === 'resolved' && (
-                                <Button size="sm" onClick={() => updateTicketStatus(ticket.id, 'closed')} variant="outline">
-                                  Закрыть
-                                </Button>
-                              )}
+                          {user.role === 'director' && (
+                            <div className="flex gap-2 items-end">
+                              <div className="flex-1">
+                                <Label className="text-xs">Назначить менеджера</Label>
+                                <Select value={ticket.assigned_to?.toString() || 'none'} onValueChange={(val) => assignTicket(ticket.id, val === 'none' ? null : parseInt(val))}>
+                                  <SelectTrigger className="h-9">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">Не назначено</SelectItem>
+                                    {managers.map(m => (
+                                      <SelectItem key={m.id} value={m.id.toString()}>{m.full_name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="flex-1">
+                                <Label className="text-xs">Дедлайн</Label>
+                                <Input
+                                  type="date"
+                                  className="h-9"
+                                  defaultValue={ticket.deadline ? ticket.deadline.split('T')[0] : ''}
+                                  onChange={(e) => e.target.value && assignTicket(ticket.id, ticket.assigned_to || null, e.target.value)}
+                                />
+                              </div>
                             </div>
                           )}
                         </div>
@@ -383,6 +496,79 @@ export default function Index() {
               </div>
             </div>
           </TabsContent>
+
+          {user.role === 'director' && (
+            <TabsContent value="users">
+              <div className="space-y-4">
+                <Card className="border-primary/20 bg-card/95">
+                  <CardHeader>
+                    <CardTitle className="text-primary">Создать нового пользователя</CardTitle>
+                    <CardDescription>Добавьте артиста или менеджера в систему</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new_username">Логин</Label>
+                        <Input
+                          id="new_username"
+                          placeholder="username"
+                          value={newUser.username}
+                          onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new_full_name">Полное имя</Label>
+                        <Input
+                          id="new_full_name"
+                          placeholder="Иван Иванов"
+                          value={newUser.full_name}
+                          onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new_role">Роль</Label>
+                        <Select value={newUser.role} onValueChange={(val) => setNewUser({ ...newUser, role: val })}>
+                          <SelectTrigger id="new_role">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="artist">🎤 Артист</SelectItem>
+                            <SelectItem value="manager">🎯 Менеджер</SelectItem>
+                            <SelectItem value="director">👑 Руководитель</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button onClick={createUser} className="w-full bg-secondary hover:bg-secondary/90">
+                      <Icon name="UserPlus" size={16} className="mr-2" />
+                      Создать пользователя (пароль: 12345)
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-primary/20 bg-card/95">
+                  <CardHeader>
+                    <CardTitle className="text-primary">Все пользователи</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {allUsers.map((u) => (
+                        <div key={u.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-foreground">{u.full_name}</p>
+                            <p className="text-sm text-muted-foreground">@{u.username}</p>
+                          </div>
+                          <Badge variant="outline" className="border-primary/50">
+                            {u.role === 'director' ? '👑 Руководитель' : u.role === 'manager' ? '🎯 Менеджер' : '🎤 Артист'}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </main>
     </div>

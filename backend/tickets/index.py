@@ -36,9 +36,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_id = query_params.get('user_id')
         
         query = '''
-            SELECT t.*, u.full_name as creator_name, u.username as creator_username
+            SELECT t.*, 
+                   u.full_name as creator_name, 
+                   u.username as creator_username,
+                   m.full_name as assigned_name,
+                   m.username as assigned_username
             FROM tickets t
             JOIN users u ON t.created_by = u.id
+            LEFT JOIN users m ON t.assigned_to = m.id
             WHERE 1=1
         '''
         params = []
@@ -48,7 +53,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             params.append(status_filter)
         
         if user_id:
-            query += ' AND t.created_by = %s'
+            query += ' AND (t.created_by = %s OR t.assigned_to = %s)'
+            params.append(int(user_id))
             params.append(int(user_id))
         
         query += ' ORDER BY t.created_at DESC'
@@ -106,22 +112,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         ticket_id = body_data.get('id')
         status = body_data.get('status')
+        assigned_to = body_data.get('assigned_to')
+        deadline = body_data.get('deadline')
         
-        if not ticket_id or not status:
+        if not ticket_id:
             cur.close()
             conn.close()
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Missing ticket id or status'})
+                'body': json.dumps({'error': 'Missing ticket id'})
             }
         
-        cur.execute(
-            'UPDATE tickets SET status = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s',
-            (status, ticket_id)
-        )
-        conn.commit()
+        updates = []
+        params = []
+        
+        if status:
+            updates.append('status = %s')
+            params.append(status)
+        
+        if assigned_to is not None:
+            updates.append('assigned_to = %s')
+            params.append(assigned_to if assigned_to else None)
+        
+        if deadline is not None:
+            updates.append('deadline = %s')
+            params.append(deadline if deadline else None)
+        
+        if updates:
+            updates.append('updated_at = CURRENT_TIMESTAMP')
+            params.append(ticket_id)
+            
+            query = f"UPDATE tickets SET {', '.join(updates)} WHERE id = %s"
+            cur.execute(query, params)
+            conn.commit()
         
         cur.close()
         conn.close()
