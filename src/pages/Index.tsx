@@ -229,6 +229,26 @@ export default function Index() {
     }
   };
 
+  const updateUser = async (userId: number, userData: Partial<User>) => {
+    try {
+      const response = await fetch(API_URLS.users, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId, ...userData })
+      });
+      
+      if (response.ok) {
+        toast({ title: '✅ Данные обновлены' });
+        loadAllUsers();
+      } else {
+        const data = await response.json();
+        toast({ title: '❌ Ошибка', description: data.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка обновления', variant: 'destructive' });
+    }
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -365,7 +385,7 @@ export default function Index() {
               alt="420 Logo" 
               className="w-12 h-12 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
             />
-            <h1 className="text-3xl font-bold text-yellow-400">👋 {user.full_name}</h1>
+            <h1 className="text-3xl font-bold text-yellow-400">420.рф</h1>
           </div>
           <button 
             onClick={logout}
@@ -393,6 +413,7 @@ export default function Index() {
           onCreateUser={createUser}
           onLoadAllUsers={loadAllUsers}
           onDeleteTicket={deleteTicket}
+          onUpdateUser={updateUser}
         />
       </div>
     </div>

@@ -57,6 +57,7 @@ interface DirectorTabsProps {
   onCreateUser: () => void;
   onLoadAllUsers: () => void;
   onDeleteTicket: (ticketId: number) => void;
+  onUpdateUser: (userId: number, userData: Partial<User>) => void;
 }
 
 export default function DirectorTabs({
@@ -76,7 +77,8 @@ export default function DirectorTabs({
   onNewUserChange,
   onCreateUser,
   onLoadAllUsers,
-  onDeleteTicket
+  onDeleteTicket,
+  onUpdateUser
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="manage" className="w-full">
@@ -121,6 +123,7 @@ export default function DirectorTabs({
           newUser={newUser}
           onNewUserChange={onNewUserChange}
           onCreateUser={onCreateUser}
+          onUpdateUser={onUpdateUser}
         />
       </TabsContent>
 

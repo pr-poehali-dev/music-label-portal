@@ -13,6 +13,7 @@ interface User {
   username: string;
   role: 'artist' | 'manager' | 'director';
   full_name: string;
+  revenue_share_percent?: number;
   is_blocked?: boolean;
   is_frozen?: boolean;
   frozen_until?: string;
@@ -35,6 +36,7 @@ interface UserManagementProps {
   onUnblockUser?: (userId: number) => void;
   onFreezeUser?: (userId: number, until: Date) => void;
   onUnfreezeUser?: (userId: number) => void;
+  onUpdateUser?: (userId: number, userData: Partial<User>) => void;
 }
 
 export default function UserManagement({ 
@@ -45,13 +47,16 @@ export default function UserManagement({
   onBlockUser,
   onUnblockUser,
   onFreezeUser,
-  onUnfreezeUser
+  onUnfreezeUser,
+  onUpdateUser
 }: UserManagementProps) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blockReason, setBlockReason] = useState('');
   const [freezeDate, setFreezeDate] = useState('');
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState<Partial<User>>({});
 
   const handleBlockUser = (permanent: boolean) => {
     if (selectedUser && blockReason && onBlockUser) {
@@ -69,6 +74,25 @@ export default function UserManagement({
       setFreezeDate('');
       setSelectedUser(null);
     }
+  };
+
+  const handleEditUser = () => {
+    if (selectedUser && onUpdateUser) {
+      onUpdateUser(selectedUser.id, editData);
+      setShowEditModal(false);
+      setEditData({});
+      setSelectedUser(null);
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    setEditData({
+      full_name: user.full_name,
+      username: user.username,
+      revenue_share_percent: user.revenue_share_percent || 50
+    });
+    setShowEditModal(true);
   };
   return (
     <div className="space-y-4">
@@ -155,6 +179,10 @@ export default function UserManagement({
                 </div>
                 {u.role !== 'director' && (
                   <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openEditModal(u)} className="border-blue-500/50 text-blue-400">
+                      <Icon name="Edit" size={14} className="mr-1" />
+                      Изменить
+                    </Button>
                     {u.is_blocked ? (
                       <Button size="sm" onClick={() => onUnblockUser && onUnblockUser(u.id)} className="bg-green-500 hover:bg-green-600">
                         <Icon name="Unlock" size={14} className="mr-1" />
@@ -209,6 +237,58 @@ export default function UserManagement({
                   Заблокировать
                 </Button>
                 <Button onClick={() => { setShowBlockModal(false); setSelectedUser(null); setBlockReason(''); }} variant="outline">
+                  Отмена
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md bg-card border-blue-500/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Edit" size={24} className="text-blue-400" />
+                Редактирование пользователя
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Полное имя</Label>
+                <Input
+                  value={editData.full_name || ''}
+                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                  placeholder="Иван Иванов"
+                />
+              </div>
+              <div>
+                <Label>Логин</Label>
+                <Input
+                  value={editData.username || ''}
+                  onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                  placeholder="username"
+                />
+              </div>
+              {selectedUser.role === 'artist' && (
+                <div>
+                  <Label>% артиста от дохода</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editData.revenue_share_percent || 50}
+                    onChange={(e) => setEditData({ ...editData, revenue_share_percent: parseInt(e.target.value) || 50 })}
+                  />
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button onClick={handleEditUser} className="flex-1 bg-blue-500 hover:bg-blue-600">
+                  <Icon name="Check" size={16} className="mr-2" />
+                  Сохранить
+                </Button>
+                <Button variant="outline" onClick={() => { setShowEditModal(false); setEditData({}); setSelectedUser(null); }} className="flex-1">
                   Отмена
                 </Button>
               </div>
