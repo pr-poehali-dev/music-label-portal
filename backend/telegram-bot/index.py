@@ -50,21 +50,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     db_url = os.environ.get('DATABASE_URL')
     
     if not bot_token:
+        print('[ERROR] Bot token not configured')
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Bot token not configured'})
+            'body': json.dumps({'error': 'Bot token not configured'}),
+            'isBase64Encoded': False
         }
     
     if method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
+        print(f'[DEBUG] Received update: {json.dumps(body_data)}')
         
         if 'message' in body_data or 'callback_query' in body_data:
             return handle_telegram_update(body_data, bot_token, db_url)
@@ -97,39 +101,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'status': 'ok'})
+        'body': json.dumps({'status': 'ok'}),
+        'isBase64Encoded': False
     }
 
 def handle_telegram_update(update: Dict[str, Any], bot_token: str, db_url: str) -> Dict[str, Any]:
-    if 'callback_query' in update:
-        return handle_callback_query(update, bot_token, db_url)
-    
-    message = update.get('message', {})
-    chat_id = message.get('chat', {}).get('id')
-    text = message.get('text', '')
-    
-    if not chat_id:
-        return {'statusCode': 200, 'body': ''}
-    
-    user = get_user_by_chat_id(chat_id, db_url) if db_url else None
-    
-    if text == '/start':
-        show_main_menu(bot_token, chat_id, user)
-        return {'statusCode': 200, 'body': ''}
-    
-    if text.startswith('/link '):
-        return handle_link_account(text, chat_id, bot_token, db_url)
-    
-    if user:
-        if text.startswith('/'):
-            handle_command(text, chat_id, bot_token, db_url, user)
-        else:
+    try:
+        if 'callback_query' in update:
+            return handle_callback_query(update, bot_token, db_url)
+        
+        message = update.get('message', {})
+        chat_id = message.get('chat', {}).get('id')
+        text = message.get('text', '')
+        
+        print(f'[DEBUG] Chat ID: {chat_id}, Text: {text}')
+        
+        if not chat_id:
+            return {'statusCode': 200, 'body': '', 'isBase64Encoded': False}
+        
+        user = get_user_by_chat_id(chat_id, db_url) if db_url else None
+        print(f'[DEBUG] User: {user}')
+        
+        if text == '/start':
             show_main_menu(bot_token, chat_id, user)
-    else:
-        send_message(bot_token, chat_id, 
-            '❌ Сначала привяжите аккаунт:\n/link ваш_username')
-    
-    return {'statusCode': 200, 'body': ''}
+            return {'statusCode': 200, 'body': '', 'isBase64Encoded': False}
+        
+        if text.startswith('/link '):
+            return handle_link_account(text, chat_id, bot_token, db_url)
+        
+        if user:
+            if text.startswith('/'):
+                handle_command(text, chat_id, bot_token, db_url, user)
+            else:
+                show_main_menu(bot_token, chat_id, user)
+        else:
+            send_message(bot_token, chat_id, 
+                '❌ Сначала привяжите аккаунт:\n/link ваш_username')
+        
+        return {'statusCode': 200, 'body': '', 'isBase64Encoded': False}
+    except Exception as e:
+        print(f'[ERROR] Exception in handle_telegram_update: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        return {'statusCode': 200, 'body': '', 'isBase64Encoded': False}
 
 def get_user_by_chat_id(chat_id: int, db_url: str) -> Optional[Dict]:
     cache_key = f'user_{chat_id}'
