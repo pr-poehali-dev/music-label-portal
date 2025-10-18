@@ -126,6 +126,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             attachment_name = body_data.get('attachment_name')
             attachment_size = body_data.get('attachment_size')
             
+            if not assigned_to:
+                assigned_to = []
+            elif not isinstance(assigned_to, list):
+                assigned_to = [assigned_to]
+            
             if not all([title, created_by, assigned_to, deadline]):
                 cur.close()
                 conn.close()
@@ -136,39 +141,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Missing required fields'})
                 }
             
-            cur.execute(
-                '''INSERT INTO tasks (title, description, priority, created_by, assigned_to, deadline, status, is_read, 
-                                     attachment_url, attachment_name, attachment_size)
-                   VALUES (%s, %s, %s, %s, %s, %s, 'pending', false, %s, %s, %s) RETURNING id''',
-                (title, description, priority, created_by, assigned_to, deadline, 
-                 attachment_url, attachment_name, attachment_size)
-            )
-            task_id = cur.fetchone()['id']
-            
-            cur.execute(
-                '''SELECT t.*, 
-                          c.full_name as created_by_name,
-                          m.full_name as assigned_name,
-                          m.telegram_chat_id
-                   FROM tasks t
-                   JOIN users c ON t.created_by = c.id
-                   JOIN users m ON t.assigned_to = m.id
-                   WHERE t.id = %s''',
-                (task_id,)
-            )
-            task_data = dict(cur.fetchone())
+            task_ids = []
+            for manager_id in assigned_to:
+                cur.execute(
+                    '''INSERT INTO tasks (title, description, priority, created_by, assigned_to, deadline, status, is_read, 
+                                         attachment_url, attachment_name, attachment_size)
+                       VALUES (%s, %s, %s, %s, %s, %s, 'pending', false, %s, %s, %s) RETURNING id''',
+                    (title, description, priority, created_by, manager_id, deadline, 
+                     attachment_url, attachment_name, attachment_size)
+                )
+                task_id = cur.fetchone()['id']
+                task_ids.append(task_id)
+                
+                cur.execute(
+                    '''SELECT t.*, 
+                              c.full_name as created_by_name,
+                              m.full_name as assigned_name,
+                              m.telegram_chat_id
+                       FROM tasks t
+                       JOIN users c ON t.created_by = c.id
+                       JOIN users m ON t.assigned_to = m.id
+                       WHERE t.id = %s''',
+                    (task_id,)
+                )
+                task_data = dict(cur.fetchone())
+                send_task_notification(task_data)
             
             conn.commit()
             cur.close()
             conn.close()
             
-            send_task_notification(task_data)
-            
             return {
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
-                'body': json.dumps({'id': task_id, 'message': 'Task created'})
+                'body': json.dumps({'ids': task_ids, 'message': f'Created {len(task_ids)} tasks'})
             }
         
         title = body_data.get('title')
@@ -230,6 +237,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             completed_at = body_data.get('completed_at')
             changed_by = body_data.get('changed_by')
             changed_by_name = body_data.get('changed_by_name')
+            title = body_data.get('title')
+            description = body_data.get('description')
+            priority = body_data.get('priority')
+            deadline = body_data.get('deadline')
+            assigned_to = body_data.get('assigned_to')
             
             if not task_id:
                 cur.close()
@@ -250,6 +262,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             updates = []
             params = []
+            
+            if title:
+                updates.append('title = %s')
+                params.append(title)
+            
+            if description is not None:
+                updates.append('description = %s')
+                params.append(description)
+            
+            if priority:
+                updates.append('priority = %s')
+                params.append(priority)
+            
+            if deadline:
+                updates.append('deadline = %s')
+                params.append(deadline)
+            
+            if assigned_to:
+                if isinstance(assigned_to, list) and len(assigned_to) > 0:
+                    updates.append('assigned_to = %s')
+                    params.append(assigned_to[0])
             
             if status:
                 updates.append('status = %s')
@@ -335,19 +368,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'DELETE':
         body_data = json.loads(event.get('body', '{}'))
-        ticket_id = body_data.get('id')
+        item_id = body_data.get('id')
+        item_type = body_data.get('type', 'ticket')
         
-        if not ticket_id:
+        if not item_id:
             cur.close()
             conn.close()
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Missing ticket id'})
+                'body': json.dumps({'error': 'Missing id'})
             }
         
-        cur.execute('DELETE FROM tickets WHERE id = %s', (ticket_id,))
+        if item_type == 'task':
+            cur.execute('DELETE FROM tasks WHERE id = %s', (item_id,))
+            message = 'Task deleted'
+        else:
+            cur.execute('DELETE FROM tickets WHERE id = %s', (item_id,))
+            message = 'Ticket deleted'
+        
         conn.commit()
         
         cur.close()
@@ -357,7 +397,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'isBase64Encoded': False,
-            'body': json.dumps({'message': 'Ticket deleted'})
+            'body': json.dumps({'message': message})
         }
     
     return {
