@@ -7,6 +7,7 @@ import ManagerStats from '@/components/ManagerStats';
 import ManagerTasksView from '@/components/ManagerTasksView';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
+import UserProfile from '@/components/UserProfile';
 import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -25,6 +26,7 @@ interface ManagerViewProps {
   onDeleteTicket: (ticketId: number) => void;
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
+  onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;
 }
 
@@ -42,11 +44,13 @@ export default function ManagerView({
   onDeleteTicket,
   onUpdateTaskStatus,
   onMessagesOpenChange,
+  onUpdateUser,
   onLogout
 }: ManagerViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('manager_active_tab') || 'tasks';
   });
+  const [showProfile, setShowProfile] = useState(false);
 
   const { unreadCounts } = useNotifications();
 
@@ -64,6 +68,7 @@ export default function ManagerView({
       <div className="container mx-auto p-4 animate-fadeIn">
         <AppHeader 
           onMessagesClick={() => onMessagesOpenChange(true)}
+          onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
           userRole="manager"
           userId={user.id}
@@ -123,6 +128,25 @@ export default function ManagerView({
             <SubmissionsManager userId={user.id} />
           </TabsContent>
         </Tabs>
+
+        {showProfile && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowProfile(false)}>
+            <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <UserProfile 
+                user={{
+                  ...user,
+                  login: user.username,
+                  fullName: user.full_name,
+                  email: user.email || '',
+                  isBlocked: user.is_blocked || false,
+                  isFrozen: user.is_frozen || false,
+                  freezeUntil: user.frozen_until || ''
+                }}
+                onUpdateProfile={onUpdateUser}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

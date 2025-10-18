@@ -9,6 +9,15 @@ export const useAuth = () => {
 
   const login = async (username: string, password: string) => {
     try {
+      if (!password) {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+        }
+        return;
+      }
+
       const response = await fetch(API_URLS.auth, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

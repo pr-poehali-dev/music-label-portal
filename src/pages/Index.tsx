@@ -36,6 +36,13 @@ export default function Index() {
     }
   };
 
+  const handleUpdateProfile = async (updates: Partial<User>) => {
+    if (user) {
+      await updateUser(user.id, updates);
+      login(user.username, '');
+    }
+  };
+
   if (!user) {
     return <LoginForm onLogin={login} />;
   }
@@ -56,6 +63,7 @@ export default function Index() {
         onFileChange={setSelectedTicketFile}
         onLoadTickets={loadTickets}
         onMessagesOpenChange={setMessagesOpen}
+        onUpdateUser={handleUpdateProfile}
         onLogout={logout}
       />
     );
@@ -77,6 +85,7 @@ export default function Index() {
         onDeleteTicket={deleteTicket}
         onUpdateTaskStatus={updateTaskStatus}
         onMessagesOpenChange={setMessagesOpen}
+        onUpdateUser={handleUpdateProfile}
         onLogout={logout}
       />
     );

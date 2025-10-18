@@ -6,6 +6,7 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
+import UserProfile from '@/components/UserProfile';
 import { User, Ticket, NewTicket } from '@/types';
 import { useNotifications } from '@/contexts/NotificationContext';
 
@@ -23,6 +24,7 @@ interface ArtistViewProps {
   onFileChange: (file: File | null) => void;
   onLoadTickets: () => void;
   onMessagesOpenChange: (open: boolean) => void;
+  onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;
 }
 
@@ -40,11 +42,13 @@ export default function ArtistView({
   onFileChange,
   onLoadTickets,
   onMessagesOpenChange,
+  onUpdateUser,
   onLogout
 }: ArtistViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('artist_active_tab') || 'stats';
   });
+  const [showProfile, setShowProfile] = useState(false);
 
   const { unreadCounts } = useNotifications();
 
@@ -62,6 +66,7 @@ export default function ArtistView({
       <div className="container mx-auto p-4 animate-fadeIn">
         <AppHeader 
           onMessagesClick={() => onMessagesOpenChange(true)}
+          onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
           userRole="artist"
           userId={user.id}
@@ -119,6 +124,25 @@ export default function ArtistView({
             />
           </TabsContent>
         </Tabs>
+
+        {showProfile && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowProfile(false)}>
+            <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <UserProfile 
+                user={{
+                  ...user,
+                  login: user.username,
+                  fullName: user.full_name,
+                  email: user.email || '',
+                  isBlocked: user.is_blocked || false,
+                  isFrozen: user.is_frozen || false,
+                  freezeUntil: user.frozen_until || ''
+                }}
+                onUpdateProfile={onUpdateUser}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

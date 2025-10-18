@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import DirectorTabs from '@/components/DirectorTabs';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
+import UserProfile from '@/components/UserProfile';
 import { User, Ticket, NewTicket, NewUser } from '@/types';
 import { Task } from '@/components/useTasks';
 
@@ -59,11 +61,14 @@ export default function DirectorView({
   onMessagesOpenChange,
   onLogout
 }: DirectorViewProps) {
+  const [showProfile, setShowProfile] = useState(false);
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto p-2 md:p-4 animate-fadeIn">
         <AppHeader 
           onMessagesClick={() => onMessagesOpenChange(true)}
+          onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
           userRole="director"
           userId={user.id}
@@ -100,6 +105,25 @@ export default function DirectorView({
           onUpdateTaskStatus={onUpdateTaskStatus}
           onDeleteTask={onDeleteTask}
         />
+
+        {showProfile && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowProfile(false)}>
+            <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <UserProfile 
+                user={{
+                  ...user,
+                  login: user.username,
+                  fullName: user.full_name,
+                  email: user.email || '',
+                  isBlocked: user.is_blocked || false,
+                  isFrozen: user.is_frozen || false,
+                  freezeUntil: user.frozen_until || ''
+                }}
+                onUpdateProfile={(updates) => onUpdateUser(user.id, updates)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

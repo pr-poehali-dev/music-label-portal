@@ -4,12 +4,13 @@ import Icon from '@/components/ui/icon';
 
 interface AppHeaderProps {
   onMessagesClick: () => void;
+  onProfileClick: () => void;
   onLogout: () => void;
   userRole: 'artist' | 'manager' | 'director';
   userId: number;
 }
 
-export default function AppHeader({ onMessagesClick, onLogout, userRole, userId }: AppHeaderProps) {
+export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, userRole, userId }: AppHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -63,6 +64,15 @@ export default function AppHeader({ onMessagesClick, onLogout, userRole, userId 
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
+        </Button>
+        <Button
+          onClick={onProfileClick}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4"
+        >
+          <Icon name="User" size={16} className="md:w-[18px] md:h-[18px]" />
+          <span className="hidden md:inline">Профиль</span>
         </Button>
         <button 
           onClick={onLogout}

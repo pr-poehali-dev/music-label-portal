@@ -13,6 +13,13 @@ export interface User {
   blocked_reason?: string;
   last_ip?: string;
   device_fingerprint?: string;
+  avatar?: string;
+  email?: string;
+  login?: string;
+  fullName?: string;
+  isBlocked?: boolean;
+  isFrozen?: boolean;
+  freezeUntil?: string;
 }
 
 export interface Ticket {
