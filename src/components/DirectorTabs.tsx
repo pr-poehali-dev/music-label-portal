@@ -16,6 +16,7 @@ import WeeklyReport from '@/components/WeeklyReport';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface User {
   id: number;
@@ -102,6 +103,7 @@ export default function DirectorTabs({
   });
 
   const { unreadCounts, refreshCounts } = useNotifications();
+  const { isUserOnline, getUserLastSeen } = useOnlineStatus(user.id);
 
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
@@ -222,6 +224,8 @@ export default function DirectorTabs({
               onNewUserChange={onNewUserChange}
               onCreateUser={onCreateUser}
               onUpdateUser={onUpdateUser}
+              isUserOnline={isUserOnline}
+              getUserLastSeen={getUserLastSeen}
             />
           </TabsContent>
           

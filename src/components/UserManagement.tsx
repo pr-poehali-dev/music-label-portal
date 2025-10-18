@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import OnlineStatusBadge from '@/components/OnlineStatusBadge';
 
 interface User {
   id: number;
@@ -37,6 +38,8 @@ interface UserManagementProps {
   onFreezeUser?: (userId: number, until: Date) => void;
   onUnfreezeUser?: (userId: number) => void;
   onUpdateUser?: (userId: number, userData: Partial<User>) => void;
+  isUserOnline?: (userId: number) => boolean;
+  getUserLastSeen?: (userId: number) => string;
 }
 
 const UserManagement = React.memo(function UserManagement({ 
@@ -48,7 +51,9 @@ const UserManagement = React.memo(function UserManagement({
   onUnblockUser,
   onFreezeUser,
   onUnfreezeUser,
-  onUpdateUser
+  onUpdateUser,
+  isUserOnline,
+  getUserLastSeen
 }: UserManagementProps) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blockReason, setBlockReason] = useState('');
@@ -166,6 +171,13 @@ const UserManagement = React.memo(function UserManagement({
               <div key={u.id} className={`flex items-center justify-between p-3 rounded-lg ${u.is_blocked ? 'bg-red-500/10 border border-red-500/30' : u.is_frozen ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-muted/50'}`}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
+                    {isUserOnline && (
+                      <OnlineStatusBadge 
+                        isOnline={isUserOnline(u.id)} 
+                        lastSeen={getUserLastSeen ? getUserLastSeen(u.id) : undefined}
+                        size="md"
+                      />
+                    )}
                     <p className="font-medium text-foreground">{u.full_name}</p>
                     <Badge variant="outline" className="border-primary/50">
                       {u.role === 'director' ? '👑 Руководитель' : u.role === 'manager' ? '🎯 Менеджер' : '🎤 Артист'}
@@ -173,7 +185,12 @@ const UserManagement = React.memo(function UserManagement({
                     {u.is_blocked && <Badge variant="destructive"><Icon name="Ban" size={12} className="mr-1" />Заблокирован</Badge>}
                     {u.is_frozen && <Badge className="bg-yellow-500"><Icon name="Snowflake" size={12} className="mr-1" />Заморожен</Badge>}
                   </div>
-                  <p className="text-sm text-muted-foreground">@{u.username}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">@{u.username}</p>
+                    {isUserOnline && getUserLastSeen && (
+                      <span className="text-xs text-muted-foreground">• {getUserLastSeen(u.id)}</span>
+                    )}
+                  </div>
                   {u.blocked_reason && <p className="text-xs text-red-400 mt-1">Причина: {u.blocked_reason}</p>}
                   {u.is_frozen && u.frozen_until && <p className="text-xs text-yellow-400 mt-1">До: {new Date(u.frozen_until).toLocaleString('ru-RU')}</p>}
                 </div>
