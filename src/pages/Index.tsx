@@ -1,25 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { collectStatsIfNeeded } from '@/utils/statsScheduler';
-import { useNavigate } from 'react-router-dom';
 import { logActivity } from '@/utils/activityLogger';
 import LoginForm from '@/components/LoginForm';
-import TicketCard from '@/components/TicketCard';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import StatsCards from '@/components/StatsCards';
-import UserManagement from '@/components/UserManagement';
-import ReminderSetup from '@/components/ReminderSetup';
-import SocialLinksForm from '@/components/SocialLinksForm';
 import ArtistDashboard from '@/components/ArtistDashboard';
-import UserBlockingPanel from '@/components/UserBlockingPanel';
-import StatsCollector from '@/components/StatsCollector';
-import UserActivityMonitor from '@/components/UserActivityMonitor';
-import HomePage from '@/components/HomePage';
+import TicketManagement from '@/components/TicketManagement';
+import MyTickets from '@/components/MyTickets';
+import DirectorTabs from '@/components/DirectorTabs';
 
 interface User {
   id: number;
@@ -67,7 +57,6 @@ export default function Index() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ username: '', full_name: '', role: 'artist' });
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && user.role === 'director') {
@@ -238,270 +227,119 @@ export default function Index() {
     toast({ title: 'Вы вышли из системы' });
   };
 
-  const getPriorityColor = (priority: string) => {
-    const colors = {
-      low: 'bg-blue-500',
-      medium: 'bg-yellow-500',
-      high: 'bg-orange-500',
-      urgent: 'bg-red-500'
-    };
-    return colors[priority as keyof typeof colors] || 'bg-gray-500';
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors = {
-      open: 'bg-blue-600',
-      in_progress: 'bg-yellow-600',
-      resolved: 'bg-green-600',
-      closed: 'bg-gray-600'
-    };
-    return colors[status as keyof typeof colors] || 'bg-gray-600';
-  };
-
-  const handleSocialLinksComplete = (links: any) => {
-    if (user) {
-      const updatedUser = { ...user, ...links, social_links_filled: true };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      toast({ title: '✅ Социальные сети сохранены', description: 'Теперь ты можешь отслеживать статистику' });
-    }
-  };
-
-  const handleBlockUser = (userId: number, reason: string, permanent: boolean) => {
-    const updatedUsers = allUsers.map(u => 
-      u.id === userId 
-        ? { ...u, is_blocked: true, blocked_reason: reason, blocked_at: new Date().toISOString() }
-        : u
-    );
-    setAllUsers(updatedUsers);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    toast({ title: '🚫 Пользователь заблокирован', description: reason });
-  };
-
-  const handleUnblockUser = (userId: number) => {
-    const updatedUsers = allUsers.map(u => 
-      u.id === userId 
-        ? { ...u, is_blocked: false, blocked_reason: undefined }
-        : u
-    );
-    setAllUsers(updatedUsers);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    toast({ title: '✅ Пользователь разблокирован' });
-  };
-
-  const handleFreezeUser = (userId: number, until: Date) => {
-    const updatedUsers = allUsers.map(u => 
-      u.id === userId 
-        ? { ...u, is_frozen: true, frozen_until: until.toISOString() }
-        : u
-    );
-    setAllUsers(updatedUsers);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    toast({ title: '❄️ Аккаунт заморожен', description: `До ${until.toLocaleString('ru-RU')}` });
-  };
-
-  const handleUnfreezeUser = (userId: number) => {
-    const updatedUsers = allUsers.map(u => 
-      u.id === userId 
-        ? { ...u, is_frozen: false, frozen_until: undefined }
-        : u
-    );
-    setAllUsers(updatedUsers);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    toast({ title: '✅ Аккаунт разморожен' });
-  };
-
   if (!user) {
     return <LoginForm onLogin={login} />;
   }
 
-  if (user.role === 'artist' && !user.social_links_filled) {
-    return <SocialLinksForm onComplete={handleSocialLinksComplete} />;
+  if (user.role === 'artist') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+        <div className="container mx-auto p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+            <button 
+              onClick={logout}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Выйти
+            </button>
+          </div>
+
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stats">Статистика</TabsTrigger>
+              <TabsTrigger value="create">Создать тикет</TabsTrigger>
+              <TabsTrigger value="my-tickets">Мои тикеты</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="stats">
+              <ArtistDashboard user={user} />
+            </TabsContent>
+
+            <TabsContent value="create">
+              <CreateTicketForm
+                newTicket={newTicket}
+                onNewTicketChange={setNewTicket}
+                onCreateTicket={createTicket}
+              />
+            </TabsContent>
+
+            <TabsContent value="my-tickets">
+              <MyTickets
+                user={user}
+                tickets={tickets}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                onLoadTickets={loadTickets}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role === 'manager') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+        <div className="container mx-auto p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+            <button 
+              onClick={logout}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Выйти
+            </button>
+          </div>
+
+          <TicketManagement
+            user={user}
+            tickets={tickets}
+            managers={managers}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            onUpdateStatus={updateTicketStatus}
+            onAssignTicket={assignTicket}
+            onLoadTickets={loadTickets}
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-zinc-800">
-      <header className="border-b border-primary/20 bg-card/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center">
-              <span className="text-xl font-bold text-black">420</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-primary">420 SMM Техподдержка</h1>
-              <p className="text-sm text-muted-foreground">
-                {user.full_name} • {user.role === 'director' ? '👑 Руководитель' : user.role === 'manager' ? '🎯 Менеджер' : '🎤 Артист'}
-              </p>
-            </div>
-          </div>
-          <Button onClick={logout} variant="outline">
-            <Icon name="LogOut" size={16} className="mr-2" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">👋 {user.full_name}</h1>
+          <button 
+            onClick={logout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
             Выйти
-          </Button>
+          </button>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue={user.role === 'artist' ? 'stats' : 'manage'} className="w-full">
-          <TabsList className={`grid w-full ${user.role === 'director' ? 'grid-cols-8' : user.role === 'artist' ? 'grid-cols-3' : 'grid-cols-1'} mb-8`}>
-            {user.role === 'artist' && (
-              <>
-                <TabsTrigger value="stats">
-                  <Icon name="BarChart3" size={16} className="mr-2" />
-                  Статистика
-                </TabsTrigger>
-                <TabsTrigger value="create">
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Создать тикет
-                </TabsTrigger>
-              </>
-            )}
-            <TabsTrigger value="manage">
-              <Icon name="List" size={16} className="mr-2" />
-              {user.role === 'artist' ? 'Мои тикеты' : 'Управление тикетами'}
-            </TabsTrigger>
-            {user.role === 'director' && (
-              <>
-                <TabsTrigger value="users">
-                  <Icon name="Users" size={16} className="mr-2" />
-                  Пользователи
-                </TabsTrigger>
-                <TabsTrigger value="blocking">
-                  <Icon name="ShieldAlert" size={16} className="mr-2" />
-                  Блокировки
-                </TabsTrigger>
-                <TabsTrigger value="reminders">
-                  <Icon name="Bell" size={16} className="mr-2" />
-                  Напоминания
-                </TabsTrigger>
-                <TabsTrigger value="stats">
-                  <Icon name="Download" size={16} className="mr-2" />
-                  Автосбор
-                </TabsTrigger>
-                <TabsTrigger value="monitoring">
-                  <Icon name="Activity" size={16} className="mr-2" />
-                  Мониторинг
-                </TabsTrigger>
-                <TabsTrigger value="home">
-                  <Icon name="Home" size={16} className="mr-2" />
-                  Дом
-                </TabsTrigger>
-              </>
-            )}
-          </TabsList>
-
-          {user.role === 'artist' && (
-            <>
-              <TabsContent value="stats">
-                <ArtistDashboard userId={user.id} />
-              </TabsContent>
-
-              <TabsContent value="create">
-                <CreateTicketForm
-                  newTicket={newTicket}
-                  onTicketChange={setNewTicket}
-                  onCreateTicket={createTicket}
-                />
-              </TabsContent>
-            </>
-          )}
-
-          <TabsContent value="manage">
-            <div className="space-y-4">
-              {user.role === 'director' && <StatsCards tickets={tickets} />}
-
-              <Card className="border-primary/20 bg-card/95">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary">Фильтры</CardTitle>
-                    <Button variant="ghost" size="sm" onClick={loadTickets}>
-                      <Icon name="RefreshCw" size={16} className="mr-2" />
-                      Обновить
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все статусы</SelectItem>
-                      <SelectItem value="open">Открытые</SelectItem>
-                      <SelectItem value="in_progress">В работе</SelectItem>
-                      <SelectItem value="resolved">Решённые</SelectItem>
-                      <SelectItem value="closed">Закрытые</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
-
-              <div className="grid gap-4">
-                {tickets.length === 0 ? (
-                  <Card className="border-primary/20 bg-card/95">
-                    <CardContent className="py-12 text-center text-muted-foreground">
-                      <Icon name="Inbox" size={48} className="mx-auto mb-4 opacity-50" />
-                      <p>Тикеты не найдены</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  tickets.map((ticket) => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      user={user}
-                      managers={managers}
-                      onUpdateStatus={updateTicketStatus}
-                      onAssignTicket={assignTicket}
-                      getPriorityColor={getPriorityColor}
-                      getStatusColor={getStatusColor}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
-          </TabsContent>
-
-          {user.role === 'director' && (
-            <>
-              <TabsContent value="users">
-                <UserManagement
-                  allUsers={allUsers}
-                  newUser={newUser}
-                  onNewUserChange={setNewUser}
-                  onCreateUser={createUser}
-                />
-              </TabsContent>
-
-              <TabsContent value="blocking">
-                <UserBlockingPanel
-                  users={allUsers}
-                  onBlockUser={handleBlockUser}
-                  onUnblockUser={handleUnblockUser}
-                  onFreezeUser={handleFreezeUser}
-                  onUnfreezeUser={handleUnfreezeUser}
-                />
-              </TabsContent>
-
-              <TabsContent value="reminders">
-                <ReminderSetup />
-              </TabsContent>
-
-              <TabsContent value="stats">
-                <StatsCollector />
-              </TabsContent>
-
-              <TabsContent value="monitoring">
-                <UserActivityMonitor users={allUsers} />
-              </TabsContent>
-
-              <TabsContent value="home">
-                <HomePage />
-              </TabsContent>
-            </>
-          )}
-        </Tabs>
-      </main>
+        <DirectorTabs
+          user={user}
+          tickets={tickets}
+          managers={managers}
+          allUsers={allUsers}
+          statusFilter={statusFilter}
+          newTicket={newTicket}
+          newUser={newUser}
+          onStatusFilterChange={setStatusFilter}
+          onNewTicketChange={setNewTicket}
+          onCreateTicket={createTicket}
+          onUpdateStatus={updateTicketStatus}
+          onAssignTicket={assignTicket}
+          onLoadTickets={loadTickets}
+          onNewUserChange={setNewUser}
+          onCreateUser={createUser}
+          onLoadAllUsers={loadAllUsers}
+        />
+      </div>
     </div>
   );
 }
