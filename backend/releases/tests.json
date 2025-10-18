@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get releases list",
+      "method": "GET",
+      "headers": {
+        "X-User-Id": "2"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create release",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "2"
+      },
+      "body": {
+        "release_name": "Test Album",
+        "genre": "Pop",
+        "release_date": "2025-12-01",
+        "tracks": []
+      },
+      "expectedStatus": 201,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

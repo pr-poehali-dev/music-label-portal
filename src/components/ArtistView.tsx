@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ArtistDashboard from '@/components/ArtistDashboard';
 import ArtistReports from '@/components/ArtistReports';
-import ArtistTracks from '@/components/ArtistTracks';
+import ReleaseManager from '@/components/ReleaseManager';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
 import MessagesModal from '@/components/MessagesModal';
@@ -95,7 +95,7 @@ export default function ArtistView({
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="stats">📊 Статистика</TabsTrigger>
               <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
-              <TabsTrigger value="tracks">🎵 Мои треки</TabsTrigger>
+              <TabsTrigger value="tracks">🎵 Релизы</TabsTrigger>
               <TabsTrigger value="create">✉️ Создать тикет</TabsTrigger>
               <TabsTrigger value="my-tickets">🎫 Мои тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
             </TabsList>
@@ -110,7 +110,7 @@ export default function ArtistView({
           </TabsContent>
 
           <TabsContent value="tracks">
-            <ArtistTracks userId={user.id} />
+            <ReleaseManager userId={user.id} userRole="artist" />
           </TabsContent>
 
           <TabsContent value="create">
