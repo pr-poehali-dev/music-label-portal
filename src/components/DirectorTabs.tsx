@@ -96,7 +96,7 @@ export default function DirectorTabs({
   onUpdateUser
 }: DirectorTabsProps) {
   return (
-    <Tabs defaultValue="analytics" className="w-full">
+    <Tabs defaultValue="tickets" className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
         <TabsList className="grid w-full grid-cols-7 md:grid-cols-7 min-w-[700px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">

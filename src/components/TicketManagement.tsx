@@ -74,7 +74,7 @@ export default function TicketManagement({
 
   useEffect(() => {
     onLoadTickets();
-  }, [statusFilter]);
+  }, []);
 
   const getTicketStats = () => {
     return {
