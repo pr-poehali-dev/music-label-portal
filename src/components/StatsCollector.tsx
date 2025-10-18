@@ -47,71 +47,72 @@ export default function StatsCollector() {
   };
 
   return (
-    <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2">
-            <Icon name="RefreshCw" size={20} />
-            Обновление статистики
-          </CardTitle>
-          {nextCollection && (
-            <Badge className="bg-white/10 text-white">
-              Следующий сбор: {nextCollection.toLocaleString('ru-RU', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Badge>
-          )}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Icon name="RefreshCw" size={32} className="text-primary" />
+          <h1 className="text-3xl font-bold">Обновление статистики</h1>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-gray-300">
-          Автоматический сбор данных из ВКонтакте и Яндекс.Музыки для всех артистов
-        </p>
+        {nextCollection && (
+          <Badge>
+            Следующий сбор: {nextCollection.toLocaleString('ru-RU', { 
+              day: '2-digit', 
+              month: '2-digit', 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
+          </Badge>
+        )}
+      </div>
+      
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <p className="text-muted-foreground">
+            Автоматический сбор данных из ВКонтакте и Яндекс.Музыки для всех артистов
+          </p>
 
-        <Button
-          onClick={collectStats}
-          disabled={loading}
-          className="w-full bg-purple-600 hover:bg-purple-700"
-        >
-          {loading ? (
-            <>
-              <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-              Собираем статистику...
-            </>
-          ) : (
-            <>
-              <Icon name="Download" size={16} className="mr-2" />
-              Обновить сейчас
-            </>
+          <Button
+            onClick={collectStats}
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? (
+              <>
+                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                Собираем статистику...
+              </>
+            ) : (
+              <>
+                <Icon name="Download" size={16} className="mr-2" />
+                Обновить сейчас
+              </>
+            )}
+          </Button>
+
+          {message && (
+            <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <Icon name="CheckCircle" size={16} className="text-green-600 mt-0.5" />
+              <p className="text-green-600 text-sm">{message}</p>
+            </div>
           )}
-        </Button>
 
-        {message && (
-          <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <Icon name="CheckCircle" size={16} className="text-green-400 mt-0.5" />
-            <p className="text-green-400 text-sm">{message}</p>
+          {error && (
+            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <Icon name="AlertCircle" size={16} className="text-red-600 mt-0.5" />
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="pt-4 border-t">
+            <h4 className="font-semibold mb-2">Требования:</h4>
+            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+              <li>Добавлены токены VK_SERVICE_TOKEN и YANDEX_MUSIC_TOKEN</li>
+              <li>Артисты заполнили ссылки на соцсети</li>
+              <li>Статистика обновляется раз в день автоматически</li>
+            </ul>
           </div>
-        )}
-
-        {error && (
-          <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <Icon name="AlertCircle" size={16} className="text-red-400 mt-0.5" />
-            <p className="text-red-400 text-sm">{error}</p>
-          </div>
-        )}
-
-        <div className="pt-4 border-t border-white/10">
-          <h4 className="text-white font-semibold mb-2">Требования:</h4>
-          <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
-            <li>Добавлены токены VK_SERVICE_TOKEN и YANDEX_MUSIC_TOKEN</li>
-            <li>Артисты заполнили ссылки на соцсети</li>
-            <li>Статистика обновляется раз в день автоматически</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -44,61 +44,66 @@ export default function UserActivityMonitor({ users = [] }: Props) {
 
   const getActionColor = (actionType: string) => {
     switch (actionType) {
-      case 'login': return 'text-green-400';
-      case 'logout': return 'text-gray-400';
-      case 'create_ticket': return 'text-blue-400';
-      case 'update_ticket_status': return 'text-yellow-400';
-      case 'assign_ticket': return 'text-purple-400';
-      default: return 'text-white';
+      case 'login': return 'text-green-600';
+      case 'logout': return 'text-muted-foreground';
+      case 'create_ticket': return 'text-blue-600';
+      case 'update_ticket_status': return 'text-yellow-600';
+      case 'assign_ticket': return 'text-purple-600';
+      default: return 'text-foreground';
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Icon name="Activity" size={32} className="text-primary" />
+        <h1 className="text-3xl font-bold">Мониторинг активности</h1>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400">Всего действий</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Всего действий</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{stats?.totalActions || 0}</div>
+            <div className="text-3xl font-bold">{stats?.totalActions || 0}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 border-purple-500/30">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400">Активных пользователей</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Активных пользователей</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{stats?.uniqueUsers || 0}</div>
+            <div className="text-3xl font-bold">{stats?.uniqueUsers || 0}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500/20 to-green-600/10 border-green-500/30">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400">За 24 часа</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">За 24 часа</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{stats?.last24Hours || 0}</div>
+            <div className="text-3xl font-bold">{stats?.last24Hours || 0}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-pink-500/20 to-pink-600/10 border-pink-500/30">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400">Типов действий</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Типов действий</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-3xl font-bold">
               {stats?.actionTypes ? Object.keys(stats.actionTypes).length : 0}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-black/40 border-white/10">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2">
               <Icon name="Activity" size={20} />
               Журнал активности
             </CardTitle>
@@ -106,7 +111,7 @@ export default function UserActivityMonitor({ users = [] }: Props) {
               value={selectedUserId?.toString() || 'all'}
               onValueChange={(val) => setSelectedUserId(val === 'all' ? null : parseInt(val))}
             >
-              <SelectTrigger className="w-64 bg-white/5 border-white/10">
+              <SelectTrigger className="w-64">
                 <SelectValue placeholder="Все пользователи" />
               </SelectTrigger>
               <SelectContent>
@@ -124,8 +129,8 @@ export default function UserActivityMonitor({ users = [] }: Props) {
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
             {logs.length === 0 ? (
               <div className="text-center py-12">
-                <Icon name="AlertCircle" size={48} className="text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400">Нет записей активности</p>
+                <Icon name="AlertCircle" size={48} className="text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Нет записей активности</p>
               </div>
             ) : (
               logs.reverse().map((log, idx) => {
@@ -133,27 +138,27 @@ export default function UserActivityMonitor({ users = [] }: Props) {
                 return (
                   <div
                     key={idx}
-                    className="flex items-start gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+                    className="flex items-start gap-3 p-3 border rounded-lg hover:bg-accent transition-colors"
                   >
-                    <div className={`p-2 rounded-full bg-white/10 ${getActionColor(log.actionType)}`}>
+                    <div className={`p-2 rounded-full bg-accent ${getActionColor(log.actionType)}`}>
                       <Icon name={getActionIcon(log.actionType) as any} size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-white font-medium">
+                        <span className="font-medium">
                           {user?.full_name || 'Неизвестный пользователь'}
                         </span>
-                        <Badge className="bg-white/10 text-white text-xs">
+                        <Badge variant="outline" className="text-xs">
                           {user?.role || 'unknown'}
                         </Badge>
                       </div>
-                      <p className="text-gray-300 text-sm mt-1">{log.actionDescription}</p>
+                      <p className="text-muted-foreground text-sm mt-1">{log.actionDescription}</p>
                       {log.metadata && (
-                        <div className="mt-2 text-xs text-gray-500 font-mono">
+                        <div className="mt-2 text-xs text-muted-foreground font-mono">
                           {JSON.stringify(log.metadata)}
                         </div>
                       )}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Icon name="Clock" size={12} />
                           {new Date(log.timestamp).toLocaleString('ru-RU')}
