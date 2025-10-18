@@ -198,6 +198,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         performers.append(value)
                 
                 performer = ' & '.join(performers) if performers else ''
+                performer = performer.strip()
                 
                 if performer:
                     artist_data[performer].append(row)
@@ -205,6 +206,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     artist_data['Без исполнителя'].append(row)
             
             print(f"DEBUG: Found {len(artist_data)} unique performers")
+            if len(artist_data) <= 20:
+                print(f"DEBUG: Performers list: {list(artist_data.keys())}")
+            else:
+                print(f"DEBUG: First 20 performers: {list(artist_data.keys())[:20]}")
             
             cursor.execute(
                 "INSERT INTO t_p35759334_music_label_portal.uploaded_reports (file_name, uploaded_by, total_rows, processed) VALUES (%s, %s, %s, %s) RETURNING id",
