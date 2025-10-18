@@ -17,11 +17,10 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
+    const hash = window.location.hash;
     
-    if (code) {
-      handleVkCallback(code);
+    if (hash && hash.includes('token=')) {
+      handleVkCallback(hash);
     }
   }, []);
 
@@ -33,49 +32,42 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     const VK_APP_ID = '54140994';
     const REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
     
-    const authUrl = `https://oauth.vk.com/authorize?client_id=${VK_APP_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&display=page&scope=email&response_type=code&v=5.131`;
+    const authUrl = `https://id.vk.com/authorize?app_id=${VK_APP_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=silent_token&uuid=poehali_vk_auth`;
     
     window.location.href = authUrl;
   };
 
-  const handleVkCallback = async (code: string) => {
+  const handleVkCallback = async (payload: string) => {
     try {
-      const VK_APP_ID = '54140994';
-      const VK_APP_SECRET = '2Gw0H0HLXeoBGteY5Edi';
-      const REDIRECT_URI = 'https://music-label-portal--preview.poehali.dev/app';
+      const params = new URLSearchParams(payload.substring(1));
+      const token = params.get('token');
+      const uuid = params.get('uuid');
       
-      const tokenUrl = `https://oauth.vk.com/access_token?client_id=${VK_APP_ID}&client_secret=${VK_APP_SECRET}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&code=${code}`;
-      
-      const tokenResponse = await fetch(tokenUrl);
-      const tokenData = await tokenResponse.json();
-      
-      if (tokenData.error) {
+      if (!token || uuid !== 'poehali_vk_auth') {
         toast({
-          title: 'Ошибка VK',
-          description: tokenData.error_description || 'Ошибка авторизации',
+          title: 'Ошибка',
+          description: 'Неверный ответ от VK',
           variant: 'destructive'
         });
         return;
       }
       
-      const { access_token, user_id, email } = tokenData;
-      
-      const userInfoUrl = `https://api.vk.com/method/users.get?user_ids=${user_id}&fields=photo_200&access_token=${access_token}&v=5.131`;
+      const userInfoUrl = `https://api.vk.com/method/users.get?fields=photo_200&access_token=${token}&v=5.131`;
       const userResponse = await fetch(userInfoUrl);
       const userData = await userResponse.json();
       
       if (userData.response && userData.response[0]) {
         const user = userData.response[0];
         const vkData = {
-          vk_id: user_id.toString(),
+          vk_id: user.id.toString(),
           first_name: user.first_name,
           last_name: user.last_name,
           photo: user.photo_200,
-          email: email || '',
-          access_token
+          email: '',
+          access_token: token
         };
         
-        const vkUsername = `vk_${user_id}`;
+        const vkUsername = `vk_${user.id}`;
         onLogin(vkUsername, '', vkData);
         
         window.history.replaceState({}, document.title, window.location.pathname);
