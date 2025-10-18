@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: API для работы с личными сообщениями руководителю
+    Business: API для двусторонних диалогов между пользователями и руководителем
     Args: event - dict с httpMethod, body, queryStringParameters
           context - объект с атрибутами request_id, function_name
     Returns: HTTP response dict
@@ -41,7 +41,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             sender_id = body_data.get('sender_id')
+            receiver_id = body_data.get('receiver_id')
             message = body_data.get('message')
+            is_from_boss = body_data.get('is_from_boss', False)
             
             if not sender_id or not message:
                 return {
@@ -51,10 +53,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor.execute('''
-                INSERT INTO t_p35759334_music_label_portal.messages (sender_id, message)
-                VALUES (%s, %s)
-                RETURNING id, sender_id, message, created_at, is_read
-            ''', (sender_id, message))
+                INSERT INTO t_p35759334_music_label_portal.messages 
+                (sender_id, receiver_id, message, is_from_boss)
+                VALUES (%s, %s, %s, %s)
+                RETURNING id, sender_id, receiver_id, message, created_at, is_read, is_from_boss
+            ''', (sender_id, receiver_id, message, is_from_boss))
             
             new_message = dict(cursor.fetchone())
             new_message['created_at'] = new_message['created_at'].isoformat()
@@ -69,15 +72,70 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'GET':
             params = event.get('queryStringParameters', {}) or {}
             user_id = params.get('user_id')
+            dialog_with = params.get('dialog_with')
+            list_dialogs = params.get('list_dialogs')
             
-            if user_id:
-                cursor.execute(
-                    'SELECT m.id, m.sender_id, m.message, m.created_at, m.is_read FROM t_p35759334_music_label_portal.messages m WHERE m.sender_id = %s ORDER BY m.created_at DESC',
-                    (user_id,)
-                )
+            if list_dialogs:
+                cursor.execute('''
+                    SELECT DISTINCT 
+                        CASE 
+                            WHEN sender_id != %s THEN sender_id 
+                            ELSE receiver_id 
+                        END as user_id
+                    FROM t_p35759334_music_label_portal.messages
+                    WHERE sender_id = %s OR receiver_id = %s
+                ''', (user_id, user_id, user_id))
+                
+                dialog_users = []
+                for row in cursor.fetchall():
+                    other_user_id = row['user_id']
+                    if not other_user_id:
+                        continue
+                    
+                    cursor.execute('SELECT full_name, role FROM users WHERE id = %s', (other_user_id,))
+                    user_data = cursor.fetchone()
+                    
+                    cursor.execute('''
+                        SELECT COUNT(*) as unread_count
+                        FROM t_p35759334_music_label_portal.messages
+                        WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
+                    ''', (other_user_id, user_id))
+                    unread = cursor.fetchone()
+                    
+                    cursor.execute('''
+                        SELECT message, created_at
+                        FROM t_p35759334_music_label_portal.messages
+                        WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s)
+                        ORDER BY created_at DESC LIMIT 1
+                    ''', (user_id, other_user_id, other_user_id, user_id))
+                    last_msg = cursor.fetchone()
+                    
+                    if user_data:
+                        dialog_users.append({
+                            'user_id': other_user_id,
+                            'name': user_data['full_name'],
+                            'role': user_data['role'],
+                            'unread_count': unread['unread_count'] if unread else 0,
+                            'last_message': last_msg['message'] if last_msg else '',
+                            'last_message_time': last_msg['created_at'].isoformat() if last_msg else ''
+                        })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps(dialog_users)
+                }
+            
+            if dialog_with:
+                cursor.execute('''
+                    SELECT m.id, m.sender_id, m.receiver_id, m.message, m.created_at, m.is_read, m.is_from_boss
+                    FROM t_p35759334_music_label_portal.messages m
+                    WHERE (m.sender_id = %s AND m.receiver_id = %s) OR (m.sender_id = %s AND m.receiver_id = %s)
+                    ORDER BY m.created_at ASC
+                ''', (user_id, dialog_with, dialog_with, user_id))
             else:
                 cursor.execute(
-                    'SELECT m.id, m.sender_id, m.message, m.created_at, m.is_read FROM t_p35759334_music_label_portal.messages m ORDER BY m.created_at DESC'
+                    'SELECT m.id, m.sender_id, m.receiver_id, m.message, m.created_at, m.is_read, m.is_from_boss FROM t_p35759334_music_label_portal.messages m ORDER BY m.created_at DESC'
                 )
             
             messages = []
@@ -85,10 +143,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 msg = dict(row)
                 msg['created_at'] = msg['created_at'].isoformat()
                 
-                cursor.execute(
-                    'SELECT full_name, role FROM users WHERE id = %s',
-                    (msg['sender_id'],)
-                )
+                cursor.execute('SELECT full_name, role FROM users WHERE id = %s', (msg['sender_id'],))
                 user_row = cursor.fetchone()
                 if user_row:
                     msg['sender_name'] = user_row['full_name']

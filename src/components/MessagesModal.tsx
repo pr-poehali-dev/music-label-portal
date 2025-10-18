@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
@@ -9,11 +9,22 @@ import { useToast } from '@/hooks/use-toast';
 interface Message {
   id: number;
   sender_id: number;
+  receiver_id?: number;
   sender_name: string;
   sender_role: string;
   message: string;
   created_at: string;
   is_read: boolean;
+  is_from_boss: boolean;
+}
+
+interface DialogUser {
+  user_id: number;
+  name: string;
+  role: string;
+  unread_count: number;
+  last_message: string;
+  last_message_time: string;
 }
 
 interface MessagesModalProps {
@@ -21,11 +32,14 @@ interface MessagesModalProps {
   onOpenChange: (open: boolean) => void;
   userId: number;
   userRole: 'boss' | 'manager' | 'artist';
+  userName?: string;
 }
 
 const MESSAGES_API = 'https://functions.poehali.dev/7bcbbe5a-cae2-4cbe-94c1-ca6a0152ce3a';
 
-export function MessagesModal({ open, onOpenChange, userId, userRole }: MessagesModalProps) {
+export function MessagesModal({ open, onOpenChange, userId, userRole, userName }: MessagesModalProps) {
+  const [dialogUsers, setDialogUsers] = useState<DialogUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<DialogUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,15 +48,39 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
 
   useEffect(() => {
     if (open) {
-      loadMessages();
+      if (userRole === 'boss') {
+        loadDialogsList();
+      } else {
+        loadDialog();
+      }
     }
   }, [open]);
 
-  const loadMessages = async () => {
+  const loadDialogsList = async () => {
     setLoading(true);
     try {
-      const url = userRole === 'boss' 
-        ? MESSAGES_API 
+      const response = await fetch(`${MESSAGES_API}?list_dialogs=true&user_id=${userId}`);
+      if (!response.ok) throw new Error('Ошибка загрузки диалогов');
+      
+      const data = await response.json();
+      setDialogUsers(data);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить список диалогов',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadDialog = async (withUserId?: number) => {
+    setLoading(true);
+    try {
+      const targetUserId = withUserId || (userRole === 'boss' ? selectedUser?.user_id : undefined);
+      const url = targetUserId 
+        ? `${MESSAGES_API}?user_id=${userId}&dialog_with=${targetUserId}`
         : `${MESSAGES_API}?user_id=${userId}`;
       
       const response = await fetch(url);
@@ -51,8 +89,9 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
       const data = await response.json();
       setMessages(data);
       
-      if (userRole === 'boss') {
-        markAsRead(data.filter((m: Message) => !m.is_read).map((m: Message) => m.id));
+      const unreadIds = data.filter((m: Message) => m.receiver_id === userId && !m.is_read).map((m: Message) => m.id);
+      if (unreadIds.length > 0) {
+        markAsRead(unreadIds);
       }
     } catch (error) {
       toast({
@@ -66,8 +105,6 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
   };
 
   const markAsRead = async (messageIds: number[]) => {
-    if (messageIds.length === 0) return;
-    
     for (const messageId of messageIds) {
       try {
         await fetch(MESSAGES_API, {
@@ -76,7 +113,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
           body: JSON.stringify({ message_id: messageId, is_read: true }),
         });
       } catch (error) {
-        console.error('Ошибка отметки сообщения как прочитанного:', error);
+        console.error('Ошибка отметки сообщения:', error);
       }
     }
   };
@@ -86,24 +123,28 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
     
     setSending(true);
     try {
+      const receiverId = userRole === 'boss' ? selectedUser?.user_id : undefined;
+      
       const response = await fetch(MESSAGES_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sender_id: userId,
+          receiver_id: receiverId,
           message: newMessage.trim(),
+          is_from_boss: userRole === 'boss',
         }),
       });
 
       if (!response.ok) throw new Error('Ошибка отправки');
 
-      toast({
-        title: 'Успешно',
-        description: 'Сообщение отправлено руководителю',
-      });
-
       setNewMessage('');
-      loadMessages();
+      
+      if (userRole === 'boss' && selectedUser) {
+        loadDialog(selectedUser.user_id);
+      } else {
+        loadDialog();
+      }
     } catch (error) {
       toast({
         title: 'Ошибка',
@@ -116,6 +157,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     const today = new Date();
     const yesterday = new Date(today);
@@ -126,110 +168,222 @@ export function MessagesModal({ open, onOpenChange, userId, userRole }: Messages
 
     const time = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
-    if (isToday) return `Сегодня в ${time}`;
-    if (isYesterday) return `Вчера в ${time}`;
-    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + ` в ${time}`;
+    if (isToday) return time;
+    if (isYesterday) return `Вчера`;
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
   };
 
-  const unreadCount = messages.filter(m => !m.is_read).length;
+  const handleUserSelect = (user: DialogUser) => {
+    setSelectedUser(user);
+    loadDialog(user.user_id);
+  };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="MessageSquare" size={24} />
-            {userRole === 'boss' ? 'Сообщения от команды' : 'Сообщения руководителю'}
-            {userRole === 'boss' && unreadCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
-                {unreadCount}
-              </span>
-            )}
-          </DialogTitle>
-        </DialogHeader>
+  const handleBack = () => {
+    setSelectedUser(null);
+    setMessages([]);
+    loadDialogsList();
+  };
 
-        <div className="flex flex-col gap-4">
-          {userRole !== 'boss' && (
-            <div className="flex flex-col gap-2">
-              <Textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Введите ваше сообщение руководителю..."
-                className="min-h-[100px]"
-                disabled={sending}
-              />
-              <Button 
-                onClick={sendMessage} 
-                disabled={!newMessage.trim() || sending}
-                className="self-end"
-              >
-                <Icon name="Send" size={16} className="mr-2" />
-                {sending ? 'Отправка...' : 'Отправить'}
-              </Button>
-            </div>
-          )}
+  const totalUnread = dialogUsers.reduce((sum, u) => sum + u.unread_count, 0);
 
-          <div className="border-t pt-4">
-            <h3 className="text-sm font-semibold mb-3">
-              {userRole === 'boss' ? 'Все сообщения' : 'История сообщений'}
-            </h3>
-            
-            <ScrollArea className="h-[400px] pr-4">
-              {loading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Icon name="Loader2" className="animate-spin" size={24} />
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
-                  <p>Сообщений пока нет</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`p-4 rounded-lg border ${
-                        !msg.is_read && userRole === 'boss'
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            msg.sender_role === 'manager' 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-purple-100 text-purple-700'
-                          }`}>
-                            <Icon 
-                              name={msg.sender_role === 'manager' ? 'UserCheck' : 'Music'} 
-                              size={16} 
-                            />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-sm">{msg.sender_name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {msg.sender_role === 'manager' ? 'Менеджер' : 'Артист'}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDate(msg.created_at)}
-                        </span>
+  if (userRole === 'boss' && !selectedUser) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md max-h-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="MessageSquare" size={24} />
+              Сообщения от команды
+              {totalUnread > 0 && (
+                <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                  {totalUnread}
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          <ScrollArea className="h-[500px]">
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Icon name="Loader2" className="animate-spin" size={24} />
+              </div>
+            ) : dialogUsers.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Icon name="Inbox" size={48} className="mx-auto mb-3 opacity-30" />
+                <p className="text-lg">Нет сообщений</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {dialogUsers.map((user) => (
+                  <button
+                    key={user.user_id}
+                    onClick={() => handleUserSelect(user)}
+                    className="w-full p-4 rounded-lg border hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        user.role === 'manager' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-purple-100 text-purple-700'
+                      }`}>
+                        <Icon 
+                          name={user.role === 'manager' ? 'UserCheck' : 'Music'} 
+                          size={20} 
+                        />
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                      {!msg.is_read && userRole === 'boss' && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
-                          <Icon name="Mail" size={12} />
-                          <span>Новое</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-semibold text-base truncate">{user.name}</p>
+                          {user.last_message_time && (
+                            <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                              {formatDate(user.last_message_time)}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {user.role === 'manager' ? 'Менеджер' : 'Артист'}
+                        </p>
+                        {user.last_message && (
+                          <p className="text-sm text-gray-600 truncate">{user.last_message}</p>
+                        )}
+                      </div>
+                      {user.unread_count > 0 && (
+                        <div className="flex-shrink-0">
+                          <span className="inline-block px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+                            {user.unread_count}
+                          </span>
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[700px] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="flex items-center gap-2">
+            {userRole === 'boss' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="mr-2"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+            )}
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              userRole === 'boss' 
+                ? selectedUser?.role === 'manager' 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'bg-purple-100 text-purple-700'
+                : 'bg-yellow-100 text-yellow-700'
+            }`}>
+              <Icon 
+                name={
+                  userRole === 'boss' 
+                    ? selectedUser?.role === 'manager' ? 'UserCheck' : 'Music'
+                    : 'Crown'
+                } 
+                size={20} 
+              />
+            </div>
+            <div>
+              <p className="font-semibold">
+                {userRole === 'boss' ? selectedUser?.name : 'Руководитель'}
+              </p>
+              <p className="text-xs text-muted-foreground font-normal">
+                {userRole === 'boss' 
+                  ? selectedUser?.role === 'manager' ? 'Менеджер' : 'Артист'
+                  : 'Онлайн'}
+              </p>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <ScrollArea className="flex-1 px-6 py-4 h-[400px]">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Icon name="Loader2" className="animate-spin" size={32} />
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Icon name="MessageCircle" size={48} className="mx-auto mb-3 opacity-30" />
+              <p className="text-lg">Начните диалог</p>
+              <p className="text-sm">Напишите первое сообщение</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {messages.map((msg) => {
+                const isMyMessage = msg.sender_id === userId;
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[70%] ${isMyMessage ? 'order-2' : 'order-1'}`}>
+                      <div
+                        className={`rounded-2xl px-4 py-3 ${
+                          isMyMessage
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-gray-100 text-gray-900'
+                        }`}
+                      >
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                          {msg.message}
+                        </p>
+                      </div>
+                      <div className={`mt-1 px-2 flex items-center gap-1 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(msg.created_at)}
+                        </span>
+                        {isMyMessage && msg.is_read && (
+                          <Icon name="CheckCheck" size={14} className="text-blue-500" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </ScrollArea>
+
+        <div className="px-6 py-4 border-t bg-gray-50">
+          <div className="flex items-end gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder="Введите сообщение..."
+              className="flex-1 bg-white"
+              disabled={sending}
+            />
+            <Button 
+              onClick={sendMessage} 
+              disabled={!newMessage.trim() || sending}
+              size="icon"
+              className="h-10 w-10"
+            >
+              {sending ? (
+                <Icon name="Loader2" className="animate-spin" size={20} />
+              ) : (
+                <Icon name="Send" size={20} />
               )}
-            </ScrollArea>
+            </Button>
           </div>
         </div>
       </DialogContent>
