@@ -80,16 +80,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT DISTINCT 
                         CASE 
                             WHEN sender_id != %s THEN sender_id 
-                            ELSE receiver_id 
+                            WHEN receiver_id IS NOT NULL THEN receiver_id
+                            ELSE sender_id
                         END as user_id
                     FROM t_p35759334_music_label_portal.messages
-                    WHERE sender_id = %s OR receiver_id = %s
-                ''', (user_id, user_id, user_id))
+                    WHERE (sender_id = %s OR receiver_id = %s OR (receiver_id IS NULL AND is_from_boss = FALSE))
+                    AND sender_id != %s
+                ''', (user_id, user_id, user_id, user_id))
                 
                 dialog_users = []
                 for row in cursor.fetchall():
                     other_user_id = row['user_id']
-                    if not other_user_id:
+                    if not other_user_id or other_user_id == user_id:
                         continue
                     
                     cursor.execute('SELECT full_name, role FROM users WHERE id = %s', (other_user_id,))
@@ -98,16 +100,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     cursor.execute('''
                         SELECT COUNT(*) as unread_count
                         FROM t_p35759334_music_label_portal.messages
-                        WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
+                        WHERE sender_id = %s AND (receiver_id = %s OR receiver_id IS NULL) AND is_read = FALSE
                     ''', (other_user_id, user_id))
                     unread = cursor.fetchone()
                     
                     cursor.execute('''
                         SELECT message, created_at
                         FROM t_p35759334_music_label_portal.messages
-                        WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s)
+                        WHERE (sender_id = %s AND (receiver_id = %s OR receiver_id IS NULL)) 
+                           OR (sender_id = %s AND receiver_id = %s)
                         ORDER BY created_at DESC LIMIT 1
-                    ''', (user_id, other_user_id, other_user_id, user_id))
+                    ''', (other_user_id, user_id, user_id, other_user_id))
                     last_msg = cursor.fetchone()
                     
                     if user_data:
@@ -130,7 +133,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute('''
                     SELECT m.id, m.sender_id, m.receiver_id, m.message, m.created_at, m.is_read, m.is_from_boss
                     FROM t_p35759334_music_label_portal.messages m
-                    WHERE (m.sender_id = %s AND m.receiver_id = %s) OR (m.sender_id = %s AND m.receiver_id = %s)
+                    WHERE (m.sender_id = %s AND m.receiver_id = %s) 
+                       OR (m.sender_id = %s AND (m.receiver_id = %s OR m.receiver_id IS NULL))
                     ORDER BY m.created_at ASC
                 ''', (user_id, dialog_with, dialog_with, user_id))
             else:
