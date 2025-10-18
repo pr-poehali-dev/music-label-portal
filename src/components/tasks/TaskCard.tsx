@@ -94,9 +94,10 @@ export default function TaskCard({
         )}
 
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2">
             <Icon name="User" size={14} className="text-primary" />
-            <span>{task.assigned_name}</span>
+            <span className="font-medium text-foreground">Менеджер:</span>
+            <span className="text-muted-foreground">{task.assigned_name}</span>
           </div>
 
           <div className="flex items-center gap-2 text-muted-foreground">
