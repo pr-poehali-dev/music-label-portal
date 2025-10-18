@@ -94,9 +94,9 @@ export default function TicketManagement({
   return (
     <div className="space-y-5">
         <div className="space-y-3">
-          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border border-blue-200 dark:border-blue-700">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-              <Icon name="Circle" size={16} />
+          <div className="pb-2 border-b-2 border-blue-500">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Icon name="Circle" size={16} className="text-blue-500" />
               Открыто
             </h3>
           </div>
@@ -125,9 +125,9 @@ export default function TicketManagement({
         </div>
 
         <div className="space-y-3">
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-3 border border-yellow-200 dark:border-yellow-700">
-            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 flex items-center gap-2">
-              <Icon name="Clock" size={16} />
+          <div className="pb-2 border-b-2 border-yellow-500">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Icon name="Clock" size={16} className="text-yellow-500" />
               В работе
             </h3>
           </div>
@@ -156,9 +156,9 @@ export default function TicketManagement({
         </div>
 
         <div className="space-y-3">
-          <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
-            <h3 className="font-semibold text-green-900 dark:text-green-100 flex items-center gap-2">
-              <Icon name="CheckCircle" size={16} />
+          <div className="pb-2 border-b-2 border-green-500">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Icon name="CheckCircle" size={16} className="text-green-500" />
               Решено
             </h3>
           </div>
