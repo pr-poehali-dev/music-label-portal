@@ -1,249 +1,261 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-interface User {
-  id: number;
-  username: string;
-  full_name: string;
-  role: string;
-}
-
-interface Release {
-  id: number;
-  artist_id: number;
-  title: string;
-  release_date: string;
-  cover_url: string;
-  status: string;
-}
-
-interface SocialLink {
-  platform: string;
-  url: string;
-  icon: string;
-}
+import { useToast } from '@/hooks/use-toast';
 
 export default function HomePage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [managers, setManagers] = useState<User[]>([]);
-  const [artists, setArtists] = useState<User[]>([]);
-  const [releases, setReleases] = useState<Release[]>([]);
-  const [socials, setSocials] = useState<SocialLink[]>([]);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    artistName: '',
+    email: '',
+    phone: '',
+    trackLink: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    const storedUsers = localStorage.getItem('users');
-    if (storedUsers) {
-      const users = JSON.parse(storedUsers);
-      setManagers(users.filter((u: User) => u.role === 'manager'));
-      setArtists(users.filter((u: User) => u.role === 'artist'));
-    }
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: '✅ Материал отправлен!',
+        description: 'Мы рассмотрим ваш трек и свяжемся с вами в ближайшее время.'
+      });
 
-    const storedReleases = localStorage.getItem('releases');
-    if (storedReleases) {
-      setReleases(JSON.parse(storedReleases));
-    }
-
-    const storedSocials = localStorage.getItem('company_socials');
-    if (storedSocials) {
-      setSocials(JSON.parse(storedSocials));
-    } else {
-      setSocials([
-        { platform: 'VK', url: 'https://vk.com/420smm', icon: 'vk' },
-        { platform: 'Telegram', url: 'https://t.me/420smm', icon: 'send' },
-        { platform: 'Instagram', url: 'https://instagram.com/420smm', icon: 'instagram' }
-      ]);
-    }
-  }, []);
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'director': return 'bg-purple-500';
-      case 'manager': return 'bg-blue-500';
-      case 'artist': return 'bg-pink-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'released': return 'bg-green-500';
-      case 'planned': return 'bg-yellow-500';
-      case 'in_progress': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      setFormData({
+        artistName: '',
+        email: '',
+        phone: '',
+        trackLink: '',
+        message: ''
+      });
+    } catch (error) {
+      toast({
+        title: '❌ Ошибка',
+        description: 'Не удалось отправить материал. Попробуйте позже.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-900 via-yellow-800 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-              <Icon name="Music" size={24} className="text-white" />
-            </div>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
+              alt="420 Logo" 
+              className="w-16 h-16 rounded-full shadow-lg shadow-yellow-500/50 animate-glow"
+            />
             <div>
-              <h1 className="text-2xl font-bold text-yellow-100">420 SMM</h1>
-              <p className="text-sm text-yellow-300/70">Музыкальный лейбл</p>
+              <h1 className="text-4xl font-bold text-yellow-400">420.рф</h1>
+              <p className="text-yellow-300/70">Музыкальный лейбл</p>
             </div>
           </div>
           
           <Button 
             onClick={() => navigate('/app')}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2"
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
           >
             <Icon name="LogIn" size={18} className="mr-2" />
-            Войти
+            Войти в систему
           </Button>
         </div>
 
-      <div className="space-y-12">
-        <section className="text-center space-y-4">
-          <h2 className="text-5xl font-bold text-white">
-            Добро пожаловать в 420 SMM
-          </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Мы продвигаем музыкальные таланты и помогаем артистам развиваться в digital-пространстве
-          </p>
-        </section>
-
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Icon name="Users" size={28} className="text-purple-400" />
-            <h3 className="text-3xl font-bold text-white">Наша команда</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Icon name="Target" size={24} className="text-blue-400" />
-                  <h4 className="text-xl font-semibold text-white">Менеджеры</h4>
-                  <Badge className="ml-auto bg-blue-500">{managers.length}</Badge>
-                </div>
-                <div className="space-y-2">
-                  {managers.length > 0 ? (
-                    managers.map((manager) => (
-                      <div key={manager.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                          <Icon name="User" size={20} className="text-blue-400" />
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{manager.full_name}</p>
-                          <p className="text-sm text-gray-400">@{manager.username}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 text-center py-4">Менеджеры появятся скоро</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Icon name="Mic" size={24} className="text-pink-400" />
-                  <h4 className="text-xl font-semibold text-white">Артисты</h4>
-                  <Badge className="ml-auto bg-pink-500">{artists.length}</Badge>
-                </div>
-                <div className="space-y-2">
-                  {artists.length > 0 ? (
-                    artists.map((artist) => (
-                      <div key={artist.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                        <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                          <Icon name="Music" size={20} className="text-pink-400" />
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{artist.full_name}</p>
-                          <p className="text-sm text-gray-400">@{artist.username}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 text-center py-4">Артисты появятся скоро</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Icon name="Disc" size={28} className="text-pink-400" />
-            <h3 className="text-3xl font-bold text-white">Релизы</h3>
-          </div>
-
-          {releases.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {releases.map((release) => (
-                <Card key={release.id} className="bg-black/40 border-white/10 backdrop-blur-sm overflow-hidden group hover:border-pink-500/50 transition-all">
-                  <div className="aspect-square bg-gradient-to-br from-purple-500/20 to-pink-500/20 relative overflow-hidden">
-                    {release.cover_url ? (
-                      <img src={release.cover_url} alt={release.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Icon name="Disc" size={64} className="text-white/20" />
-                      </div>
-                    )}
-                    <Badge className={`absolute top-3 right-3 ${getStatusColor(release.status)}`}>
-                      {release.status}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <h4 className="text-lg font-semibold text-white mb-2">{release.title}</h4>
-                    <p className="text-sm text-gray-400">
-                      {release.release_date ? new Date(release.release_date).toLocaleDateString('ru-RU') : 'Скоро'}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="space-y-8">
+            <div className="animate-slideIn">
+              <h2 className="text-5xl font-bold text-white mb-4">
+                Отправь свой трек на прослушивание
+              </h2>
+              <p className="text-xl text-gray-300">
+                Мы ищем талантливых артистов для сотрудничества. Заполни форму и отправь свой материал — наша команда обязательно его прослушает.
+              </p>
             </div>
-          ) : (
-            <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-              <CardContent className="p-12 text-center">
-                <Icon name="Music" size={48} className="text-white/20 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">Релизы скоро появятся</p>
-              </CardContent>
-            </Card>
-          )}
-        </section>
 
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Icon name="Share2" size={28} className="text-purple-400" />
-            <h3 className="text-3xl font-bold text-white">Мы в соцсетях</h3>
+            <div className="space-y-6 animate-fadeIn">
+              <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Headphones" size={24} className="text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">Профессиональное прослушивание</h3>
+                      <p className="text-gray-300">Каждый трек оценивается нашей командой специалистов</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Rocket" size={24} className="text-orange-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">Развитие карьеры</h3>
+                      <p className="text-gray-300">Поможем с продвижением, релизами и монетизацией</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Users" size={24} className="text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">Команда профессионалов</h3>
+                      <p className="text-gray-300">Работа с опытными продюсерами и менеджерами</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 justify-center">
-            {socials.map((social, index) => (
-              <a
-                key={index}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-6 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-all hover:scale-105 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:rotate-12 transition-transform">
-                  <Icon name={social.icon as any} size={24} className="text-white" />
+          <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-sm animate-slideIn sticky top-8">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="Music" size={32} className="text-yellow-400" />
+                <h3 className="text-2xl font-bold text-white">Форма отправки</h3>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Имя артиста / Псевдоним *
+                  </label>
+                  <Input
+                    required
+                    placeholder="Например: DJ Космос"
+                    value={formData.artistName}
+                    onChange={(e) => setFormData({ ...formData, artistName: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
                 </div>
-                <span className="text-white font-semibold text-lg">{social.platform}</span>
-              </a>
-            ))}
+
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Email *
+                  </label>
+                  <Input
+                    required
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Телефон
+                  </label>
+                  <Input
+                    type="tel"
+                    placeholder="+7 (999) 123-45-67"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Ссылка на трек *
+                  </label>
+                  <Input
+                    required
+                    type="url"
+                    placeholder="https://soundcloud.com/your-track"
+                    value={formData.trackLink}
+                    onChange={(e) => setFormData({ ...formData, trackLink: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    SoundCloud, YouTube, Google Drive и др.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-yellow-300 mb-2 block">
+                    Сообщение
+                  </label>
+                  <Textarea
+                    placeholder="Расскажите о себе и своём творчестве..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className="bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-500 min-h-[100px]"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold text-lg py-6 hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                      Отправка...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Send" size={20} className="mr-2" />
+                      Отправить на прослушивание
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-gray-400 text-center">
+                  * — обязательные поля
+                </p>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-16 text-center space-y-4 animate-fadeIn">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Icon name="Phone" size={24} className="text-yellow-400" />
+            <h3 className="text-2xl font-bold text-white">Контакты</h3>
           </div>
-        </section>
-      </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="https://vk.com/420smm" target="_blank" rel="noopener noreferrer" 
+               className="px-6 py-3 bg-black/40 border border-yellow-500/20 rounded-lg hover:border-yellow-500/50 transition-all text-white">
+              <Icon name="MessageCircle" className="inline mr-2" size={18} />
+              VK
+            </a>
+            <a href="https://t.me/420smm" target="_blank" rel="noopener noreferrer"
+               className="px-6 py-3 bg-black/40 border border-yellow-500/20 rounded-lg hover:border-yellow-500/50 transition-all text-white">
+              <Icon name="Send" className="inline mr-2" size={18} />
+              Telegram
+            </a>
+            <a href="mailto:info@420.рф"
+               className="px-6 py-3 bg-black/40 border border-yellow-500/20 rounded-lg hover:border-yellow-500/50 transition-all text-white">
+              <Icon name="Mail" className="inline mr-2" size={18} />
+              Email
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
