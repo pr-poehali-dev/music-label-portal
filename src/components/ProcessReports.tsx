@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,11 +16,6 @@ interface ArtistFile {
   uploaded_at?: string;
 }
 
-interface Performer {
-  username: string;
-  full_name: string;
-}
-
 interface ProcessReportsProps {
   uploadedReportId?: number;
   onClose?: () => void;
@@ -32,15 +24,11 @@ interface ProcessReportsProps {
 export default function ProcessReports({ uploadedReportId, onClose }: ProcessReportsProps) {
   const [files, setFiles] = useState<ArtistFile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deductions, setDeductions] = useState<Record<number, number>>({});
-
   const { toast } = useToast();
 
   useEffect(() => {
     loadFiles();
   }, [uploadedReportId]);
-
-
 
   const loadFiles = async () => {
     try {
@@ -53,11 +41,6 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
 
       if (data.files) {
         setFiles(data.files);
-        const initialDeductions: Record<number, number> = {};
-        data.files.forEach((file: ArtistFile) => {
-          initialDeductions[file.id] = file.deduction_percent;
-        });
-        setDeductions(initialDeductions);
       }
     } catch (error) {
       toast({
@@ -69,8 +52,6 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
       setLoading(false);
     }
   };
-
-
 
   const downloadCSV = async (file: ArtistFile) => {
     try {
@@ -131,8 +112,6 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
     }
   };
 
-
-
   if (loading) {
     return (
       <Card className="bg-gradient-to-br from-black via-yellow-950/20 to-black border-yellow-700/30">
@@ -152,10 +131,10 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
           <div>
             <CardTitle className="text-2xl font-bold text-yellow-100 flex items-center gap-2">
               <Icon name="FileText" size={24} className="text-yellow-400" />
-              Обработка отчётов
+              Отчёты по исполнителям
             </CardTitle>
             <CardDescription className="text-yellow-300/70">
-              Выберите исполнителя из списка и скачайте его отчёт в CSV
+              Скачайте отдельный CSV-файл для каждого исполнителя
             </CardDescription>
           </div>
           {onClose && (
@@ -181,48 +160,20 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
                       <div className="flex items-center gap-2 mb-1">
                         <Icon name="User" size={16} className="text-yellow-400" />
                         <span className="font-semibold text-yellow-100">{file.artist_full_name}</span>
-                        <span className="text-yellow-300/50 text-sm">@{file.artist_username}</span>
                       </div>
                       <div className="text-sm text-yellow-300/70">
                         {file.rows_count} записей
-                        {file.sent_at && (
-                          <span className="ml-2 text-green-400">
-                            • Отправлено {new Date(file.sent_at).toLocaleDateString()}
-                          </span>
-                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-48">
-                        <Label className="text-xs text-yellow-300/70 mb-1 block">Выбрать исполнителя</Label>
-                        <Select
-                          value={selectedPerformers[file.id] || ''}
-                          onValueChange={(value) => selectPerformer(file.id, value)}
-                        >
-                          <SelectTrigger className="bg-black/30 border-yellow-700/30 text-yellow-100 h-9">
-                            <SelectValue placeholder="Выберите..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {performers.map((performer) => (
-                              <SelectItem key={performer.username} value={performer.username}>
-                                {performer.full_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Button
-                        onClick={() => downloadCSV(file)}
-                        disabled={!selectedPerformers[file.id]}
-                        variant="outline"
-                        className="border-yellow-600 text-yellow-300 hover:bg-yellow-600/10 mt-5 disabled:opacity-50"
-                      >
-                        <Icon name="Download" size={16} className="mr-1" />
-                        Скачать CSV
-                      </Button>
-                    </div>
+                    <Button
+                      onClick={() => downloadCSV(file)}
+                      variant="outline"
+                      className="border-yellow-600 text-yellow-300 hover:bg-yellow-600/10"
+                    >
+                      <Icon name="Download" size={16} className="mr-2" />
+                      Скачать CSV
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
