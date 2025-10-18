@@ -24,7 +24,10 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!file) {
       toast({ title: '❌ Выберите файл', variant: 'destructive' });
       return;
@@ -136,12 +139,11 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="file-upload" className="text-yellow-100">
+          <div className="text-sm font-medium text-yellow-100 mb-2">
             Выберите CSV или XLSX файл
-          </Label>
+          </div>
           <div className="flex gap-2">
             <Input
-              id="file-upload"
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileChange}
