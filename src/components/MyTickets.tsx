@@ -97,12 +97,11 @@ export default function MyTickets({
               <TicketCard
                 key={ticket.id}
                 ticket={ticket}
+                user={user}
                 managers={[]}
                 onUpdateStatus={() => {}}
-                onAssign={() => {}}
                 getPriorityColor={getPriorityColor}
                 getStatusColor={getStatusColor}
-                userRole={user.role}
               />
             ))
           )}

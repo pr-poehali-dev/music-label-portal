@@ -28,10 +28,11 @@ interface Ticket {
 
 interface TicketCardProps {
   ticket: Ticket;
-  user: User;
+  user?: User;
+  userRole?: 'artist' | 'manager' | 'director';
   managers: User[];
   onUpdateStatus: (ticketId: number, status: string) => void;
-  onAssignTicket: (ticketId: number, managerId: number | null, deadline?: string) => void;
+  onAssign?: (ticketId: number, managerId: number | null, deadline?: string) => void;
   getPriorityColor: (priority: string) => string;
   getStatusColor: (status: string) => string;
 }
@@ -39,12 +40,14 @@ interface TicketCardProps {
 export default function TicketCard({ 
   ticket, 
   user, 
+  userRole,
   managers, 
   onUpdateStatus, 
-  onAssignTicket,
+  onAssign,
   getPriorityColor,
   getStatusColor
 }: TicketCardProps) {
+  const effectiveRole = userRole || user?.role;
   const isOverdue = ticket.deadline && new Date(ticket.deadline) < new Date() && ticket.status !== 'closed';
 
   return (
@@ -96,12 +99,12 @@ export default function TicketCard({
           )}
         </div>
 
-        {user.role === 'director' && ticket.status === 'open' && (
+        {effectiveRole === 'director' && ticket.status === 'open' && onAssign && (
           <div className="flex gap-2">
             <Select
               onValueChange={(val) => {
                 const managerId = val === 'unassign' ? null : Number(val);
-                onAssignTicket(ticket.id, managerId);
+                onAssign(ticket.id, managerId);
               }}
             >
               <SelectTrigger className="flex-1">
@@ -120,7 +123,7 @@ export default function TicketCard({
               type="datetime-local"
               onChange={(e) => {
                 if (e.target.value && ticket.assigned_to) {
-                  onAssignTicket(ticket.id, ticket.assigned_to, e.target.value);
+                  onAssign(ticket.id, ticket.assigned_to, e.target.value);
                 }
               }}
               className="flex-1"
@@ -128,7 +131,7 @@ export default function TicketCard({
           </div>
         )}
 
-        {(user.role === 'manager' || user.role === 'director') && ticket.status !== 'closed' && (
+        {(effectiveRole === 'manager' || effectiveRole === 'director') && ticket.status !== 'closed' && (
           <div className="flex gap-2">
             {ticket.status === 'open' && (
               <Button 

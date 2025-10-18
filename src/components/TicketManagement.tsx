@@ -154,12 +154,12 @@ export default function TicketManagement({
                 <TicketCard
                   key={ticket.id}
                   ticket={ticket}
+                  user={user}
                   managers={managers}
                   onUpdateStatus={onUpdateStatus}
                   onAssign={onAssignTicket}
                   getPriorityColor={getPriorityColor}
                   getStatusColor={getStatusColor}
-                  userRole={user.role}
                 />
               ))
             )}
