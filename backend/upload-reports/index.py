@@ -291,7 +291,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if file_id:
                 cursor.execute("""
                     SELECT id, artist_username, artist_full_name, deduction_percent, sent_to_artist_id, sent_at, 
-                           data, jsonb_array_length(data) as rows_count
+                           data
                     FROM t_p35759334_music_label_portal.artist_report_files
                     WHERE id = %s
                 """, (file_id,))
@@ -306,21 +306,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Файл не найден'})
                     }
                 
+                full_data = row[6]
+                rows_count = len(full_data)
+                
+                csv_output = io.StringIO()
+                if full_data:
+                    headers = list(full_data[0].keys())
+                    writer = csv.DictWriter(csv_output, fieldnames=headers)
+                    writer.writeheader()
+                    writer.writerows(full_data)
+                
+                csv_content = csv_output.getvalue()
+                
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'files': [{
-                            'id': row[0],
-                            'artist_username': row[1],
-                            'artist_full_name': row[2],
-                            'deduction_percent': float(row[3]) if row[3] else 0,
-                            'sent_to_artist_id': row[4],
-                            'sent_at': row[5].isoformat() if row[5] else None,
-                            'data': row[6],
-                            'rows_count': row[7]
-                        }]
-                    })
+                    'headers': {
+                        'Content-Type': 'text/csv',
+                        'Access-Control-Allow-Origin': '*',
+                        'Content-Disposition': f'attachment; filename="artist_{row[1]}.csv"'
+                    },
+                    'body': csv_content
                 }
             
             if uploaded_report_id:
