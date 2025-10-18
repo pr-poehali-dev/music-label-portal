@@ -51,6 +51,7 @@ interface TaskAssignmentProps {
 export default function TaskAssignment({ managers }: TaskAssignmentProps) {
   const directorId = 1; // Hardcoded for now
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [activeTab, setActiveTab] = useState<'create' | 'in_progress' | 'completed'>('create');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -364,14 +365,54 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     loadTasks();
   }, []);
 
+  const pendingTasks = tasks.filter(t => t.status === 'pending');
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
+  const completedTasks = tasks.filter(t => t.status === 'completed');
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center gap-3">
-        <Icon name="UserPlus" size={32} className="text-primary" />
-        <h1 className="text-3xl font-bold">Назначить задачу менеджеру</h1>
+        <Icon name="ListChecks" size={32} className="text-primary" />
+        <h1 className="text-3xl font-bold">Задачи</h1>
       </div>
-      
-      <TaskForm
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveTab('create')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'create'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Создать задачу
+        </button>
+        <button
+          onClick={() => setActiveTab('in_progress')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'in_progress'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          В работе ({pendingTasks.length + inProgressTasks.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('completed')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'completed'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Выполненные ({completedTasks.length})
+        </button>
+      </div>
+
+      {/* Create Task Tab */}
+      {activeTab === 'create' && (
+        <TaskForm
         newTask={newTask}
         managers={managers}
         selectedFile={selectedFile}
@@ -381,23 +422,43 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         onSubmit={createTask}
         onToggleManager={(managerId) => toggleManager(managerId, false)}
       />
+      )}
 
-      <div className="flex items-center gap-3">
-        <Icon name="ListChecks" size={32} className="text-primary" />
-        <h2 className="text-2xl font-bold">Активные задачи ({tasks.length})</h2>
-      </div>
-      
-      <TaskList
-        tasks={tasks}
-        onUpdateStatus={updateTaskStatus}
-        onComplete={openCompletionDialog}
-        onEdit={openEditDialog}
-        onDelete={deleteTask}
-        getPriorityColor={getPriorityColor}
-        getPriorityText={getPriorityText}
-        getStatusColor={getStatusColor}
-        getStatusText={getStatusText}
-      />
+      {/* In Progress Tab */}
+      {activeTab === 'in_progress' && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">В работе ({pendingTasks.length + inProgressTasks.length})</h2>
+          <TaskList
+            tasks={[...pendingTasks, ...inProgressTasks]}
+            onUpdateStatus={updateTaskStatus}
+            onComplete={openCompletionDialog}
+            onEdit={openEditDialog}
+            onDelete={deleteTask}
+            getPriorityColor={getPriorityColor}
+            getPriorityText={getPriorityText}
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+          />
+        </div>
+      )}
+
+      {/* Completed Tab */}
+      {activeTab === 'completed' && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Выполненные ({completedTasks.length})</h2>
+          <TaskList
+            tasks={completedTasks}
+            onUpdateStatus={updateTaskStatus}
+            onComplete={openCompletionDialog}
+            onEdit={openEditDialog}
+            onDelete={deleteTask}
+            getPriorityColor={getPriorityColor}
+            getPriorityText={getPriorityText}
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+          />
+        </div>
+      )}
 
       <TaskEditDialog
         isOpen={isEditDialogOpen}
