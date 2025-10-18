@@ -169,6 +169,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         if len(non_empty) < 50:
                             continue
                         
+                        numeric_count = sum(1 for v in non_empty if v.replace('.', '').replace('-', '').replace('e', '').replace('+', '').replace('=', '').isdigit() or v.startswith('='))
+                        numeric_ratio = numeric_count / len(non_empty) if non_empty else 0
+                        
+                        if numeric_ratio > 0.5:
+                            continue
+                        
                         unique_count = len(set(non_empty))
                         total_count = len(non_empty)
                         unique_ratio = unique_count / total_count if total_count > 0 else 0
@@ -177,7 +183,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         
                         if unique_ratio > 0.3 and avg_length > 5 and avg_length < 150:
                             candidates.append((col_name, unique_ratio, unique_count, total_count))
-                            print(f"DEBUG: Candidate {col_name}: {unique_count} unique / {total_count} total = {unique_ratio:.2%}, avg_len={avg_length:.0f}")
+                            print(f"DEBUG: Candidate {col_name}: {unique_count} unique / {total_count} total = {unique_ratio:.2%}, avg_len={avg_length:.0f}, numeric={numeric_ratio:.0%}")
                     
                     if candidates:
                         candidates.sort(key=lambda x: x[1], reverse=True)
