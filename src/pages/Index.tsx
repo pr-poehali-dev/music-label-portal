@@ -254,8 +254,8 @@ export default function Index() {
           </div>
 
           <Tabs defaultValue="stats" className="w-full">
-            <div className="w-full overflow-x-auto pb-2">
-              <TabsList className="inline-flex w-full min-w-max lg:grid lg:w-full lg:grid-cols-4 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-2 gap-2 rounded-xl">
+            <div className="w-full overflow-x-auto pb-2 -mx-1">
+              <TabsList className="inline-flex min-w-max lg:grid lg:w-full lg:grid-cols-4 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-2 gap-2 rounded-xl mx-1">
                 <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Статистика</TabsTrigger>
                 <TabsTrigger value="reports" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Отчёты</TabsTrigger>
                 <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
