@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import NotificationBell from '@/components/NotificationBell';
 
 interface AppHeaderProps {
   onMessagesClick: () => void;
@@ -51,6 +52,7 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, u
         <h1 className="text-xl md:text-3xl font-bold text-primary">420.рф</h1>
       </div>
       <div className="flex items-center gap-2 md:gap-3">
+        <NotificationBell userId={userId} />
         <Button
           onClick={onMessagesClick}
           variant="outline"
