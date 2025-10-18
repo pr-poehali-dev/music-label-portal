@@ -80,18 +80,20 @@ export default function DirectorTabs({
 }: DirectorTabsProps) {
   return (
     <Tabs defaultValue="stats" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 lg:grid-cols-10 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-2 gap-2 rounded-xl">
-        <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Статистика</TabsTrigger>
-        <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Создать тикет</TabsTrigger>
-        <TabsTrigger value="manage" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Управление тикетами</TabsTrigger>
-        <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Пользователи</TabsTrigger>
-        <TabsTrigger value="blocking" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Блокировки</TabsTrigger>
-        <TabsTrigger value="reminders" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Напоминания</TabsTrigger>
-        <TabsTrigger value="collector" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Автосбор</TabsTrigger>
-        <TabsTrigger value="monitoring" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Мониторинг</TabsTrigger>
-        <TabsTrigger value="reports" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Отчёты</TabsTrigger>
-        <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg">Дом</TabsTrigger>
-      </TabsList>
+      <div className="w-full overflow-x-auto pb-2">
+        <TabsList className="inline-flex w-full min-w-max lg:grid lg:w-full lg:grid-cols-10 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-2 gap-2 rounded-xl">
+          <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Статистика</TabsTrigger>
+          <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Создать тикет</TabsTrigger>
+          <TabsTrigger value="manage" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Управление</TabsTrigger>
+          <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Пользователи</TabsTrigger>
+          <TabsTrigger value="blocking" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Блокировки</TabsTrigger>
+          <TabsTrigger value="reminders" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Напоминания</TabsTrigger>
+          <TabsTrigger value="collector" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Автосбор</TabsTrigger>
+          <TabsTrigger value="monitoring" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Мониторинг</TabsTrigger>
+          <TabsTrigger value="reports" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Отчёты</TabsTrigger>
+          <TabsTrigger value="home" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Дом</TabsTrigger>
+        </TabsList>
+      </div>
 
       <TabsContent value="stats">
         <StatsCards tickets={tickets} />
