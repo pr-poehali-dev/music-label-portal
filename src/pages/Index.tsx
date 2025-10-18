@@ -11,6 +11,7 @@ import TicketManagement from '@/components/TicketManagement';
 import MyTickets from '@/components/MyTickets';
 import DirectorTabs from '@/components/DirectorTabs';
 import ArtistReports from '@/components/ArtistReports';
+import SubmissionsManager from '@/components/SubmissionsManager';
 
 interface User {
   id: number;
@@ -359,17 +360,32 @@ export default function Index() {
             </button>
           </div>
 
-          <TicketManagement
-            user={user}
-            tickets={tickets}
-            managers={managers}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            onUpdateStatus={updateTicketStatus}
-            onAssignTicket={assignTicket}
-            onLoadTickets={loadTickets}
-            onDeleteTicket={deleteTicket}
-          />
+          <Tabs defaultValue="submissions" className="w-full">
+            <div className="w-full overflow-x-auto pb-2">
+              <TabsList className="inline-flex h-auto min-w-max lg:grid lg:w-full lg:grid-cols-2 bg-black/40 backdrop-blur-sm border border-yellow-500/20 p-1 gap-1 rounded-xl">
+                <TabsTrigger value="submissions" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Заявки</TabsTrigger>
+                <TabsTrigger value="tickets" className="flex items-center justify-center h-10 px-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-black data-[state=active]:font-semibold rounded-lg whitespace-nowrap transition-all">Тикеты</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="submissions">
+              <SubmissionsManager userId={user.id} />
+            </TabsContent>
+
+            <TabsContent value="tickets">
+              <TicketManagement
+                user={user}
+                tickets={tickets}
+                managers={managers}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                onUpdateStatus={updateTicketStatus}
+                onAssignTicket={assignTicket}
+                onLoadTickets={loadTickets}
+                onDeleteTicket={deleteTicket}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     );
