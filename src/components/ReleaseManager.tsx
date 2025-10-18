@@ -24,6 +24,7 @@ interface Track {
   lyrics_text?: string;
   tiktok_preview_start?: number;
   file?: File;
+  preview_url?: string;
 }
 
 interface Release {
@@ -160,6 +161,16 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
   const updateTrack = (index: number, field: keyof Track, value: any) => {
     const updated = [...tracks];
     updated[index] = { ...updated[index], [field]: value };
+    
+    if (field === 'file' && value instanceof File) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        updated[index].preview_url = e.target?.result as string;
+        setTracks([...updated]);
+      };
+      reader.readAsDataURL(value);
+    }
+    
     setTracks(updated);
   };
 
@@ -474,7 +485,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
+                      <div className="md:col-span-2">
                         <label className="text-xs mb-1 block">Аудио файл * (MP3, WAV, до 50 МБ)</label>
                         <Input
                           type="file"
@@ -482,9 +493,18 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
                           onChange={(e) => updateTrack(index, 'file', e.target.files?.[0])}
                         />
                         {track.file && (
-                          <p className="text-xs text-green-600 mt-1">
-                            {track.file.name} ({(track.file.size / 1024 / 1024).toFixed(2)} МБ)
-                          </p>
+                          <div className="mt-2">
+                            <p className="text-xs text-green-600 mb-2 flex items-center gap-1">
+                              <Icon name="CheckCircle" size={12} />
+                              {track.file.name} ({(track.file.size / 1024 / 1024).toFixed(2)} МБ)
+                            </p>
+                            {track.preview_url && (
+                              <audio controls className="w-full">
+                                <source src={track.preview_url} />
+                                Ваш браузер не поддерживает аудио плеер
+                              </audio>
+                            )}
+                          </div>
                         )}
                       </div>
                       <div>
