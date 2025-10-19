@@ -63,7 +63,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute(f"""
                     SELECT 
                         r.*,
+                        r.artist_id as user_id,
                         u.full_name as artist_name,
+                        r.reviewed_by as reviewer_id,
                         rev.full_name as reviewer_name
                     FROM {schema}.releases r
                     JOIN {schema}.users u ON r.artist_id = u.id
@@ -100,7 +102,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             query = f"""
                 SELECT 
                     r.*,
+                    r.artist_id as user_id,
                     u.full_name as artist_name,
+                    r.reviewed_by as reviewer_id,
                     rev.full_name as reviewer_name,
                     COUNT(t.id) as tracks_count
                 FROM {schema}.releases r

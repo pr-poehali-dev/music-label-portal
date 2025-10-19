@@ -194,7 +194,7 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="releases" className="animate-fadeIn">
-        <ReleaseModerationPanel userId={user.id} />
+        <ReleaseModerationPanel userId={user.id} userRole="director" />
       </TabsContent>
 
       <TabsContent value="submissions" className="animate-fadeIn">

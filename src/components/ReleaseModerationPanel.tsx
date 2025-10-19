@@ -25,6 +25,7 @@ interface Release {
   id: number;
   release_name: string;
   artist_name: string;
+  user_id?: number;
   cover_url?: string;
   release_date?: string;
   genre?: string;
@@ -34,13 +35,16 @@ interface Release {
   created_at: string;
   tracks?: Track[];
   review_comment?: string;
+  reviewer_id?: number;
+  reviewer_name?: string;
 }
 
 interface ReleaseModerationPanelProps {
   userId: number;
+  userRole?: string;
 }
 
-export default function ReleaseModerationPanel({ userId }: ReleaseModerationPanelProps) {
+export default function ReleaseModerationPanel({ userId, userRole = 'manager' }: ReleaseModerationPanelProps) {
   const [releases, setReleases] = useState<Release[]>([]);
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null);
@@ -172,7 +176,13 @@ export default function ReleaseModerationPanel({ userId }: ReleaseModerationPane
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="font-semibold">{release.release_name}</h4>
-                          <p className="text-sm text-muted-foreground">Артист: {release.artist_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Артист: {userRole === 'director' && release.user_id ? (
+                              <a href={`/user/${release.user_id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                                {release.artist_name}
+                              </a>
+                            ) : release.artist_name}
+                          </p>
                           {release.genre && <p className="text-xs text-muted-foreground">{release.genre}</p>}
                         </div>
                         {getStatusBadge(release.status)}
@@ -226,7 +236,7 @@ export default function ReleaseModerationPanel({ userId }: ReleaseModerationPane
           <h3 className="text-lg font-semibold mb-4">Проверенные ({reviewedReleases.length})</h3>
           <div className="grid gap-4">
             {reviewedReleases.map((release) => (
-              <Card key={release.id}>
+              <Card key={release.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => loadReleaseDetails(release.id)}>
                 <CardContent className="pt-6">
                   <div className="flex gap-4">
                     {release.cover_url && (
@@ -236,7 +246,22 @@ export default function ReleaseModerationPanel({ userId }: ReleaseModerationPane
                       <div className="flex items-start justify-between">
                         <div>
                           <h4 className="font-semibold">{release.release_name}</h4>
-                          <p className="text-sm text-muted-foreground">{release.artist_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {userRole === 'director' && release.user_id ? (
+                              <a href={`/user/${release.user_id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                                {release.artist_name}
+                              </a>
+                            ) : release.artist_name}
+                          </p>
+                          {release.reviewer_name && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {userRole === 'director' && release.reviewer_id ? (
+                                <span>Проверил: <a href={`/user/${release.reviewer_id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{release.reviewer_name}</a></span>
+                              ) : (
+                                <span>Проверил: {release.reviewer_name}</span>
+                              )}
+                            </p>
+                          )}
                         </div>
                         {getStatusBadge(release.status)}
                       </div>
@@ -275,9 +300,20 @@ export default function ReleaseModerationPanel({ userId }: ReleaseModerationPane
               )}
               <div>
                 <h3 className="font-semibold text-lg">{selectedRelease.release_name}</h3>
-                <p className="text-sm text-muted-foreground">Артист: {selectedRelease.artist_name}</p>
+                <p className="text-sm text-muted-foreground">
+                  Артист: {userRole === 'director' && selectedRelease.user_id ? (
+                    <a href={`/user/${selectedRelease.user_id}`} className="text-primary hover:underline">
+                      {selectedRelease.artist_name}
+                    </a>
+                  ) : selectedRelease.artist_name}
+                </p>
                 {selectedRelease.genre && <p className="text-sm text-muted-foreground">Жанр: {selectedRelease.genre}</p>}
                 {selectedRelease.copyright && <p className="text-sm text-muted-foreground">Копирайт: {selectedRelease.copyright}</p>}
+                {selectedRelease.release_date && (
+                  <p className="text-sm text-muted-foreground">
+                    Дата релиза: {new Date(selectedRelease.release_date).toLocaleDateString('ru-RU')}
+                  </p>
+                )}
               </div>
 
               {selectedRelease.tracks && selectedRelease.tracks.length > 0 && (

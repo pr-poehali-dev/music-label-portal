@@ -117,7 +117,7 @@ export default function ManagerView({
           </TabsContent>
 
           <TabsContent value="releases">
-            <ReleaseModerationPanel userId={user.id} />
+            <ReleaseModerationPanel userId={user.id} userRole="manager" />
           </TabsContent>
 
           <TabsContent value="tickets">
