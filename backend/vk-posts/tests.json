@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Get VK posts",
+      "method": "GET",
+      "path": "/?count=5",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "posts": "array",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
