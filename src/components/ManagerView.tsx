@@ -80,9 +80,9 @@ export default function ManagerView({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-20 md:pb-0">
       <div className="container mx-auto p-4 animate-fadeIn">
-        <div className="sticky top-0 z-30 -mx-4 px-4 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl pb-2 md:pb-0 shadow-2xl shadow-black/50 border-b border-yellow-500/20">
+        <div className="sticky top-0 z-30 -mx-4 px-4 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-yellow-500/20">
           <AppHeader 
             onMessagesClick={() => onMessagesOpenChange(true)}
             onProfileClick={() => setShowProfile(true)}
@@ -91,16 +91,17 @@ export default function ManagerView({
             userRole="manager"
             userId={user.id}
           />
-          <MobileNav 
-            items={mobileNavItems}
-            activeTab={activeTab}
-            onTabChange={(value) => {
-              console.log('Manager tab change:', value);
-              setActiveTab(value);
-              localStorage.setItem('manager_active_tab', value);
-            }}
-          />
         </div>
+
+        <MobileNav 
+          items={mobileNavItems}
+          activeTab={activeTab}
+          onTabChange={(value) => {
+            console.log('Manager tab change:', value);
+            setActiveTab(value);
+            localStorage.setItem('manager_active_tab', value);
+          }}
+        />
 
         <MessagesModal 
           open={messagesOpen} 

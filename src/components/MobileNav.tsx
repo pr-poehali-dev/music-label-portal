@@ -15,8 +15,8 @@ interface MobileNavProps {
 
 export default function MobileNav({ items, activeTab, onTabChange }: MobileNavProps) {
   return (
-    <div className="md:hidden w-full bg-gradient-to-b from-black/95 via-yellow-950/30 to-transparent backdrop-blur-md border-t border-yellow-500/30 shadow-lg shadow-black/50">
-      <div className="grid gap-0.5 px-1.5 py-2.5" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full bg-gradient-to-t from-black/98 via-yellow-950/40 to-black/95 backdrop-blur-xl border-t border-yellow-500/30 shadow-2xl shadow-black/50">
+      <div className="grid gap-0.5 px-1.5 py-2.5 safe-area-inset-bottom" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => {
           const isActive = activeTab === item.value;
           return (
