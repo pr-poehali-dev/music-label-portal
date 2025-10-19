@@ -164,10 +164,7 @@ export default function DirectorTabs({
             <span className="hidden md:inline">📋 Заявки<Badge count={unreadCounts.submissions} /></span>
             <span className="md:hidden">📋<Badge count={unreadCounts.submissions} /></span>
           </TabsTrigger>
-          <TabsTrigger value="team" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">👥 Команда</span>
-            <span className="md:hidden">👥</span>
-          </TabsTrigger>
+
           <TabsTrigger value="reports" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">📁 Отчёты</span>
             <span className="md:hidden">📁</span>
@@ -214,39 +211,7 @@ export default function DirectorTabs({
         <AnalyticsView />
       </TabsContent>
 
-      <TabsContent value="team" className="animate-fadeIn">
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="users" className="transition-all duration-200 hover:scale-105">Пользователи</TabsTrigger>
-            <TabsTrigger value="activity" className="transition-all duration-200 hover:scale-105">Статистика активности</TabsTrigger>
-            <TabsTrigger value="monitoring" className="transition-all duration-200 hover:scale-105">Мониторинг активности</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="users" className="animate-fadeIn">
-            <UserManagement
-              allUsers={allUsers}
-              newUser={newUser}
-              onNewUserChange={onNewUserChange}
-              onCreateUser={onCreateUser}
-              onUpdateUser={onUpdateUser}
-              isUserOnline={isUserOnline}
-              getUserLastSeen={getUserLastSeen}
-            />
-          </TabsContent>
-          
-          <TabsContent value="activity" className="animate-fadeIn">
-            <UserActivityStats 
-              users={allUsers}
-              isUserOnline={isUserOnline}
-              getUserLastSeen={getUserLastSeen}
-            />
-          </TabsContent>
-          
-          <TabsContent value="monitoring" className="animate-fadeIn">
-            <UserActivityMonitor users={allUsers} />
-          </TabsContent>
-        </Tabs>
-      </TabsContent>
+
 
       <TabsContent value="reports" className="animate-fadeIn">
         <Tabs defaultValue="weekly" className="w-full">
@@ -264,11 +229,46 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="settings" className="animate-fadeIn">
-        <Tabs defaultValue="reminders" className="w-full">
+        <Tabs defaultValue="team" className="w-full">
           <TabsList className="mb-4">
+            <TabsTrigger value="team" className="transition-all duration-200 hover:scale-105">Команда</TabsTrigger>
             <TabsTrigger value="reminders" className="transition-all duration-200 hover:scale-105">Напоминания</TabsTrigger>
             <TabsTrigger value="telegram" className="transition-all duration-200 hover:scale-105">Telegram бот</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="team" className="animate-fadeIn">
+            <Tabs defaultValue="users" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="users" className="transition-all duration-200 hover:scale-105">Пользователи</TabsTrigger>
+                <TabsTrigger value="activity" className="transition-all duration-200 hover:scale-105">Статистика активности</TabsTrigger>
+                <TabsTrigger value="monitoring" className="transition-all duration-200 hover:scale-105">Мониторинг активности</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="users" className="animate-fadeIn">
+                <UserManagement
+                  allUsers={allUsers}
+                  newUser={newUser}
+                  onNewUserChange={onNewUserChange}
+                  onCreateUser={onCreateUser}
+                  onUpdateUser={onUpdateUser}
+                  isUserOnline={isUserOnline}
+                  getUserLastSeen={getUserLastSeen}
+                />
+              </TabsContent>
+              
+              <TabsContent value="activity" className="animate-fadeIn">
+                <UserActivityStats 
+                  users={allUsers}
+                  isUserOnline={isUserOnline}
+                  getUserLastSeen={getUserLastSeen}
+                />
+              </TabsContent>
+              
+              <TabsContent value="monitoring" className="animate-fadeIn">
+                <UserActivityMonitor users={allUsers} />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
           
           <TabsContent value="reminders" className="animate-fadeIn">
             <ReminderSetup />
