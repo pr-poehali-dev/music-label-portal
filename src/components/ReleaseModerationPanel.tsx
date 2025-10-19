@@ -178,7 +178,7 @@ export default function ReleaseModerationPanel({ userId }: ReleaseModerationPane
                         {getStatusBadge(release.status)}
                       </div>
                       <div className="text-xs text-muted-foreground mb-3">
-                        Треков: {release.tracks_count || 0} • Создан: {new Date(release.created_at).toLocaleDateString('ru-RU')}
+                        Создан: {new Date(release.created_at).toLocaleDateString('ru-RU')}
                       </div>
                       <div className="flex gap-2">
                         <Button
