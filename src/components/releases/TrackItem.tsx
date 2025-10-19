@@ -123,11 +123,11 @@ export default function TrackItem({ track, index, totalTracks, updateTrack, remo
           </div>
           
           <div className="sm:col-span-2">
-            <label className="text-xs sm:text-sm font-medium mb-1.5 block">Аудио файл *</label>
+            <label className="text-xs sm:text-sm font-medium mb-1.5 block">Аудио файл (WAV) *</label>
             <div className="relative">
               <Input
                 type="file"
-                accept=".mp3,.wav,.flac,.m4a"
+                accept=".wav"
                 onChange={(e) => updateTrack(index, 'file', e.target.files?.[0])}
                 className="cursor-pointer text-sm"
               />
@@ -156,7 +156,7 @@ export default function TrackItem({ track, index, totalTracks, updateTrack, remo
             )}
             {!track.file && (
               <p className="text-xs text-muted-foreground mt-1.5">
-                MP3, M4A до 50 МБ • WAV, FLAC до 15 МБ (рекомендуем MP3)
+                Только WAV формат • Максимум 100 МБ
               </p>
             )}
           </div>

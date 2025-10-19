@@ -7,19 +7,92 @@ export interface UploadFileResult {
   s3Key?: string;
 }
 
-export async function uploadFile(file: File): Promise<UploadFileResult> {
-  const maxSize = 50 * 1024 * 1024;
+async function uploadLargeFile(file: File): Promise<UploadFileResult> {
+  console.log(`Uploading large file: ${file.name}, size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
   
-  if (file.size > maxSize) {
-    throw new Error('Размер файла превышает 50MB');
+  // Разбиваем файл на части по 5MB
+  const chunkSize = 5 * 1024 * 1024;
+  const chunks: Blob[] = [];
+  let offset = 0;
+  
+  while (offset < file.size) {
+    chunks.push(file.slice(offset, offset + chunkSize));
+    offset += chunkSize;
   }
   
-  // WAV файлы в base64 увеличиваются на ~33%, поэтому реальный лимит для WAV ~15MB
-  const isWav = file.name.toLowerCase().endsWith('.wav');
-  const wavLimit = 15 * 1024 * 1024;
+  console.log(`File split into ${chunks.length} chunks`);
   
-  if (isWav && file.size > wavLimit) {
-    throw new Error(`WAV файлы больше 15MB не поддерживаются. Конвертируйте в MP3 или используйте файл меньшего размера. Текущий размер: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
+  // Загружаем каждую часть
+  const uploadedChunks: string[] = [];
+  
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const base64Chunk = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(chunk);
+    });
+    
+    console.log(`Uploading chunk ${i + 1}/${chunks.length}`);
+    
+    const response = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        file: base64Chunk,
+        fileName: `${file.name}.part${i}`,
+        fileSize: chunk.size,
+        isChunk: true,
+        chunkIndex: i,
+        totalChunks: chunks.length,
+        originalFileName: file.name
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to upload chunk ${i + 1}`);
+    }
+    
+    const data = await response.json();
+    uploadedChunks.push(data.s3Key);
+  }
+  
+  // Объединяем части на сервере
+  const mergeResponse = await fetch(UPLOAD_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'merge',
+      chunks: uploadedChunks,
+      fileName: file.name,
+      fileSize: file.size
+    })
+  });
+  
+  if (!mergeResponse.ok) {
+    throw new Error('Failed to merge file chunks');
+  }
+  
+  const result = await mergeResponse.json();
+  console.log(`Successfully uploaded: ${file.name}`);
+  return result;
+}
+
+export async function uploadFile(file: File): Promise<UploadFileResult> {
+  const maxSize = 100 * 1024 * 1024;
+  
+  if (file.size > maxSize) {
+    throw new Error('Размер файла превышает 100MB');
+  }
+  
+  // Для файлов больше 10MB используем chunked upload
+  if (file.size > 10 * 1024 * 1024) {
+    return uploadLargeFile(file);
   }
 
   return new Promise((resolve, reject) => {
@@ -48,7 +121,7 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
           console.error(`Upload failed for ${file.name}:`, response.status, errorText);
           
           if (response.status === 413) {
-            throw new Error(`Файл слишком большой для загрузки. Конвертируйте WAV в MP3 или используйте меньший файл`);
+            throw new Error(`Файл слишком большой. Максимальный размер: 100MB`);
           }
           
           throw new Error(`Ошибка загрузки: ${response.status}`);
