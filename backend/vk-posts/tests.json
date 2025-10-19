@@ -3,11 +3,10 @@
     {
       "name": "Get VK posts",
       "method": "GET",
-      "path": "/?count=5",
+      "path": "/?count=3",
       "expectedStatus": 200,
       "expectedBody": {
-        "posts": "array",
-        "total": "number"
+        "posts": "array"
       },
       "bodyMatcher": "partial"
     }

@@ -5,7 +5,7 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Получение постов из группы ВКонтакте
+    Business: Получение постов из публичной группы ВКонтакте
     Args: event с queryStringParameters (count, offset)
     Returns: JSON с постами из группы VK
     '''
@@ -31,23 +31,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     params = event.get('queryStringParameters') or {}
-    count = int(params.get('count', '10'))
+    count = min(int(params.get('count', '10')), 100)
     offset = int(params.get('offset', '0'))
     
-    group_id = '214160827'
+    owner_id = '-214160827'
     service_key = os.environ.get('VK_SERVICE_KEY', '')
     
-    url = f'https://api.vk.com/method/wall.get?owner_id=-{group_id}&count={count}&offset={offset}&access_token={service_key}&v=5.199'
+    url = f'https://api.vk.com/method/wall.get?owner_id={owner_id}&count={count}&offset={offset}&access_token={service_key}&v=5.199'
     
     try:
-        with urllib.request.urlopen(url) as response:
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
             data = json.loads(response.read().decode())
             
             if 'error' in data:
                 return {
                     'statusCode': 400,
                     'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                    'body': json.dumps({'error': data['error'].get('error_msg', 'VK API error')})
+                    'body': json.dumps({'error': data['error'].get('error_msg', 'VK API error'), 'details': str(data['error'])})
                 }
             
             posts = data.get('response', {}).get('items', [])
@@ -75,10 +76,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         })
                     elif attach['type'] == 'video':
                         video = attach.get('video', {})
+                        image = video.get('image', [{}])[-1].get('url', '') if video.get('image') else ''
                         formatted_post['attachments'].append({
                             'type': 'video',
                             'title': video.get('title', ''),
-                            'player': video.get('player', '')
+                            'image': image
                         })
                     elif attach['type'] == 'audio':
                         audio = attach.get('audio', {})
