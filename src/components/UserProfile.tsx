@@ -53,6 +53,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     if (avatarFile) {
       setIsUploadingAvatar(true);
       try {
+        console.log('Starting avatar upload:', avatarFile.name, avatarFile.size);
         const reader = new FileReader();
         const base64Promise = new Promise<string>((resolve) => {
           reader.onloadend = () => resolve(reader.result as string);
@@ -60,6 +61,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
         });
         
         const base64Data = await base64Promise;
+        console.log('Base64 data ready, length:', base64Data.length);
         
         const response = await fetch('https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa', {
           method: 'POST',
@@ -73,8 +75,11 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
           })
         });
         
+        console.log('Upload response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('Upload success, URL:', data.url);
           avatarUrl = data.url;
           toast({
             title: 'Аватарка загружена',
@@ -85,7 +90,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
           console.error('Upload failed:', response.status, errorText);
           toast({
             title: 'Ошибка загрузки',
-            description: 'Не удалось загрузить аватарку. Проверьте размер файла.',
+            description: `Не удалось загрузить аватарку (${response.status}). Проверьте размер файла.`,
             variant: 'destructive'
           });
           avatarUrl = avatarPreview;
