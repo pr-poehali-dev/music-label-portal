@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import ProcessReports from './ProcessReports';
+import { createNotification } from '@/hooks/useNotifications';
 
 interface ReportsUploaderProps {
   userId: number;
@@ -65,6 +66,19 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
           title: '✅ Файл разбит по артистам',
           description: `Создано ${data.artist_files.length} файлов для артистов`
         });
+        
+        // Notify directors about report upload
+        try {
+          await createNotification({
+            title: '📊 Новый отчёт загружен',
+            message: `Загружен отчёт для ${data.artist_files.length} артистов. Файл: ${file.name}`,
+            type: 'report_uploaded',
+            related_entity_type: 'report',
+            related_entity_id: userId
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
       } else {
         toast({
           title: '❌ Ошибка загрузки',

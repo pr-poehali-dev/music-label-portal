@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
-const NOTIFICATIONS_URL = 'https://functions.poehali.dev/7d3a4ec8-d714-47b2-b4b8-186a84744b78';
+const NOTIFICATIONS_URL = 'https://functions.poehali.dev/fa0a6c5c-aba5-449b-aead-2f2e0bb0e01a';
 
 interface Notification {
   id: number;
@@ -77,6 +77,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
+      case 'user_registration': return 'UserPlus';
+      case 'release_submitted': return 'Music';
+      case 'urgent_ticket': return 'AlertTriangle';
+      case 'report_uploaded': return 'FileSpreadsheet';
+      case 'new_submission': return 'Mic2';
+      case 'task_assigned': return 'ListTodo';
       case 'success': return 'CheckCircle';
       case 'error': return 'XCircle';
       case 'warning': return 'AlertTriangle';
@@ -86,6 +92,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   const getTypeColor = (type: string) => {
     switch (type) {
+      case 'user_registration': return 'text-blue-600';
+      case 'release_submitted': return 'text-purple-600';
+      case 'urgent_ticket': return 'text-red-600';
+      case 'report_uploaded': return 'text-green-600';
+      case 'new_submission': return 'text-yellow-600';
+      case 'task_assigned': return 'text-orange-600';
       case 'success': return 'text-green-600';
       case 'error': return 'text-destructive';
       case 'warning': return 'text-yellow-600';

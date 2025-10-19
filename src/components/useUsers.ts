@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { User, NewUser, API_URLS } from '@/types';
+import { createNotification } from '@/hooks/useNotifications';
 
 export const useUsers = (user: User | null) => {
   const [managers, setManagers] = useState<User[]>([]);
@@ -41,7 +42,22 @@ export const useUsers = (user: User | null) => {
       });
       
       if (response.ok) {
+        const data = await response.json();
         toast({ title: '✅ Пользователь создан', description: 'Пароль по умолчанию: 12345' });
+        
+        // Notify directors about new user registration
+        try {
+          await createNotification({
+            title: '🎉 Новый пользователь',
+            message: `Зарегистрирован новый ${newUser.role === 'artist' ? 'артист' : newUser.role === 'manager' ? 'менеджер' : 'пользователь'}: ${newUser.full_name} (@${newUser.username})`,
+            type: 'user_registration',
+            related_entity_type: 'user',
+            related_entity_id: data.user_id
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+        
         loadAllUsers();
         return true;
       } else {

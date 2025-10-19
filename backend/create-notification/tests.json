@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Create notification for new user registration",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "title": "Новый пользователь",
+        "message": "Зарегистрирован новый артист: Иван Иванов",
+        "type": "user_registration",
+        "related_entity_type": "user",
+        "related_entity_id": 123
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string",
+        "count": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing required fields",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "title": "Test"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

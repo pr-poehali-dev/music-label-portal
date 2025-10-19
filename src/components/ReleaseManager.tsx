@@ -7,6 +7,7 @@ import { Track, Release, API_URL, UPLOAD_URL } from './releases/types';
 import ReleaseForm from './releases/ReleaseForm';
 import ReleasesList from './releases/ReleasesList';
 import ModerationPanel from './releases/ModerationPanel';
+import { createNotification } from '@/hooks/useNotifications';
 
 interface ReleaseManagerProps {
   userId: number;
@@ -255,6 +256,21 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
         title: 'Успешно',
         description: editingRelease ? 'Релиз обновлён' : 'Релиз отправлен на модерацию'
       });
+
+      // Notify directors about new release submission
+      if (!editingRelease) {
+        try {
+          await createNotification({
+            title: '🎵 Новый релиз на модерации',
+            message: `Артист отправил релиз "${newRelease.release_name}" на модерацию. Дата релиза: ${newRelease.release_date}`,
+            type: 'release_submitted',
+            related_entity_type: 'release',
+            related_entity_id: userId
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+      }
 
       setShowForm(false);
       setEditingRelease(null);

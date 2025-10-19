@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { createNotification } from '@/hooks/useNotifications';
 
 interface Submission {
   id: number;
@@ -64,6 +65,25 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
 
       if (response.ok) {
         toast({ title: '✅ Статус обновлён' });
+        
+        // Notify directors about new submissions
+        if (newStatus === 'new') {
+          const submission = submissions.find(s => s.id === submissionId);
+          if (submission) {
+            try {
+              await createNotification({
+                title: '🎤 Новая заявка на прослушивание',
+                message: `Артист ${submission.artist_name} отправил заявку на прослушивание`,
+                type: 'new_submission',
+                related_entity_type: 'submission',
+                related_entity_id: submissionId
+              });
+            } catch (notifError) {
+              console.error('Failed to create notification:', notifError);
+            }
+          }
+        }
+        
         loadSubmissions();
       } else {
         toast({ title: '❌ Ошибка обновления', variant: 'destructive' });

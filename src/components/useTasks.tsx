@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { createNotification } from '@/hooks/useNotifications';
 
 const API_URL = 'https://functions.poehali.dev';
 
@@ -95,6 +96,23 @@ export const useTasks = (user: any, ticketId?: number) => {
       }
 
       toast.success('Задача создана');
+      
+      // Notify directors about new task assigned to manager
+      if (taskData.assigned_to) {
+        try {
+          const priorityEmoji = taskData.priority === 'urgent' ? '🚨' : taskData.priority === 'high' ? '⚡' : '📋';
+          await createNotification({
+            title: `${priorityEmoji} Новая задача назначена`,
+            message: `Задача "${taskData.title}" назначена менеджеру. Дедлайн: ${taskData.deadline}`,
+            type: 'task_assigned',
+            related_entity_type: 'task',
+            related_entity_id: taskData.assigned_to
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+      }
+      
       await loadTasks();
       return true;
     } catch (error) {

@@ -1,4 +1,5 @@
 {
+  "create-notification": "https://functions.poehali.dev/c93b4bbd-7c4a-4d8f-9f8b-c6c0a9984216",
   "release-analytics": "https://functions.poehali.dev/5f67ae5e-fa40-4b8a-ba1e-d66a28d27c18",
   "vk-auth": "https://functions.poehali.dev/70e60d29-836e-455c-8052-691174ca7a7a",
   "notifications": "https://functions.poehali.dev/7d3a4ec8-d714-47b2-b4b8-186a84744b78",

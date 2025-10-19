@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logActivity } from '@/utils/activityLogger';
 import { User, Ticket, NewTicket, API_URLS } from '@/types';
+import { createNotification } from '@/hooks/useNotifications';
 
 export const useTickets = (user: User | null, statusFilter: string) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -78,6 +79,23 @@ export const useTickets = (user: User | null, statusFilter: string) => {
       
       logActivity(user.id, 'create_ticket', `Создан тикет: ${newTicket.title}`, { priority: newTicket.priority });
       toast({ title: '✅ Тикет создан' });
+      
+      // Notify directors about urgent tickets
+      if (newTicket.priority === 'urgent' || newTicket.priority === 'high') {
+        try {
+          const priorityLabel = newTicket.priority === 'urgent' ? 'срочный' : 'высокоприоритетный';
+          await createNotification({
+            title: `🚨 ${priorityLabel.toUpperCase()} тикет`,
+            message: `${user.full_name} создал ${priorityLabel} тикет: "${newTicket.title}"`,
+            type: 'urgent_ticket',
+            related_entity_type: 'ticket',
+            related_entity_id: user.id
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+      }
+      
       loadTickets();
       return true;
     } catch (error) {
