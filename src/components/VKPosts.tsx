@@ -25,6 +25,7 @@ export default function VKPosts() {
 
   useEffect(() => {
     loadPosts();
+     
   }, []);
 
   const loadPosts = async () => {
