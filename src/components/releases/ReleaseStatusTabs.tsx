@@ -10,55 +10,55 @@ interface ReleaseStatusTabsProps {
 
 export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: ReleaseStatusTabsProps) {
   return (
-    <div className="flex gap-1 sm:gap-2 border-b overflow-x-auto pb-px -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div className="flex gap-0.5 md:gap-2 border-b overflow-x-auto pb-px -mx-4 px-4 md:mx-0 md:px-0">
       <button
         onClick={() => onTabChange('all')}
-        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 min-h-[44px] sm:min-h-0 ${
+        className={`px-2 md:px-4 py-1.5 md:py-2 text-[11px] md:text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 h-9 md:h-auto flex items-center gap-1 ${
           activeTab === 'all'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground md:hover:text-foreground'
         }`}
       >
-        Все <Badge variant="outline" className="ml-1 sm:ml-2 text-[10px] sm:text-xs">{releases.length}</Badge>
+        Все <Badge variant="outline" className="ml-0.5 md:ml-2 text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.length}</Badge>
       </button>
       <button
         onClick={() => onTabChange('approved')}
-        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2 flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0 min-h-[44px] sm:min-h-0 ${
+        className={`px-2 md:px-4 py-1.5 md:py-2 text-[11px] md:text-sm font-medium transition-colors border-b-2 flex items-center gap-0.5 md:gap-2 whitespace-nowrap flex-shrink-0 h-9 md:h-auto ${
           activeTab === 'approved'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground md:hover:text-foreground'
         }`}
       >
-        <Icon name="CheckCircle" size={14} className="sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Принятые</span>
-        <span className="sm:hidden">✓</span>
-        <Badge variant="outline" className="ml-1 text-[10px] sm:text-xs">{releases.filter(r => r.status === 'approved').length}</Badge>
+        <span className="text-sm md:hidden">✓</span>
+        <Icon name="CheckCircle" size={14} className="hidden md:inline" />
+        <span className="hidden md:inline">Принятые</span>
+        <Badge variant="outline" className="text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.filter(r => r.status === 'approved').length}</Badge>
       </button>
       <button
         onClick={() => onTabChange('pending')}
-        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2 flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0 min-h-[44px] sm:min-h-0 ${
+        className={`px-2 md:px-4 py-1.5 md:py-2 text-[11px] md:text-sm font-medium transition-colors border-b-2 flex items-center gap-0.5 md:gap-2 whitespace-nowrap flex-shrink-0 h-9 md:h-auto ${
           activeTab === 'pending'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground md:hover:text-foreground'
         }`}
       >
-        <Icon name="Clock" size={14} className="sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">На модерации</span>
-        <span className="sm:hidden">⏳</span>
-        <Badge variant="outline" className="ml-1 text-[10px] sm:text-xs">{releases.filter(r => r.status === 'pending').length}</Badge>
+        <span className="text-sm md:hidden">⏳</span>
+        <Icon name="Clock" size={14} className="hidden md:inline" />
+        <span className="hidden md:inline">На модерации</span>
+        <Badge variant="outline" className="text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.filter(r => r.status === 'pending').length}</Badge>
       </button>
       <button
         onClick={() => onTabChange('rejected')}
-        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2 flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0 min-h-[44px] sm:min-h-0 ${
+        className={`px-2 md:px-4 py-1.5 md:py-2 text-[11px] md:text-sm font-medium transition-colors border-b-2 flex items-center gap-0.5 md:gap-2 whitespace-nowrap flex-shrink-0 h-9 md:h-auto ${
           activeTab === 'rejected'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground md:hover:text-foreground'
         }`}
       >
-        <Icon name="XCircle" size={14} className="sm:w-4 sm:h-4" />
-        <span className="hidden sm:inline">Отклонённые</span>
-        <span className="sm:hidden">✗</span>
-        <Badge variant="outline" className="ml-1 text-[10px] sm:text-xs">{releases.filter(r => r.status === 'rejected').length}</Badge>
+        <span className="text-sm md:hidden">✗</span>
+        <Icon name="XCircle" size={14} className="hidden md:inline" />
+        <span className="hidden md:inline">Отклонённые</span>
+        <Badge variant="outline" className="text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.filter(r => r.status === 'rejected').length}</Badge>
       </button>
     </div>
   );

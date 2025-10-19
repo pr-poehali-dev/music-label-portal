@@ -40,9 +40,10 @@ const getStatusBadge = (status: string) => {
   };
   const config = variants[status] || variants.pending;
   return (
-    <Badge variant={config.variant} className="gap-1 text-xs">
-      <Icon name={config.icon} size={12} className="flex-shrink-0" />
-      <span className="truncate">{config.text}</span>
+    <Badge variant={config.variant} className="gap-0.5 text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">
+      <Icon name={config.icon} size={10} className="flex-shrink-0 md:w-3 md:h-3" />
+      <span className="truncate hidden md:inline">{config.text}</span>
+      <span className="md:hidden">{status === 'approved' ? '✓' : status === 'rejected' ? '✗' : '⏳'}</span>
     </Badge>
   );
 };
@@ -87,14 +88,15 @@ export default function ReleaseManagerView({
   }, [onCancelForm]);
 
   return (
-    <div className="space-y-3 md:space-y-4 p-1 md:p-0">
+    <div className="space-y-2 md:space-y-4 px-2 md:px-0">
       {!showForm && (
         <>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
-            <h2 className="text-base md:text-xl font-bold">Мои релизы</h2>
-            <Button onClick={handleCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto h-10 sm:h-9 text-sm">
-              <Icon name="Plus" size={16} className="md:size-4" />
-              Создать релиз
+          <div className="flex justify-between items-center gap-2">
+            <h2 className="text-sm md:text-xl font-bold">Мои релизы</h2>
+            <Button onClick={handleCreateClick} size="sm" className="gap-1 h-8 md:h-9 text-[11px] md:text-sm px-2 md:px-4">
+              <Icon name="Plus" size={14} className="md:size-4" />
+              <span className="hidden md:inline">Создать релиз</span>
+              <span className="md:hidden">Создать</span>
             </Button>
           </div>
 

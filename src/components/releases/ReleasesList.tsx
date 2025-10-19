@@ -28,12 +28,12 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
   }, []);
 
   return (
-    <div className="grid gap-2 sm:gap-3">
+    <div className="grid gap-2 md:gap-3">
       {releases.map((release) => (
         <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow">
-          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 p-3 sm:p-4">
-            <div className="relative group flex-shrink-0 w-full sm:w-auto">
-              <div className="w-20 sm:w-20 aspect-square rounded-md overflow-hidden bg-muted">
+          <div className="flex items-start gap-2 md:gap-4 p-2 md:p-4">
+            <div className="relative group flex-shrink-0">
+              <div className="w-14 md:w-20 aspect-square rounded overflow-hidden bg-muted">
                 {release.cover_url ? (
                   <LazyImage
                     src={release.cover_url} 
@@ -42,96 +42,96 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <Icon name="Disc" size={24} className="sm:w-8 sm:h-8" />
+                    <Icon name="Disc" size={20} className="md:w-8 md:h-8" />
                   </div>
                 )}
               </div>
-              {release.tracks_count !== undefined && release.tracks_count > 0 && (
-                <div className="mt-1 text-xs text-muted-foreground text-center">
-                  {release.tracks_count} тр.
-                </div>
-              )}
             </div>
 
-            <div className="flex-1 min-w-0 w-full">
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-2 mb-2">
-                <div className="flex-1 min-w-0 w-full">
-                  <h3 className="font-semibold mb-0.5 text-sm sm:text-base break-words">{release.release_name}</h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-1.5 mb-1">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-xs md:text-base leading-tight line-clamp-2">{release.release_name}</h3>
                   {release.artist_name && (
-                    <p className="text-muted-foreground text-xs sm:text-sm truncate">{release.artist_name}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-sm truncate mt-0.5">{release.artist_name}</p>
+                  )}
+                  {release.tracks_count !== undefined && release.tracks_count > 0 && (
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">{release.tracks_count} трек.</p>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0 w-full sm:w-auto flex-wrap">
+                <div className="flex-shrink-0">
                   {getStatusBadge(release.status)}
-                  {release.status === 'pending' && onEdit && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onEdit(release)}
-                      className="gap-1 h-8 sm:h-7 px-2 sm:px-3 flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 text-xs"
-                    >
-                      <Icon name="Edit" size={12} className="flex-shrink-0" />
-                      <span>Изменить</span>
-                    </Button>
-                  )}
-                  {release.status === 'approved' && onPitching && (
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={() => setPitchingRelease(release)}
-                      className="gap-1 h-8 sm:h-7 px-2 sm:px-3 flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 text-xs"
-                    >
-                      <Icon name="Send" size={12} className="flex-shrink-0" />
-                      <span>Питчинг</span>
-                    </Button>
-                  )}
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 text-xs mb-2">
+              <div className="flex flex-wrap gap-1 md:gap-2 text-xs mb-1 md:mb-2">
                 {release.release_date && (
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Icon name="Calendar" size={12} className="flex-shrink-0" />
-                    <span className="text-[10px] sm:text-xs">{formatDate(release.release_date)}</span>
+                  <div className="flex items-center gap-0.5 text-muted-foreground">
+                    <Icon name="Calendar" size={10} className="flex-shrink-0 md:w-3 md:h-3" />
+                    <span className="text-[9px] md:text-xs">{formatDate(release.release_date)}</span>
                   </div>
                 )}
                 {release.genre && release.genre !== '0' && (
-                  <Badge variant="outline" className="gap-1 h-5 text-[10px] sm:text-xs px-1.5">
-                    <Icon name="Disc" size={10} className="flex-shrink-0" />
-                    <span className="truncate max-w-[100px]">{release.genre}</span>
+                  <Badge variant="outline" className="gap-0.5 h-4 md:h-5 text-[9px] md:text-xs px-1 md:px-1.5">
+                    <Icon name="Disc" size={8} className="flex-shrink-0 md:w-2.5 md:h-2.5" />
+                    <span className="truncate max-w-[80px] md:max-w-[100px]">{release.genre}</span>
                   </Badge>
                 )}
               </div>
 
-              {release.tracks_count > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
-                  className="gap-1.5 h-9 sm:h-7 -ml-2 text-xs min-h-[44px] sm:min-h-0"
-                >
-                  <Icon name={expandedRelease === release.id ? 'ChevronUp' : 'Play'} size={12} className="flex-shrink-0" />
-                  {expandedRelease === release.id ? 'Скрыть' : 'Прослушать'}
-                </Button>
-              )}
+              <div className="flex items-center gap-1 md:gap-2">
+                {release.tracks_count > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
+                    className="gap-1 h-7 md:h-8 -ml-1.5 text-[10px] md:text-xs px-2"
+                  >
+                    <Icon name={expandedRelease === release.id ? 'ChevronUp' : 'Play'} size={12} className="flex-shrink-0" />
+                    {expandedRelease === release.id ? 'Скрыть' : 'Слушать'}
+                  </Button>
+                )}
+                {release.status === 'pending' && onEdit && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onEdit(release)}
+                    className="gap-1 h-7 md:h-8 px-2 text-[10px] md:text-xs"
+                  >
+                    <Icon name="Edit" size={12} className="flex-shrink-0" />
+                    <span className="hidden md:inline">Изменить</span>
+                  </Button>
+                )}
+                {release.status === 'approved' && onPitching && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => setPitchingRelease(release)}
+                    className="gap-1 h-7 md:h-8 px-2 text-[10px] md:text-xs"
+                  >
+                    <Icon name="Send" size={12} className="flex-shrink-0" />
+                    <span className="hidden md:inline">Питчинг</span>
+                  </Button>
+                )}
+              </div>
 
               {expandedRelease === release.id && (
-                <div className="mt-2 sm:mt-3">
-                  <Suspense fallback={<Skeleton className="h-48 sm:h-64 w-full" />}>
+                <div className="mt-2 md:mt-3">
+                  <Suspense fallback={<Skeleton className="h-40 md:h-64 w-full" />}>
                     <ReleasePlayer releaseId={release.id} />
                   </Suspense>
                 </div>
               )}
 
               {(release.status === 'rejected' && release.review_comment) && (
-                <div className="mt-2 sm:mt-3 bg-destructive/10 border border-destructive/20 p-2 sm:p-3 rounded-md">
-                  <div className="flex items-start gap-2">
-                    <Icon name="AlertCircle" size={14} className="text-destructive mt-0.5 flex-shrink-0" />
+                <div className="mt-2 md:mt-3 bg-destructive/10 border border-destructive/20 p-1.5 md:p-3 rounded">
+                  <div className="flex items-start gap-1.5">
+                    <Icon name="AlertCircle" size={12} className="text-destructive mt-0.5 flex-shrink-0 md:w-3.5 md:h-3.5" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-destructive mb-1">Причина отклонения:</p>
-                      <p className="text-xs text-foreground break-words">{release.review_comment}</p>
+                      <p className="text-[10px] md:text-xs font-medium text-destructive mb-0.5">Причина отклонения:</p>
+                      <p className="text-[10px] md:text-xs text-foreground break-words">{release.review_comment}</p>
                       {release.reviewer_name && (
-                        <p className="text-xs text-muted-foreground mt-1.5">— {release.reviewer_name}</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">— {release.reviewer_name}</p>
                       )}
                     </div>
                   </div>
@@ -142,11 +142,11 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
         </Card>
       ))}
       {releases.length === 0 && (
-        <div className="text-center py-12 sm:py-16 px-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted mb-3 sm:mb-4">
-            <Icon name="Music" size={24} className="sm:w-8 sm:h-8 text-muted-foreground" />
+        <div className="text-center py-8 md:py-16 px-4">
+          <div className="inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full bg-muted mb-2 md:mb-4">
+            <Icon name="Music" size={20} className="md:w-8 md:h-8 text-muted-foreground" />
           </div>
-          <p className="text-muted-foreground text-sm sm:text-lg">Релизов пока нет</p>
+          <p className="text-muted-foreground text-xs md:text-lg">Релизов пока нет</p>
         </div>
       )}
 

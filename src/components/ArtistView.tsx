@@ -75,9 +75,9 @@ export default function ArtistView({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-20 md:pb-0">
-      <div className="container mx-auto p-2 md:p-4 animate-fadeIn">
-        <div className="sticky top-0 z-30 mb-3 md:mb-0">
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-16 md:pb-0">
+      <div className="container mx-auto px-0 md:p-4 animate-fadeIn">
+        <div className="sticky top-0 z-30 mb-2 md:mb-0 px-2 md:px-0">
           <AppHeader 
             onMessagesClick={() => {}}
             onProfileClick={() => setShowProfile(true)}
@@ -94,7 +94,7 @@ export default function ArtistView({
             setActiveTab(value);
             localStorage.setItem('artist_active_tab', value);
           }}
-          className="w-full mt-2 md:mt-0">
+          className="w-full mt-1 md:mt-0">
           <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
             <TabsList className="grid w-full grid-cols-3 md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
               <TabsTrigger value="tracks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
@@ -113,13 +113,13 @@ export default function ArtistView({
             </TabsList>
           </div>
 
-          <TabsContent value="tracks">
+          <TabsContent value="tracks" className="mt-2 md:mt-6">
             <ReleaseManager userId={user.id} userRole="artist" />
           </TabsContent>
 
-          <TabsContent value="support" className="mt-3 md:mt-6">
+          <TabsContent value="support" className="mt-2 md:mt-6 px-2 md:px-0">
             <Tabs defaultValue="create" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
+              <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-0.5 md:p-1">
                 <TabsTrigger value="create" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 hover:scale-105 gap-1 md:gap-2">
                   <Icon name="Edit" className="w-3.5 h-3.5 md:w-5 md:h-5 text-green-500 shrink-0" />
                   <span className="truncate">Создать</span>
@@ -154,12 +154,12 @@ export default function ArtistView({
             </Tabs>
           </TabsContent>
 
-          <TabsContent value="reports" className="mt-3 md:mt-6">
-            <div className="flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-              <div className="text-center space-y-3 md:space-y-4 p-4">
-                <div className="text-5xl md:text-6xl">📊</div>
-                <h2 className="text-xl md:text-2xl font-bold text-yellow-500">Скоро будет доступно</h2>
-                <p className="text-sm md:text-base text-gray-400">Работаем над этим разделом</p>
+          <TabsContent value="reports" className="mt-2 md:mt-6 px-2 md:px-0">
+            <div className="flex items-center justify-center min-h-[250px] md:min-h-[400px]">
+              <div className="text-center space-y-2 md:space-y-4 p-4">
+                <div className="text-4xl md:text-6xl">📊</div>
+                <h2 className="text-base md:text-2xl font-bold text-yellow-500">Скоро будет доступно</h2>
+                <p className="text-xs md:text-base text-gray-400">Работаем над этим разделом</p>
               </div>
             </div>
           </TabsContent>
