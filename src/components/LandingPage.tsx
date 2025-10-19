@@ -109,13 +109,16 @@ export default function LandingPage() {
                 <p className="text-xs md:text-sm text-primary/60 tracking-wider">Музыкальный лейбл</p>
               </div>
             </div>
-            <Button 
+            <button
               onClick={() => navigate('/app')}
-              className="w-full sm:w-auto bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] hover:bg-right transition-all duration-500 text-black font-bold px-6 md:px-8 py-4 md:py-6 text-base md:text-lg rounded-xl shadow-lg shadow-primary/50 hover:shadow-primary hover:scale-105 border-0"
+              className="group relative w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 overflow-hidden rounded-xl bg-transparent border-2 border-primary/30 hover:border-primary transition-all duration-300"
             >
-              <Icon name="LogIn" size={18} className="mr-2" />
-              Войти
-            </Button>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="relative flex items-center justify-center gap-2 text-primary group-hover:text-white transition-colors">
+                <Icon name="User" size={18} className="group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-base md:text-lg">Личный кабинет</span>
+              </div>
+            </button>
           </header>
 
           <section className="mb-20 md:mb-32 text-center relative">
