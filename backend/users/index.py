@@ -267,6 +267,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             safe_username = body_data['username'].replace("'", "''")
             update_fields.append(f"username = '{safe_username}'")
         
+        if 'role' in body_data:
+            role = body_data['role']
+            if role in ['artist', 'manager', 'director']:
+                update_fields.append(f"role = '{role}'")
+        
         if 'email' in body_data:
             safe_email = body_data['email'].replace("'", "''")
             update_fields.append(f"vk_email = '{safe_email}'")
