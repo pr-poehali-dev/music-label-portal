@@ -51,12 +51,24 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     if (avatarFile) {
       setIsUploadingAvatar(true);
       try {
-        const formData = new FormData();
-        formData.append('file', avatarFile);
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(avatarFile);
+        });
+        
+        const base64Data = await base64Promise;
         
         const response = await fetch('https://functions.poehali.dev/5ce1cb99-44a3-487f-b61a-d4a29f3c8ce1', {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            file: base64Data,
+            fileName: avatarFile.name,
+            fileSize: avatarFile.size
+          })
         });
         
         if (response.ok) {
