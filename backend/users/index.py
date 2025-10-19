@@ -303,7 +303,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         params.append(user_id)
-        query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
+        query = f"UPDATE t_p35759334_music_label_portal.users SET {', '.join(update_fields)} WHERE id = %s"
         
         try:
             cur.execute(query, params)
