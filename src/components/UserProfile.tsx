@@ -25,17 +25,25 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  const processAvatarFile = useCallback((file: File) => {
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
   const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processAvatarFile(file);
     }
-  }, []);
+  }, [processAvatarFile]);
+
+  const handleAvatarDrop = useCallback((file: File) => {
+    processAvatarFile(file);
+  }, [processAvatarFile]);
 
   const handleSave = useCallback(async () => {
     let avatarUrl = avatarPreview;
@@ -176,6 +184,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
           avatarPreview={avatarPreview}
           isEditing={isEditing}
           onAvatarChange={handleAvatarChange}
+          onAvatarDrop={handleAvatarDrop}
           onEditClick={() => setIsEditing(true)}
           getRoleLabel={getRoleLabel}
           getRoleIcon={getRoleIcon}
