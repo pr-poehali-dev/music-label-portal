@@ -227,6 +227,20 @@ export default function LandingPage() {
                   <span className="text-gray-400 group-hover:text-secondary transition-colors font-medium">Telegram</span>
                 </a>
               </div>
+              
+              <div className="mt-8 pt-6 border-t border-primary/10">
+                <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
+                  <Icon name="Eye" size={12} className="text-primary/40" />
+                  <span>Посетителей:</span>
+                  <span className="font-mono text-primary/60">
+                    <img 
+                      src="https://counter.yadro.ru/hit?t52.6;r;s1280*720*24;uhttp%3A//420.рф;h" 
+                      alt="Счётчик"
+                      className="inline-block h-3"
+                    />
+                  </span>
+                </div>
+              </div>
             </div>
           </footer>
         </div>
