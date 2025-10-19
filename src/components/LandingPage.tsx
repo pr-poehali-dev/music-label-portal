@@ -61,8 +61,8 @@ export default function LandingPage() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-0 group-hover:opacity-75 transition-opacity duration-300 -z-10" />
               </div>
               <div>
-                <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary group-hover:scale-105 transition-transform">420.рф</h1>
-                <p className="text-sm text-primary/60 tracking-widest uppercase">Music Label</p>
+                <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary group-hover:scale-105 transition-transform">420</h1>
+                <p className="text-sm text-primary/60 tracking-wider">Музыкальный лейбл</p>
               </div>
             </div>
             <Button 
