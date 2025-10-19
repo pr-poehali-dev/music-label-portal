@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo, memo, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { LazyImage } from '@/components/ui/image-lazy';
 import { Release, Pitching } from './types';
-import ReleasePlayer from './ReleasePlayer';
-import PitchingForm from './PitchingForm';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ReleasePlayer = lazy(() => import('./ReleasePlayer'));
+const PitchingForm = lazy(() => import('./PitchingForm'));
 
 interface ReleasesListProps {
   releases: Release[];
@@ -14,27 +17,28 @@ interface ReleasesListProps {
   onPitching?: (data: Pitching) => Promise<void>;
 }
 
-export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
+const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
   const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
   const [pitchingRelease, setPitchingRelease] = useState<Release | null>(null);
-  const formatDate = (dateStr?: string) => {
+  
+  const formatDate = useMemo(() => (dateStr?: string) => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-  };
+  }, []);
 
   return (
     <div className="grid gap-3">
       {releases.map((release) => (
         <Card key={release.id} className="overflow-hidden hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 p-4">
-            <div className="relative group flex-shrink-0">
-              <div className="w-20 h-20 rounded-md overflow-hidden bg-muted">
+          <div className="flex flex-col sm:flex-row items-start gap-4 p-3 sm:p-4">
+            <div className="relative group flex-shrink-0 w-full sm:w-auto">
+              <div className="w-full sm:w-20 aspect-square rounded-md overflow-hidden bg-muted">
                 {release.cover_url ? (
-                  <img 
+                  <LazyImage
                     src={release.cover_url} 
                     alt={release.release_name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -43,31 +47,31 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                 )}
               </div>
               {release.tracks_count !== undefined && release.tracks_count > 0 && (
-                <div className="mt-1 text-xs text-muted-foreground text-center">
+                <div className="mt-1 text-xs text-muted-foreground text-center hidden sm:block">
                   {release.tracks_count}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold mb-0.5 truncate text-base">{release.release_name}</h3>
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-3 mb-2">
+                <div className="flex-1 min-w-0 w-full">
+                  <h3 className="font-semibold mb-0.5 truncate text-base sm:text-lg">{release.release_name}</h3>
                   {release.artist_name && (
                     <p className="text-muted-foreground text-sm">{release.artist_name}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="flex items-center gap-1.5 flex-shrink-0 w-full sm:w-auto">
                   {getStatusBadge(release.status)}
                   {release.status === 'pending' && onEdit && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => onEdit(release)}
-                      className="gap-1 h-7 px-2"
+                      className="gap-1 h-7 px-2 flex-1 sm:flex-initial"
                     >
                       <Icon name="Edit" size={12} />
-                      <span className="hidden sm:inline">Изменить</span>
+                      <span className="inline">Изменить</span>
                     </Button>
                   )}
                   {release.status === 'approved' && onPitching && (
@@ -75,10 +79,10 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                       size="sm"
                       variant="default"
                       onClick={() => setPitchingRelease(release)}
-                      className="gap-1 h-7 px-2"
+                      className="gap-1 h-7 px-2 flex-1 sm:flex-initial"
                     >
                       <Icon name="Send" size={12} />
-                      <span className="hidden sm:inline">Питчинг</span>
+                      <span className="inline">Питчинг</span>
                     </Button>
                   )}
                 </div>
@@ -113,7 +117,9 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
 
               {expandedRelease === release.id && (
                 <div className="mt-3">
-                  <ReleasePlayer releaseId={release.id} />
+                  <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+                    <ReleasePlayer releaseId={release.id} />
+                  </Suspense>
                 </div>
               )}
 
@@ -145,13 +151,17 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
       )}
 
       {pitchingRelease && onPitching && (
-        <PitchingForm
-          release={pitchingRelease}
-          isOpen={true}
-          onClose={() => setPitchingRelease(null)}
-          onSubmit={onPitching}
-        />
+        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+          <PitchingForm
+            release={pitchingRelease}
+            isOpen={true}
+            onClose={() => setPitchingRelease(null)}
+            onSubmit={onPitching}
+          />
+        </Suspense>
       )}
     </div>
   );
-}
+});
+
+export default ReleasesList;

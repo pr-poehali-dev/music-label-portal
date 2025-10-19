@@ -74,9 +74,9 @@ export default function ReleaseManagerView({
     <div className="space-y-4">
       {!showForm && (
         <>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h2 className="text-xl font-bold">Мои релизы</h2>
-            <Button onClick={onCreateClick} size="sm" className="gap-1.5">
+            <Button onClick={onCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto">
               <Icon name="Plus" size={16} />
               Создать релиз
             </Button>

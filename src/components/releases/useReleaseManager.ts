@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Track, Release, Pitching, API_URL, UPLOAD_URL } from './types';
 import { createNotification } from '@/hooks/useNotifications';
@@ -33,7 +33,7 @@ export const useReleaseManager = (userId: number) => {
     loadReleases();
   }, [userId]);
 
-  const loadReleases = async () => {
+  const loadReleases = useCallback(async () => {
     try {
       const response = await fetch(API_URL, {
         headers: { 'X-User-Id': userId.toString() }
@@ -49,7 +49,7 @@ export const useReleaseManager = (userId: number) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, toast]);
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
     return new Promise((resolve) => {
@@ -97,7 +97,7 @@ export const useReleaseManager = (userId: number) => {
     }
   };
 
-  const addTrack = () => {
+  const addTrack = useCallback(() => {
     setTracks([...tracks, {
       track_number: tracks.length + 1,
       title: '',
@@ -105,15 +105,15 @@ export const useReleaseManager = (userId: number) => {
       language_audio: 'Русский',
       explicit_content: false
     }]);
-  };
+  }, [tracks]);
 
-  const removeTrack = (index: number) => {
+  const removeTrack = useCallback((index: number) => {
     const updated = tracks.filter((_, i) => i !== index);
     const renumbered = updated.map((track, i) => ({ ...track, track_number: i + 1 }));
     setTracks(renumbered);
-  };
+  }, [tracks]);
 
-  const moveTrack = (index: number, direction: 'up' | 'down') => {
+  const moveTrack = useCallback((index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= tracks.length) return;
     
@@ -122,7 +122,7 @@ export const useReleaseManager = (userId: number) => {
     
     const renumbered = updated.map((track, i) => ({ ...track, track_number: i + 1 }));
     setTracks(renumbered);
-  };
+  }, [tracks]);
 
   const updateTrack = (index: number, field: keyof Track, value: any) => {
     const updated = [...tracks];
@@ -185,7 +185,7 @@ export const useReleaseManager = (userId: number) => {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!newRelease.release_name || !coverFile || !newRelease.release_date) {
       toast({
         title: 'Ошибка',

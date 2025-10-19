@@ -101,8 +101,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             query = f"""
                 SELECT 
-                    r.*,
-                    r.artist_id as user_id,
+                    r.id, r.release_name, r.cover_url, r.release_date, r.preorder_date,
+                    r.sales_start_date, r.genre, r.copyright, r.status, r.created_at,
+                    r.review_comment, r.artist_id as user_id,
                     u.full_name as artist_name,
                     r.reviewed_by as reviewer_id,
                     rev.full_name as reviewer_name,
@@ -124,7 +125,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 query += " AND r.status = %s"
                 params_list.append(status_filter)
             
-            query += " GROUP BY r.id, u.full_name, rev.full_name ORDER BY r.created_at DESC"
+            query += " GROUP BY r.id, u.full_name, rev.full_name ORDER BY r.created_at DESC LIMIT 100"
             
             cur.execute(query, params_list)
             releases = cur.fetchall()

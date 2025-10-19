@@ -10,10 +10,10 @@ interface ReleaseStatusTabsProps {
 
 export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: ReleaseStatusTabsProps) {
   return (
-    <div className="flex gap-2 border-b">
+    <div className="flex gap-2 border-b overflow-x-auto pb-px">
       <button
         onClick={() => onTabChange('all')}
-        className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+        className={`px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
           activeTab === 'all'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -23,7 +23,7 @@ export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: 
       </button>
       <button
         onClick={() => onTabChange('approved')}
-        className={`px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 ${
+        className={`px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
           activeTab === 'approved'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -34,7 +34,7 @@ export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: 
       </button>
       <button
         onClick={() => onTabChange('pending')}
-        className={`px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 ${
+        className={`px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
           activeTab === 'pending'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -45,7 +45,7 @@ export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: 
       </button>
       <button
         onClick={() => onTabChange('rejected')}
-        className={`px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 ${
+        className={`px-3 sm:px-4 py-2 font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
           activeTab === 'rejected'
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground'

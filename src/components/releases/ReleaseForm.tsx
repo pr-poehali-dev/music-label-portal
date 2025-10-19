@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,15 +49,15 @@ export default function ReleaseForm({
 }: ReleaseFormProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  const handleDragStart = (index: number) => {
+  const handleDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
-  };
+  }, []);
 
-  const handleDrop = (dropIndex: number) => {
+  const handleDrop = useCallback((dropIndex: number) => {
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null);
       return;
@@ -73,7 +73,7 @@ export default function ReleaseForm({
     }
     
     setDraggedIndex(null);
-  };
+  }, [draggedIndex, moveTrack]);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -166,7 +166,7 @@ export default function ReleaseForm({
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Выберите жанр" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60">
                     {GENRES.map((genre) => (
                       <SelectItem key={genre} value={genre}>{genre}</SelectItem>
                     ))}
@@ -188,7 +188,7 @@ export default function ReleaseForm({
                   <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60">
                     <SelectItem value="0.99">0.99 $</SelectItem>
                     <SelectItem value="1.29">1.29 $</SelectItem>
                     <SelectItem value="1.49">1.49 $</SelectItem>
@@ -201,7 +201,7 @@ export default function ReleaseForm({
                   <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60">
                     {LANGUAGES.map((lang) => (
                       <SelectItem key={lang} value={lang}>{lang}</SelectItem>
                     ))}
