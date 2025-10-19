@@ -61,32 +61,32 @@ export default function LandingPage() {
         </section>
 
         <section className="mb-16">
-          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Наши ценности</h3>
+          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Наши преимущества</h3>
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="bg-card/80 border-primary/20 backdrop-blur-sm hover:border-primary/50 transition-all">
               <CardContent className="pt-6">
-                <div className="text-4xl mb-4">🎵</div>
-                <h4 className="text-xl font-bold text-primary mb-2">Качество звука</h4>
-                <p className="text-gray-400">
-                  Профессиональное сведение и мастеринг каждого трека
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-card/80 border-primary/20 backdrop-blur-sm hover:border-primary/50 transition-all">
-              <CardContent className="pt-6">
                 <div className="text-4xl mb-4">🚀</div>
-                <h4 className="text-xl font-bold text-primary mb-2">Поддержка артистов</h4>
+                <h4 className="text-xl font-bold text-primary mb-2">Индивидуальная логистика</h4>
                 <p className="text-gray-400">
-                  Полная поддержка на всех этапах создания и продвижения музыки
+                  Доставка релизов на площадки с учётом всех ваших требований
                 </p>
               </CardContent>
             </Card>
             <Card className="bg-card/80 border-primary/20 backdrop-blur-sm hover:border-primary/50 transition-all">
               <CardContent className="pt-6">
-                <div className="text-4xl mb-4">💎</div>
-                <h4 className="text-xl font-bold text-primary mb-2">Уникальность</h4>
+                <div className="text-4xl mb-4">📊</div>
+                <h4 className="text-xl font-bold text-primary mb-2">Прозрачные отчёты</h4>
                 <p className="text-gray-400">
-                  Каждый проект - это особенное творческое высказывание
+                  Полная прозрачность финансов и статистики ваших релизов
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/80 border-primary/20 backdrop-blur-sm hover:border-primary/50 transition-all">
+              <CardContent className="pt-6">
+                <div className="text-4xl mb-4">💬</div>
+                <h4 className="text-xl font-bold text-primary mb-2">Поддержка 24/7</h4>
+                <p className="text-gray-400">
+                  Всегда на связи - решаем любые вопросы в любое время
                 </p>
               </CardContent>
             </Card>
@@ -94,7 +94,7 @@ export default function LandingPage() {
         </section>
 
         <section className="mb-16">
-          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Последние новости</h3>
+          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Последние релизы</h3>
           <VKPosts />
         </section>
 
