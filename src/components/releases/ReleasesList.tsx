@@ -92,10 +92,12 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                     {release.genre}
                   </Badge>
                 )}
-                <Badge variant="outline" className="gap-1 h-5 text-xs px-1.5">
-                  <Icon name="Music" size={10} />
-                  {release.tracks_count || 0}
-                </Badge>
+                {release.tracks_count > 0 && (
+                  <Badge variant="outline" className="gap-1 h-5 text-xs px-1.5">
+                    <Icon name="Music" size={10} />
+                    {release.tracks_count}
+                  </Badge>
+                )}
               </div>
 
               {release.tracks_count && release.tracks_count > 0 && (
