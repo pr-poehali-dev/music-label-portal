@@ -8,12 +8,18 @@ export interface UploadFileResult {
 }
 
 export async function uploadFile(file: File): Promise<UploadFileResult> {
+  if (file.size > 50 * 1024 * 1024) {
+    throw new Error('Размер файла превышает 50MB');
+  }
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
     reader.onloadend = async () => {
       try {
         const base64Data = reader.result as string;
+        
+        console.log(`Uploading file: ${file.name}, size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
         
         const response = await fetch(UPLOAD_URL, {
           method: 'POST',
@@ -29,18 +35,22 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
         
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+          console.error(`Upload failed for ${file.name}:`, response.status, errorText);
+          throw new Error(`Ошибка загрузки: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log(`Successfully uploaded: ${file.name}`);
         resolve(data);
       } catch (error) {
+        console.error(`Error uploading ${file.name}:`, error);
         reject(error);
       }
     };
     
     reader.onerror = () => {
-      reject(new Error('Failed to read file'));
+      console.error(`Failed to read file: ${file.name}`);
+      reject(new Error('Не удалось прочитать файл'));
     };
     
     reader.readAsDataURL(file);

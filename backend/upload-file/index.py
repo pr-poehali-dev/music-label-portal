@@ -54,12 +54,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing file or fileName'})
             }
         
-        if file_size > 10 * 1024 * 1024:
+        if file_size > 50 * 1024 * 1024:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'File size exceeds 10MB limit'})
+                'body': json.dumps({'error': 'File size exceeds 50MB limit'})
             }
         
         # Загружаем файл в Yandex Object Storage (S3)
@@ -105,6 +105,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             content_type = 'image/gif'
         elif file_ext.lower() == 'pdf':
             content_type = 'application/pdf'
+        elif file_ext.lower() == 'mp3':
+            content_type = 'audio/mpeg'
+        elif file_ext.lower() == 'wav':
+            content_type = 'audio/wav'
+        elif file_ext.lower() == 'flac':
+            content_type = 'audio/flac'
+        elif file_ext.lower() == 'm4a':
+            content_type = 'audio/mp4'
         
         s3_client.put_object(
             Bucket=bucket_name,

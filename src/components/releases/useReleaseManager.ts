@@ -69,6 +69,12 @@ export const useReleaseManager = (userId: number) => {
         fileSize: result.fileSize
       };
     } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: 'Ошибка загрузки',
+        description: error instanceof Error ? error.message : `Не удалось загрузить ${file.name}`,
+        variant: 'destructive'
+      });
       return null;
     }
   };
