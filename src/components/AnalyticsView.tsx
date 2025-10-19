@@ -33,7 +33,7 @@ export default function AnalyticsView() {
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          Аналитика заявок
+          Аналитика тикетов
         </button>
         <button
           onClick={() => setActiveTab('releases')}
