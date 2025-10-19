@@ -58,7 +58,12 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     };
 
     // Загружаем скрипт Telegram Widget
-    if (telegramRef.current && !telegramRef.current.querySelector('script')) {
+    const loadTelegramWidget = () => {
+      if (!telegramRef.current) return;
+      
+      // Очищаем контейнер
+      telegramRef.current.innerHTML = '';
+      
       const script = document.createElement('script');
       script.src = 'https://telegram.org/js/telegram-widget.js?22';
       script.async = true;
@@ -69,7 +74,11 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
       script.setAttribute('data-request-access', 'write');
       
       telegramRef.current.appendChild(script);
-    }
+      console.log('Telegram widget script loaded');
+    };
+
+    // Небольшая задержка чтобы DOM был готов
+    setTimeout(loadTelegramWidget, 100);
 
     return () => {
       delete (window as any).onTelegramAuth;
