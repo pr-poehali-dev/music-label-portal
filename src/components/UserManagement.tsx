@@ -21,6 +21,7 @@ interface User {
   blocked_reason?: string;
   last_ip?: string;
   device_fingerprint?: string;
+  telegram_id?: string;
 }
 
 interface UserManagementProps {
@@ -183,6 +184,12 @@ const UserManagement = React.memo(function UserManagement({
                     <Badge variant="outline" className="border-primary/50">
                       {u.role === 'director' ? '👑 Руководитель' : u.role === 'manager' ? '🎯 Менеджер' : '🎤 Артист'}
                     </Badge>
+                    {u.telegram_id && (
+                      <Badge variant="outline" className="border-blue-500/50 bg-blue-500/10">
+                        <Icon name="Send" size={12} className="mr-1" />
+                        Telegram
+                      </Badge>
+                    )}
                     {u.is_blocked && <Badge variant="destructive"><Icon name="Ban" size={12} className="mr-1" />Заблокирован</Badge>}
                     {u.is_frozen && <Badge className="bg-yellow-500"><Icon name="Snowflake" size={12} className="mr-1" />Заморожен</Badge>}
                   </div>
