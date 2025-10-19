@@ -99,7 +99,7 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                 )}
               </div>
 
-              {release.tracks_count && release.tracks_count > 0 && (
+              {release.tracks_count > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
