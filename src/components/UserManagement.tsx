@@ -102,171 +102,167 @@ const UserManagement = React.memo(function UserManagement({
     setShowEditModal(true);
   };
   return (
-    <div className="space-y-4">
-      <Card className="border-primary/20 bg-card/95">
-        <CardHeader>
-          <CardTitle className="text-primary">Создать нового пользователя</CardTitle>
-          <CardDescription>Добавьте артиста или менеджера в систему</CardDescription>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <Card className="border-primary/20 bg-card/95 lg:col-span-1">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-primary text-base flex items-center gap-2">
+            <Icon name="UserPlus" size={18} />
+            Создать пользователя
+          </CardTitle>
+          <CardDescription className="text-xs">Добавьте в систему</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="new_username" className="text-sm">Логин</Label>
-              <Input
-                id="new_username"
-                placeholder="username"
-                value={newUser.username}
-                onChange={(e) => onNewUserChange({ ...newUser, username: e.target.value })}
-                className="h-10"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new_full_name" className="text-sm">Полное имя</Label>
-              <Input
-                id="new_full_name"
-                placeholder="Иван Иванов"
-                value={newUser.full_name}
-                onChange={(e) => onNewUserChange({ ...newUser, full_name: e.target.value })}
-                className="h-10"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new_role" className="text-sm">Роль</Label>
-              <Select value={newUser.role} onValueChange={(val) => onNewUserChange({ ...newUser, role: val })}>
-                <SelectTrigger id="new_role" className="h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="artist">🎤 Артист</SelectItem>
-                  <SelectItem value="manager">🎯 Менеджер</SelectItem>
-                  <SelectItem value="director">👑 Руководитель</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {newUser.role === 'artist' && (
-              <div className="space-y-2">
-                <Label htmlFor="revenue_share" className="text-sm">% артиста</Label>
-                <Input
-                  id="revenue_share"
-                  type="number"
-                  min="0"
-                  max="100"
-                  placeholder="50"
-                  value={newUser.revenue_share_percent || 50}
-                  onChange={(e) => onNewUserChange({ ...newUser, revenue_share_percent: parseInt(e.target.value) || 50 })}
-                  className="h-10"
-                />
-              </div>
-            )}
+          <div className="space-y-2">
+            <Label htmlFor="new_username" className="text-xs">Логин</Label>
+            <Input
+              id="new_username"
+              placeholder="username"
+              value={newUser.username}
+              onChange={(e) => onNewUserChange({ ...newUser, username: e.target.value })}
+              className="h-9 text-sm"
+            />
           </div>
-          <Button onClick={onCreateUser} className="w-full bg-secondary hover:bg-secondary/90 h-11">
-            <Icon name="UserPlus" size={16} className="mr-2" />
-            <span className="text-sm">Создать пользователя (пароль: 12345)</span>
+          <div className="space-y-2">
+            <Label htmlFor="new_full_name" className="text-xs">Полное имя</Label>
+            <Input
+              id="new_full_name"
+              placeholder="Иван Иванов"
+              value={newUser.full_name}
+              onChange={(e) => onNewUserChange({ ...newUser, full_name: e.target.value })}
+              className="h-9 text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new_role" className="text-xs">Роль</Label>
+            <Select value={newUser.role} onValueChange={(val) => onNewUserChange({ ...newUser, role: val })}>
+              <SelectTrigger id="new_role" className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="artist">🎤 Артист</SelectItem>
+                <SelectItem value="manager">🎯 Менеджер</SelectItem>
+                <SelectItem value="director">👑 Руководитель</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {newUser.role === 'artist' && (
+            <div className="space-y-2">
+              <Label htmlFor="revenue_share" className="text-xs">% артиста</Label>
+              <Input
+                id="revenue_share"
+                type="number"
+                min="0"
+                max="100"
+                placeholder="50"
+                value={newUser.revenue_share_percent || 50}
+                onChange={(e) => onNewUserChange({ ...newUser, revenue_share_percent: parseInt(e.target.value) || 50 })}
+                className="h-9 text-sm"
+              />
+            </div>
+          )}
+          <Button onClick={onCreateUser} className="w-full bg-secondary hover:bg-secondary/90 h-9 text-sm">
+            <Icon name="UserPlus" size={14} className="mr-2" />
+            Создать (пароль: 12345)
           </Button>
         </CardContent>
       </Card>
 
-      <Card className="border-primary/20 bg-card/95">
-        <CardHeader>
-          <CardTitle className="text-primary">Все пользователи</CardTitle>
+      <Card className="border-primary/20 bg-card/95 lg:col-span-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-primary text-base flex items-center gap-2">
+            <Icon name="Users" size={18} />
+            Все пользователи ({allUsers.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
             {allUsers.map((u) => (
-              <div key={u.id} className={`p-3 rounded-lg ${u.is_blocked ? 'bg-red-500/10 border border-red-500/30' : u.is_frozen ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-muted/50'}`}>
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {isUserOnline && (
-                          <OnlineStatusBadge 
-                            isOnline={isUserOnline(u.id)} 
-                            lastSeen={getUserLastSeen ? getUserLastSeen(u.id) : undefined}
-                            size="sm"
-                          />
-                        )}
-                        <p className="font-medium text-foreground text-sm truncate">{u.full_name}</p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                        <Badge variant="outline" className="border-primary/50 text-xs">
-                          {u.role === 'director' ? '👑' : u.role === 'manager' ? '🎯' : '🎤'}
-                          <span className="ml-1 hidden sm:inline">
-                            {u.role === 'director' ? 'Руководитель' : u.role === 'manager' ? 'Менеджер' : 'Артист'}
-                          </span>
-                        </Badge>
-                        {u.telegram_id && (
-                          <Badge variant="outline" className="border-blue-500/50 bg-blue-500/10 text-xs">
-                            <Icon name="Send" size={10} />
-                            <span className="ml-1 hidden sm:inline">Telegram</span>
-                          </Badge>
-                        )}
-                        {u.is_blocked && (
-                          <Badge variant="destructive" className="text-xs">
-                            <Icon name="Ban" size={10} className="mr-1" />
-                            <span className="hidden sm:inline">Заблокирован</span>
-                          </Badge>
-                        )}
-                        {u.is_frozen && (
-                          <Badge className="bg-yellow-500 text-xs">
-                            <Icon name="Snowflake" size={10} className="mr-1" />
-                            <span className="hidden sm:inline">Заморожен</span>
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">@{u.username}</p>
-                      {u.blocked_reason && <p className="text-xs text-red-400 mt-1">Причина: {u.blocked_reason}</p>}
-                      {u.is_frozen && u.frozen_until && <p className="text-xs text-yellow-400 mt-1">До: {new Date(u.frozen_until).toLocaleString('ru-RU')}</p>}
+              <div key={u.id} className={`p-2.5 rounded-lg border transition-all ${u.is_blocked ? 'bg-red-500/10 border-red-500/30' : u.is_frozen ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-muted/30 border-border/50 hover:bg-muted/50'}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {isUserOnline && (
+                        <OnlineStatusBadge 
+                          isOnline={isUserOnline(u.id)} 
+                          lastSeen={getUserLastSeen ? getUserLastSeen(u.id) : undefined}
+                          size="sm"
+                        />
+                      )}
+                      <p className="font-semibold text-sm truncate">{u.full_name}</p>
+                      <Badge variant="outline" className="border-primary/50 text-[10px] px-1.5 py-0">
+                        {u.role === 'director' ? '👑' : u.role === 'manager' ? '🎯' : '🎤'}
+                      </Badge>
                     </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="text-xs text-muted-foreground">@{u.username}</p>
+                      {u.telegram_id && (
+                        <Badge variant="outline" className="border-blue-500/50 bg-blue-500/10 text-[10px] px-1.5 py-0">
+                          <Icon name="Send" size={8} className="mr-0.5" />
+                          TG
+                        </Badge>
+                      )}
+                      {u.is_blocked && (
+                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                          <Icon name="Ban" size={8} className="mr-0.5" />
+                          Блок
+                        </Badge>
+                      )}
+                      {u.is_frozen && (
+                        <Badge className="bg-yellow-500 text-[10px] px-1.5 py-0">
+                          <Icon name="Snowflake" size={8} className="mr-0.5" />
+                          Заморожен
+                        </Badge>
+                      )}
+                    </div>
+                    {u.blocked_reason && <p className="text-[10px] text-red-400 mt-1">Причина: {u.blocked_reason}</p>}
+                    {u.is_frozen && u.frozen_until && <p className="text-[10px] text-yellow-400 mt-1">До: {new Date(u.frozen_until).toLocaleString('ru-RU')}</p>}
                   </div>
                   {u.role !== 'director' && (
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+                    <div className="flex gap-1.5 flex-shrink-0">
                       <Button 
                         size="sm" 
-                        variant="outline" 
+                        variant="ghost" 
                         onClick={() => openEditModal(u)} 
-                        className="border-blue-500/50 text-blue-400 flex-1 min-w-[100px] h-9 text-xs"
+                        className="h-7 w-7 p-0 hover:bg-blue-500/20 hover:text-blue-400"
+                        title="Редактировать"
                       >
-                        <Icon name="Edit" size={14} className="mr-1" />
-                        Изменить
+                        <Icon name="Edit" size={14} />
                       </Button>
                       {u.is_blocked ? (
                         <Button 
                           size="sm" 
                           onClick={() => onUnblockUser && onUnblockUser(u.id)} 
-                          className="bg-green-500 hover:bg-green-600 flex-1 min-w-[100px] h-9 text-xs"
+                          className="h-7 px-2 bg-green-500 hover:bg-green-600 text-xs"
                         >
-                          <Icon name="Unlock" size={14} className="mr-1" />
-                          Разблок
+                          <Icon name="Unlock" size={12} />
                         </Button>
                       ) : u.is_frozen ? (
                         <Button 
                           size="sm" 
                           onClick={() => onUnfreezeUser && onUnfreezeUser(u.id)} 
-                          className="bg-blue-500 hover:bg-blue-600 flex-1 min-w-[100px] h-9 text-xs"
+                          className="h-7 px-2 bg-blue-500 hover:bg-blue-600 text-xs"
                         >
-                          <Icon name="Play" size={14} className="mr-1" />
-                          Разморозить
+                          <Icon name="Play" size={12} />
                         </Button>
                       ) : (
                         <>
                           <Button 
                             size="sm" 
-                            variant="outline" 
+                            variant="ghost" 
                             onClick={() => { setSelectedUser(u); setShowBlockModal(true); }} 
-                            className="border-red-500/50 text-red-400 flex-1 min-w-[80px] h-9 text-xs"
+                            className="h-7 w-7 p-0 hover:bg-red-500/20 hover:text-red-400"
+                            title="Заблокировать"
                           >
-                            <Icon name="Ban" size={14} className="mr-1" />
-                            Блок
+                            <Icon name="Ban" size={14} />
                           </Button>
                           <Button 
                             size="sm" 
-                            variant="outline" 
+                            variant="ghost" 
                             onClick={() => { setSelectedUser(u); setShowFreezeModal(true); }} 
-                            className="border-yellow-500/50 text-yellow-400 flex-1 min-w-[80px] h-9 text-xs"
+                            className="h-7 w-7 p-0 hover:bg-yellow-500/20 hover:text-yellow-400"
+                            title="Заморозить"
                           >
-                            <Icon name="Snowflake" size={14} className="mr-1" />
-                            <span className="hidden sm:inline">Заморозка</span>
-                            <span className="sm:hidden">Заморозить</span>
+                            <Icon name="Snowflake" size={14} />
                           </Button>
                         </>
                       )}
