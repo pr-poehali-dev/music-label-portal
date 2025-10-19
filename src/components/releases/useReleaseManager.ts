@@ -179,6 +179,13 @@ export const useReleaseManager = (userId: number) => {
   };
 
   const handleSubmit = useCallback(async () => {
+    console.log('=== SUBMIT STARTED ===');
+    console.log('Cover file:', coverFile);
+    console.log('Tracks count:', tracks.length);
+    tracks.forEach((t, i) => {
+      console.log(`Track ${i + 1}: ${t.title}, has file:`, !!t.file, t.file);
+    });
+    
     if (!newRelease.release_name || !coverFile || !newRelease.release_date) {
       toast({
         title: 'Ошибка',
@@ -192,6 +199,16 @@ export const useReleaseManager = (userId: number) => {
       toast({
         title: 'Ошибка',
         description: 'Добавьте хотя бы один трек',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    const tracksWithoutFiles = tracks.filter(t => !t.file);
+    if (tracksWithoutFiles.length > 0) {
+      toast({
+        title: 'Ошибка',
+        description: `Не выбраны аудиофайлы для треков: ${tracksWithoutFiles.map(t => t.track_number).join(', ')}`,
         variant: 'destructive'
       });
       return;
