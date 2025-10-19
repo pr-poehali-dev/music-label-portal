@@ -115,7 +115,7 @@ export default function Index() {
       onCreateUser={handleCreateUser}
       onLoadAllUsers={loadAllUsers}
       onDeleteTicket={deleteTicket}
-      onUpdateUser={updateUser}
+      onUpdateUser={handleUpdateProfile}
       onCreateTask={createTask}
       onUpdateTaskStatus={updateTaskStatus}
       onDeleteTask={deleteTask}
