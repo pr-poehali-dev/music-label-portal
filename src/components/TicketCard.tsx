@@ -201,28 +201,6 @@ const TicketCard = React.memo(function TicketCard({
                 В работу
               </Button>
             )}
-            {ticket.status === 'in_progress' && (
-              <Button 
-                onClick={() => onUpdateStatus(ticket.id, 'resolved')} 
-                variant="outline" 
-                size="sm"
-                className="flex-1 h-8 text-xs"
-              >
-                <Icon name="Check" size={12} className="mr-1" />
-                Решить
-              </Button>
-            )}
-            {ticket.status === 'resolved' && (
-              <Button 
-                onClick={() => onUpdateStatus(ticket.id, 'closed')} 
-                variant="outline" 
-                size="sm"
-                className="flex-1 h-8 text-xs"
-              >
-                <Icon name="X" size={12} className="mr-1" />
-                Закрыть
-              </Button>
-            )}
           </div>
         )}
       </CardContent>

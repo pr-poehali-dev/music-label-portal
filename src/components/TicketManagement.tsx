@@ -70,7 +70,7 @@ const TicketManagement = React.memo(function TicketManagement({
   onDeleteTicket
 }: TicketManagementProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'resolved'>('open');
+  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'closed'>('open');
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -93,10 +93,10 @@ const TicketManagement = React.memo(function TicketManagement({
     []
   );
 
-  const { openTickets, inProgressTickets, resolvedTickets } = useMemo(() => ({
+  const { openTickets, inProgressTickets, closedTickets } = useMemo(() => ({
     openTickets: tickets.filter(t => t.status === 'open').sort(sortByDate),
     inProgressTickets: tickets.filter(t => t.status === 'in_progress').sort(sortByDate),
-    resolvedTickets: tickets.filter(t => t.status === 'resolved' || t.status === 'closed').sort(sortByDate)
+    closedTickets: tickets.filter(t => t.status === 'closed').sort(sortByDate)
   }), [tickets, sortByDate]);
 
   return (
@@ -107,6 +107,8 @@ const TicketManagement = React.memo(function TicketManagement({
         onClose={handleCloseDialog}
         currentUserId={user.id}
         currentUserRole={user.role}
+        onUpdateStatus={onUpdateStatus}
+        onReload={onLoadTickets}
       />
     <div className="space-y-4 md:space-y-6 p-3 md:p-6">
       <div className="flex items-center gap-2 md:gap-3">
@@ -127,10 +129,10 @@ const TicketManagement = React.memo(function TicketManagement({
             <span>В работе</span>
             <span className="ml-1 text-xs">({inProgressTickets.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="resolved" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+          <TabsTrigger value="closed" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
             <Icon name="CheckCircle" className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
-            <span>Готово</span>
-            <span className="ml-1 text-xs">({resolvedTickets.length})</span>
+            <span>Решённые</span>
+            <span className="ml-1 text-xs">({closedTickets.length})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -186,15 +188,15 @@ const TicketManagement = React.memo(function TicketManagement({
           </div>
         </TabsContent>
 
-        <TabsContent value="resolved" className="mt-4">
+        <TabsContent value="closed" className="mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {resolvedTickets.length === 0 ? (
+            {closedTickets.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground/50">
                 <Icon name="Inbox" size={32} className="mx-auto mb-2 opacity-30" />
                 <p className="text-sm">Нет выполненных тикетов</p>
               </div>
             ) : (
-              resolvedTickets.map(ticket => (
+              closedTickets.map(ticket => (
                 <TicketCard
                   key={ticket.id}
                   ticket={ticket}

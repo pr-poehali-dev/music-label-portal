@@ -40,9 +40,11 @@ interface TicketDialogProps {
   onClose: () => void;
   currentUserId: number;
   currentUserRole: string;
+  onUpdateStatus?: (ticketId: number, status: string) => void;
+  onReload?: () => void;
 }
 
-export default function TicketDialog({ ticket, open, onClose, currentUserId, currentUserRole }: TicketDialogProps) {
+export default function TicketDialog({ ticket, open, onClose, currentUserId, currentUserRole, onUpdateStatus, onReload }: TicketDialogProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -144,6 +146,7 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
           fileInputRef.current.value = '';
         }
         await loadComments();
+        if (onReload) onReload();
       } else {
         toast({ title: '❌ Ошибка отправки', variant: 'destructive' });
       }
@@ -331,6 +334,24 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
         </div>
 
         <div className="border-t p-2 md:p-4 shrink-0">
+          {(currentUserRole === 'manager' || currentUserRole === 'director') && ticket.status === 'in_progress' && (
+            <div className="mb-2 md:mb-3">
+              <Button 
+                onClick={async () => {
+                  if (onUpdateStatus) {
+                    await onUpdateStatus(ticket.id, 'closed');
+                    if (onReload) onReload();
+                    onClose();
+                  }
+                }}
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="sm"
+              >
+                <Icon name="Check" size={16} className="mr-2" />
+                Решить тикет
+              </Button>
+            </div>
+          )}
           {selectedFile && (
             <div className="mb-1.5 md:mb-2 flex items-center gap-1.5 md:gap-2 bg-muted p-1.5 md:p-2 rounded text-xs md:text-sm">
               <Icon name="Paperclip" size={12} className="text-primary md:size-3.5 shrink-0" />
