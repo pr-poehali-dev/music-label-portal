@@ -39,6 +39,8 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     createTask,
     updateTaskStatus,
     deleteTask,
+    restoreTask,
+    permanentDeleteTask,
     openEditDialog,
     updateTask,
     openCompletionDialog,
@@ -51,8 +53,8 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     loadTasks();
   }, []);
 
-  const allTasks = [...tasks].sort((a, b) => {
-    const statusOrder = { pending: 0, in_progress: 1, completed: 2 };
+  const allTasks = [...tasks].filter(t => t.status !== 'deleted').sort((a, b) => {
+    const statusOrder = { pending: 0, in_progress: 1, completed: 2, deleted: 3 };
     return statusOrder[a.status] - statusOrder[b.status];
   });
 
@@ -84,6 +86,8 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
           onComplete={openCompletionDialog}
           onEdit={openEditDialog}
           onDelete={deleteTask}
+          onRestore={restoreTask}
+          onPermanentDelete={permanentDeleteTask}
           getPriorityColor={getPriorityColor}
           getPriorityText={getPriorityText}
           getStatusColor={getStatusColor}

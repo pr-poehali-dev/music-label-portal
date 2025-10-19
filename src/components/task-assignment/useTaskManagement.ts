@@ -17,7 +17,7 @@ interface Task {
   assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed' | 'deleted';
   created_at: string;
   created_by_name?: string;
   creator_name?: string;
@@ -216,7 +216,57 @@ export function useTaskManagement(managers: User[]) {
   };
 
   const deleteTask = async (taskId: number) => {
-    if (!confirm('Удалить задачу?')) return;
+    if (!confirm('Переместить задачу в удалённые?')) return;
+
+    try {
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        },
+        body: JSON.stringify({ task_id: taskId, status: 'deleted' })
+      });
+
+      if (response.ok) {
+        toast({ title: '✅ Задача перемещена в удалённые' });
+        loadTasks();
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка удаления задачи', variant: 'destructive' });
+    }
+  };
+
+  const restoreTask = async (taskId: number) => {
+    try {
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        },
+        body: JSON.stringify({ task_id: taskId, status: 'pending' })
+      });
+
+      if (response.ok) {
+        toast({ title: '✅ Задача восстановлена' });
+        loadTasks();
+      }
+    } catch (error) {
+      toast({ title: '❌ Ошибка восстановления задачи', variant: 'destructive' });
+    }
+  };
+
+  const permanentDeleteTask = async (taskId: number) => {
+    if (!confirm('Удалить задачу навсегда? Это действие нельзя отменить!')) return;
 
     try {
       const token = localStorage.getItem('auth_token') || 'director-token';
@@ -233,7 +283,7 @@ export function useTaskManagement(managers: User[]) {
       });
 
       if (response.ok) {
-        toast({ title: '✅ Задача удалена' });
+        toast({ title: '✅ Задача удалена навсегда' });
         loadTasks();
       }
     } catch (error) {
@@ -365,6 +415,8 @@ export function useTaskManagement(managers: User[]) {
     createTask,
     updateTaskStatus,
     deleteTask,
+    restoreTask,
+    permanentDeleteTask,
     openEditDialog,
     updateTask,
     openCompletionDialog,

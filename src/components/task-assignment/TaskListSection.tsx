@@ -11,7 +11,7 @@ interface Task {
   assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed' | 'deleted';
   created_at: string;
   created_by_name?: string;
   creator_name?: string;
@@ -34,13 +34,15 @@ interface TaskListSectionProps {
   onComplete: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: number) => void;
+  onRestore?: (taskId: number) => void;
+  onPermanentDelete?: (taskId: number) => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
   getStatusColor: (status: string) => string;
   getStatusText: (status: string) => string;
 }
 
-type FilterType = 'all' | 'in_progress' | 'completed' | 'overdue';
+type FilterType = 'all' | 'in_progress' | 'completed' | 'overdue' | 'deleted';
 
 export default function TaskListSection({
   tasks,
@@ -52,34 +54,44 @@ export default function TaskListSection({
   onComplete,
   onEdit,
   onDelete,
+  onRestore,
+  onPermanentDelete,
   getPriorityColor,
   getPriorityText,
   getStatusColor,
   getStatusText
 }: TaskListSectionProps) {
   const [filter, setFilter] = useState<FilterType>('all');
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const isOverdue = (task: Task) => {
     if (!task.deadline || task.status === 'completed') return false;
     return new Date(task.deadline) < new Date();
   };
 
+  const allTasks = showDeleted ? tasks : tasks.filter(t => t.status !== 'deleted');
+
   const filteredTasks = useMemo(() => {
+    const tasksToFilter = showDeleted ? tasks : allTasks;
+    
     switch (filter) {
       case 'in_progress':
-        return tasks.filter(t => t.status === 'in_progress');
+        return tasksToFilter.filter(t => t.status === 'in_progress');
       case 'completed':
-        return tasks.filter(t => t.status === 'completed');
+        return tasksToFilter.filter(t => t.status === 'completed');
       case 'overdue':
-        return tasks.filter(t => isOverdue(t));
+        return tasksToFilter.filter(t => isOverdue(t));
+      case 'deleted':
+        return tasks.filter(t => t.status === 'deleted');
       default:
-        return tasks;
+        return tasksToFilter;
     }
-  }, [tasks, filter]);
+  }, [tasks, filter, showDeleted, allTasks]);
 
-  const overdueTasks = tasks.filter(t => isOverdue(t));
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const overdueTasks = allTasks.filter(t => isOverdue(t));
+  const inProgressTasks = allTasks.filter(t => t.status === 'in_progress');
+  const completedTasks = allTasks.filter(t => t.status === 'completed');
+  const deletedTasks = tasks.filter(t => t.status === 'deleted');
 
   return (
     <div className="border-primary/20 bg-card/95 rounded-lg border">
@@ -136,6 +148,21 @@ export default function TaskListSection({
             >
               Просроченные ({overdueTasks.length})
             </button>
+            <button
+              onClick={() => {
+                setFilter('deleted');
+                setShowDeleted(true);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                filter === 'deleted'
+                  ? 'bg-gray-500 text-white'
+                  : deletedTasks.length > 0
+                  ? 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border border-gray-500/50'
+                  : 'bg-card text-muted-foreground border border-border/50'
+              }`}
+            >
+              Удалённые ({deletedTasks.length})
+            </button>
           </div>
         </div>
       </div>
@@ -155,6 +182,8 @@ export default function TaskListSection({
                 onComplete={onComplete}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onRestore={task.status === 'deleted' ? onRestore : undefined}
+                onPermanentDelete={task.status === 'deleted' ? onPermanentDelete : undefined}
                 getPriorityColor={getPriorityColor}
                 getPriorityText={getPriorityText}
                 getStatusColor={getStatusColor}

@@ -11,7 +11,7 @@ interface Task {
   assignee_name?: string;
   deadline: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed' | 'deleted';
   created_at: string;
   created_by_name?: string;
   creator_name?: string;
@@ -30,6 +30,8 @@ interface TaskRowProps {
   onComplete: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: number) => void;
+  onRestore?: (taskId: number) => void;
+  onPermanentDelete?: (taskId: number) => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
   getStatusColor: (status: string) => string;
@@ -42,6 +44,8 @@ export default function TaskRow({
   onComplete,
   onEdit,
   onDelete,
+  onRestore,
+  onPermanentDelete,
   getPriorityColor,
   getPriorityText,
   getStatusColor,
@@ -70,7 +74,9 @@ export default function TaskRow({
 
   return (
     <div className={`p-2 md:p-2.5 rounded-lg border transition-all ${
-      isOverdue
+      task.status === 'deleted'
+        ? 'bg-gray-500/10 border-gray-500/30 opacity-60'
+        : isOverdue
         ? 'bg-red-500/10 border-red-500/30'
         : task.status === 'completed' 
         ? 'bg-green-500/10 border-green-500/30' 
@@ -125,48 +131,76 @@ export default function TaskRow({
         </div>
 
         <div className="flex gap-1.5 flex-shrink-0">
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            onClick={() => onEdit(task)} 
-            className="h-7 w-7 p-0 hover:bg-blue-500/20 hover:text-blue-400"
-            title="Редактировать"
-          >
-            <Icon name="Edit" size={14} />
-          </Button>
-          
-          {task.status !== 'completed' && (
+          {task.status === 'deleted' ? (
             <>
-              {task.status !== 'in_progress' && (
+              {onRestore && (
                 <Button 
                   size="sm" 
-                  onClick={() => onUpdateStatus(task.id, 'in_progress')} 
-                  className="h-7 px-2 bg-primary hover:bg-primary/90 text-xs"
-                  title="В работу"
+                  onClick={() => onRestore(task.id)} 
+                  className="h-7 px-2 bg-blue-500 hover:bg-blue-600 text-xs"
+                  title="Восстановить"
                 >
-                  <Icon name="Play" size={12} />
+                  <Icon name="RotateCcw" size={12} />
                 </Button>
               )}
+              {onPermanentDelete && (
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => onPermanentDelete(task.id)} 
+                  className="h-7 w-7 p-0 hover:bg-red-500/20 hover:text-red-400"
+                  title="Удалить навсегда"
+                >
+                  <Icon name="Trash2" size={14} />
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
               <Button 
                 size="sm" 
-                onClick={() => onComplete(task.id)} 
-                className="h-7 px-2 bg-green-500 hover:bg-green-600 text-xs"
-                title="Завершить"
+                variant="ghost" 
+                onClick={() => onEdit(task)} 
+                className="h-7 w-7 p-0 hover:bg-blue-500/20 hover:text-blue-400"
+                title="Редактировать"
               >
-                <Icon name="CheckCircle" size={12} />
+                <Icon name="Edit" size={14} />
+              </Button>
+              
+              {task.status !== 'completed' && (
+                <>
+                  {task.status !== 'in_progress' && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => onUpdateStatus(task.id, 'in_progress')} 
+                      className="h-7 px-2 bg-primary hover:bg-primary/90 text-xs"
+                      title="В работу"
+                    >
+                      <Icon name="Play" size={12} />
+                    </Button>
+                  )}
+                  <Button 
+                    size="sm" 
+                    onClick={() => onComplete(task.id)} 
+                    className="h-7 px-2 bg-green-500 hover:bg-green-600 text-xs"
+                    title="Завершить"
+                  >
+                    <Icon name="CheckCircle" size={12} />
+                  </Button>
+                </>
+              )}
+              
+              <Button 
+                size="sm" 
+                variant="ghost"
+                onClick={() => onDelete(task.id)} 
+                className="h-7 w-7 p-0 hover:bg-red-500/20 hover:text-red-400"
+                title="Удалить"
+              >
+                <Icon name="Trash2" size={14} />
               </Button>
             </>
           )}
-          
-          <Button 
-            size="sm" 
-            variant="ghost"
-            onClick={() => onDelete(task.id)} 
-            className="h-7 w-7 p-0 hover:bg-red-500/20 hover:text-red-400"
-            title="Удалить"
-          >
-            <Icon name="Trash2" size={14} />
-          </Button>
         </div>
       </div>
     </div>
