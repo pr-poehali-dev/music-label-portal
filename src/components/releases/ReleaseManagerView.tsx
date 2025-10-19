@@ -87,13 +87,13 @@ export default function ReleaseManagerView({
   }, [onCancelForm]);
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-3 md:space-y-4 p-1 md:p-0">
       {!showForm && (
         <>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
-            <h2 className="text-lg sm:text-xl font-bold">Мои релизы</h2>
-            <Button onClick={handleCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto min-h-[44px] sm:min-h-0 text-sm">
-              <Icon name="Plus" size={14} className="sm:w-4 sm:h-4" />
+            <h2 className="text-base md:text-xl font-bold">Мои релизы</h2>
+            <Button onClick={handleCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto h-10 sm:h-9 text-sm">
+              <Icon name="Plus" size={16} className="md:size-4" />
               Создать релиз
             </Button>
           </div>

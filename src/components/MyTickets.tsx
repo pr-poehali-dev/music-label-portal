@@ -91,14 +91,14 @@ const MyTickets = React.memo(function MyTickets({
         currentUserRole={user.role}
       />
     <Card>
-      <CardHeader className="p-4 md:p-6">
-        <CardTitle className="text-lg md:text-2xl">Мои тикеты</CardTitle>
-        <CardDescription className="text-xs md:text-sm">Тикеты, которые вы создали</CardDescription>
+      <CardHeader className="p-3 md:p-6 pb-2 md:pb-6">
+        <CardTitle className="text-base md:text-2xl">Мои тикеты</CardTitle>
+        <CardDescription className="text-[11px] md:text-sm">Тикеты, которые вы создали</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 md:p-6">
-        <div className="mb-4">
+      <CardContent className="p-3 md:p-6 pt-2 md:pt-6">
+        <div className="mb-3 md:mb-4">
           <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-9 md:h-10 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -111,11 +111,11 @@ const MyTickets = React.memo(function MyTickets({
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
           {tickets.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
-              <Icon name="Inbox" size={48} className="mx-auto mb-2 opacity-50" />
-              <p>У вас пока нет тикетов</p>
+            <div className="col-span-full text-center py-6 md:py-8 text-gray-500">
+              <Icon name="Inbox" size={40} className="md:size-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm md:text-base">У вас пока нет тикетов</p>
             </div>
           ) : (
             tickets.map(ticket => (
