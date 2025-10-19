@@ -96,7 +96,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               className="w-full h-full object-cover"
             />
           </div>
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">420 SMM</CardTitle>
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">420</CardTitle>
           <CardDescription className="text-gray-400">Музыкальный лейбл • Техподдержка</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
