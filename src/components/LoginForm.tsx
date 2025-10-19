@@ -136,11 +136,6 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
           </div>
 
           <div ref={telegramRef} className="flex justify-center" />
-          
-          <div className="text-xs text-center text-gray-500 space-y-1">
-            <p>Тестовые аккаунты:</p>
-            <p className="text-yellow-500/70">manager / 12345 • artist1 / 12345</p>
-          </div>
         </CardContent>
       </Card>
     </div>
