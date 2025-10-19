@@ -156,7 +156,7 @@ export default function TrackItem({ track, index, totalTracks, updateTrack, remo
             )}
             {!track.file && (
               <p className="text-xs text-muted-foreground mt-1.5">
-                Поддерживаемые форматы: MP3, WAV, FLAC, M4A • Максимум 50 МБ
+                MP3, M4A до 50 МБ • WAV, FLAC до 15 МБ (рекомендуем MP3)
               </p>
             )}
           </div>

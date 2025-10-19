@@ -8,8 +8,18 @@ export interface UploadFileResult {
 }
 
 export async function uploadFile(file: File): Promise<UploadFileResult> {
-  if (file.size > 50 * 1024 * 1024) {
+  const maxSize = 50 * 1024 * 1024;
+  
+  if (file.size > maxSize) {
     throw new Error('Размер файла превышает 50MB');
+  }
+  
+  // WAV файлы в base64 увеличиваются на ~33%, поэтому реальный лимит для WAV ~15MB
+  const isWav = file.name.toLowerCase().endsWith('.wav');
+  const wavLimit = 15 * 1024 * 1024;
+  
+  if (isWav && file.size > wavLimit) {
+    throw new Error(`WAV файлы больше 15MB не поддерживаются. Конвертируйте в MP3 или используйте файл меньшего размера. Текущий размер: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
   }
 
   return new Promise((resolve, reject) => {
@@ -36,6 +46,11 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`Upload failed for ${file.name}:`, response.status, errorText);
+          
+          if (response.status === 413) {
+            throw new Error(`Файл слишком большой для загрузки. Конвертируйте WAV в MP3 или используйте меньший файл`);
+          }
+          
           throw new Error(`Ошибка загрузки: ${response.status}`);
         }
         
