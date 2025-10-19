@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MobileNav from '@/components/MobileNav';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
 import UserManagement from '@/components/UserManagement';
@@ -134,15 +135,26 @@ export default function DirectorTabs({
     refreshCounts();
   };
 
+  const mobileNavItems = [
+    { value: 'analytics', icon: 'BarChart3', label: 'Аналитика', badge: 0 },
+    { value: 'tickets', icon: 'Ticket', label: 'Тикеты', badge: unreadCounts.tickets },
+    { value: 'tasks', icon: 'CheckSquare', label: 'Задачи', badge: unreadCounts.tasks },
+    { value: 'releases', icon: 'Music', label: 'Релизы', badge: 0 },
+    { value: 'submissions', icon: 'FileText', label: 'Заявки', badge: unreadCounts.submissions },
+    { value: 'reports', icon: 'FolderOpen', label: 'Отчёты', badge: 0 },
+    { value: 'settings', icon: 'Settings', label: 'Настройки', badge: 0 }
+  ];
+
   return (
+    <>
     <Tabs 
       value={activeTab} 
       onValueChange={(value) => {
         setActiveTab(value);
         localStorage.setItem('director_active_tab', value);
       }} 
-      className="w-full">
-      <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+      className="w-full pb-20 md:pb-0">
+      <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide">
         <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">📊 Аналитика</span>
@@ -280,5 +292,15 @@ export default function DirectorTabs({
         </Tabs>
       </TabsContent>
     </Tabs>
+
+    <MobileNav 
+      items={mobileNavItems}
+      activeTab={activeTab}
+      onTabChange={(value) => {
+        setActiveTab(value);
+        localStorage.setItem('director_active_tab', value);
+      }}
+    />
+    </>
   );
 }

@@ -6,6 +6,7 @@ import MyTickets from '@/components/MyTickets';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
+import MobileNav from '@/components/MobileNav';
 import { User, Ticket, NewTicket } from '@/types';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
@@ -66,9 +67,15 @@ export default function ArtistView({
     );
   };
 
+  const mobileNavItems = [
+    { value: 'tracks', icon: 'Music', label: 'Релизы', badge: 0 },
+    { value: 'support', icon: 'MessageSquare', label: 'Заявки', badge: unreadCounts.tickets },
+    { value: 'reports', icon: 'FileText', label: 'Отчёты', badge: 0 }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
-      <div className="container mx-auto p-4 animate-fadeIn">
+      <div className="container mx-auto p-4 pb-24 md:pb-4 animate-fadeIn">
         <AppHeader 
           onMessagesClick={() => {}}
           onProfileClick={() => setShowProfile(true)}
@@ -85,7 +92,7 @@ export default function ArtistView({
             localStorage.setItem('artist_active_tab', value);
           }}
           className="w-full">
-          <div className="w-full overflow-x-auto pb-2">
+          <div className="hidden md:block w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="tracks">🎵 Релизы</TabsTrigger>
               <TabsTrigger value="support">✉️ Обратиться<Badge count={unreadCounts.tickets} /></TabsTrigger>
@@ -156,6 +163,15 @@ export default function ArtistView({
             </div>
           </div>
         )}
+
+        <MobileNav 
+          items={mobileNavItems}
+          activeTab={activeTab}
+          onTabChange={(value) => {
+            setActiveTab(value);
+            localStorage.setItem('artist_active_tab', value);
+          }}
+        />
       </div>
     </div>
   );

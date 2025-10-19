@@ -9,6 +9,7 @@ import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
+import MobileNav from '@/components/MobileNav';
 import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -70,9 +71,17 @@ export default function ManagerView({
     );
   };
 
+  const mobileNavItems = [
+    { value: 'tasks', icon: 'CheckSquare', label: 'Задачи', badge: unreadCounts.tasks },
+    { value: 'releases', icon: 'Music', label: 'Релизы', badge: 0 },
+    { value: 'tickets', icon: 'Ticket', label: 'Тикеты', badge: unreadCounts.tickets },
+    { value: 'submissions', icon: 'FileText', label: 'Заявки', badge: 0 },
+    { value: 'old-tasks', icon: 'Archive', label: 'Архив', badge: 0 }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
-      <div className="container mx-auto p-4 animate-fadeIn">
+      <div className="container mx-auto p-4 pb-24 md:pb-4 animate-fadeIn">
         <AppHeader 
           onMessagesClick={() => onMessagesOpenChange(true)}
           onProfileClick={() => setShowProfile(true)}
@@ -98,7 +107,7 @@ export default function ManagerView({
             localStorage.setItem('manager_active_tab', value);
           }}
           className="w-full">
-          <div className="w-full overflow-x-auto pb-2">
+          <div className="hidden md:block w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="tasks">✅ Мои задачи<Badge count={unreadCounts.tasks} /></TabsTrigger>
               <TabsTrigger value="old-tasks">📋 Старые задачи</TabsTrigger>
@@ -160,6 +169,15 @@ export default function ManagerView({
             </div>
           </div>
         )}
+
+        <MobileNav 
+          items={mobileNavItems}
+          activeTab={activeTab}
+          onTabChange={(value) => {
+            setActiveTab(value);
+            localStorage.setItem('manager_active_tab', value);
+          }}
+        />
       </div>
     </div>
   );
