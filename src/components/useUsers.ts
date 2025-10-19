@@ -81,12 +81,15 @@ export const useUsers = (user: User | null) => {
       if (response.ok) {
         toast({ title: '✅ Данные обновлены' });
         loadAllUsers();
+        return true;
       } else {
         const data = await response.json();
         toast({ title: '❌ Ошибка', description: data.error, variant: 'destructive' });
+        return false;
       }
     } catch (error) {
       toast({ title: '❌ Ошибка обновления', variant: 'destructive' });
+      return false;
     }
   }, [toast, loadAllUsers]);
 

@@ -68,6 +68,14 @@ export const useAuth = () => {
     toast({ title: 'Вы вышли из системы' });
   };
 
+  const updateUserProfile = (updates: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -75,5 +83,5 @@ export const useAuth = () => {
     }
   }, []);
 
-  return { user, login, logout };
+  return { user, login, logout, updateUserProfile };
 };

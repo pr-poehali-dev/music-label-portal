@@ -257,51 +257,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         update_fields = []
-        params = []
         
         if 'fullName' in body_data or 'full_name' in body_data:
             full_name = body_data.get('fullName') or body_data.get('full_name')
-            update_fields.append('full_name = %s')
-            params.append(full_name)
+            safe_name = full_name.replace("'", "''")
+            update_fields.append(f"full_name = '{safe_name}'")
         
         if 'username' in body_data:
-            update_fields.append('username = %s')
-            params.append(body_data['username'])
+            safe_username = body_data['username'].replace("'", "''")
+            update_fields.append(f"username = '{safe_username}'")
         
         if 'email' in body_data:
-            update_fields.append('vk_email = %s')
-            params.append(body_data['email'])
+            safe_email = body_data['email'].replace("'", "''")
+            update_fields.append(f"vk_email = '{safe_email}'")
         
         if 'avatar' in body_data:
-            update_fields.append('vk_photo = %s')
-            params.append(body_data['avatar'])
+            safe_avatar = body_data['avatar'].replace("'", "''") if body_data['avatar'] else ''
+            update_fields.append(f"vk_photo = '{safe_avatar}'")
         
         if 'revenue_share_percent' in body_data:
-            update_fields.append('revenue_share_percent = %s')
-            params.append(body_data['revenue_share_percent'])
+            update_fields.append(f"revenue_share_percent = {body_data['revenue_share_percent']}")
         
         if 'is_blocked' in body_data:
-            update_fields.append('is_blocked = %s')
-            params.append(body_data['is_blocked'])
+            update_fields.append(f"is_blocked = {str(body_data['is_blocked']).lower()}")
         
         if 'is_frozen' in body_data:
-            update_fields.append('is_frozen = %s')
-            params.append(body_data['is_frozen'])
+            update_fields.append(f"is_frozen = {str(body_data['is_frozen']).lower()}")
         
         if 'frozen_until' in body_data:
-            update_fields.append('frozen_until = %s')
-            params.append(body_data['frozen_until'])
+            frozen = body_data['frozen_until']
+            if frozen:
+                update_fields.append(f"frozen_until = '{frozen}'")
+            else:
+                update_fields.append("frozen_until = NULL")
         
         if 'blocked_reason' in body_data:
-            update_fields.append('blocked_reason = %s')
-            params.append(body_data['blocked_reason'])
+            reason = body_data['blocked_reason'].replace("'", "''") if body_data['blocked_reason'] else ''
+            update_fields.append(f"blocked_reason = '{reason}'")
         
         if 'password' in body_data:
-            import bcrypt
+            from passlib.hash import bcrypt
             password = body_data['password']
-            password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            update_fields.append('password_hash = %s')
-            params.append(password_hash)
+            password_hash = bcrypt.hash(password, rounds=12)
+            safe_hash = password_hash.replace("'", "''")
+            update_fields.append(f"password_hash = '{safe_hash}'")
         
         if not update_fields:
             cur.close()
@@ -313,11 +312,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'No fields to update'})
             }
         
-        params.append(user_id)
-        query = f"UPDATE t_p35759334_music_label_portal.users SET {', '.join(update_fields)} WHERE id = %s"
+        query = f"UPDATE t_p35759334_music_label_portal.users SET {', '.join(update_fields)} WHERE id = {user_id}"
         
         try:
-            cur.execute(query, params)
+            cur.execute(query)
             conn.commit()
             
             cur.close()

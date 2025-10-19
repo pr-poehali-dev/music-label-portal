@@ -9,7 +9,7 @@ import { useUsers } from '@/components/useUsers';
 import { useTasks } from '@/components/useTasks';
 
 export default function Index() {
-  const { user, login, logout } = useAuth();
+  const { user, login, logout, updateUserProfile } = useAuth();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [newTicket, setNewTicket] = useState({ title: '', description: '', priority: 'medium' });
   const [selectedTicketFile, setSelectedTicketFile] = useState<File | null>(null);
@@ -38,8 +38,10 @@ export default function Index() {
 
   const handleUpdateProfile = async (updates: Partial<User>) => {
     if (user) {
-      await updateUser(user.id, updates);
-      login(user.username, '');
+      const success = await updateUser(user.id, updates);
+      if (success) {
+        updateUserProfile(updates);
+      }
     }
   };
 
