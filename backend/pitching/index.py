@@ -30,6 +30,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Access-Control-Allow-Origin': '*'
     }
     
+    event_headers = event.get('headers', {})
+    user_id = event_headers.get('x-user-id') or event_headers.get('X-User-Id')
+    
     try:
         dsn = os.environ.get('DATABASE_URL')
         if not dsn:
@@ -70,13 +73,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute("""
                 INSERT INTO pitchings (
-                    release_id, artist_name, release_name, release_date, genre,
+                    release_id, user_id, artist_name, release_name, release_date, genre,
                     artist_description, release_description, playlist_fit, 
                     current_reach, preview_link, artist_photos, status
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id, created_at
             """, (
-                release_id, artist_name, release_name, release_date, genre,
+                release_id, user_id, artist_name, release_name, release_date, genre,
                 artist_description, release_description, playlist_fit,
                 current_reach, preview_link, json.dumps(artist_photos), 'pending'
             ))
@@ -100,22 +103,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if release_id:
                 cur.execute("""
-                    SELECT id, release_id, artist_name, release_name, release_date, 
-                           genre, artist_description, release_description, 
-                           playlist_fit, current_reach, preview_link, artist_photos,
-                           status, created_at
-                    FROM pitchings 
-                    WHERE release_id = %s
-                    ORDER BY created_at DESC
+                    SELECT p.id, p.release_id, p.user_id, p.artist_name, p.release_name, p.release_date, 
+                           p.genre, p.artist_description, p.release_description, 
+                           p.playlist_fit, p.current_reach, p.preview_link, p.artist_photos,
+                           p.status, p.created_at, u.full_name
+                    FROM pitchings p
+                    LEFT JOIN users u ON p.user_id = u.id
+                    WHERE p.release_id = %s
+                    ORDER BY p.created_at DESC
                 """, (release_id,))
             else:
                 cur.execute("""
-                    SELECT id, release_id, artist_name, release_name, release_date, 
-                           genre, artist_description, release_description, 
-                           playlist_fit, current_reach, preview_link, artist_photos,
-                           status, created_at
-                    FROM pitchings 
-                    ORDER BY created_at DESC
+                    SELECT p.id, p.release_id, p.user_id, p.artist_name, p.release_name, p.release_date, 
+                           p.genre, p.artist_description, p.release_description, 
+                           p.playlist_fit, p.current_reach, p.preview_link, p.artist_photos,
+                           p.status, p.created_at, u.full_name
+                    FROM pitchings p
+                    LEFT JOIN users u ON p.user_id = u.id
+                    ORDER BY p.created_at DESC
                 """)
             
             rows = cur.fetchall()
@@ -125,18 +130,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 pitchings.append({
                     'id': row[0],
                     'release_id': row[1],
-                    'artist_name': row[2],
-                    'release_name': row[3],
-                    'release_date': row[4].isoformat() if row[4] else None,
-                    'genre': row[5],
-                    'artist_description': row[6],
-                    'release_description': row[7],
-                    'playlist_fit': row[8],
-                    'current_reach': row[9],
-                    'preview_link': row[10],
-                    'artist_photos': json.loads(row[11]) if row[11] else [],
-                    'status': row[12],
-                    'created_at': row[13].isoformat()
+                    'user_id': row[2],
+                    'artist_name': row[3],
+                    'release_name': row[4],
+                    'release_date': row[5].isoformat() if row[5] else None,
+                    'genre': row[6],
+                    'artist_description': row[7],
+                    'release_description': row[8],
+                    'playlist_fit': row[9],
+                    'current_reach': row[10],
+                    'preview_link': row[11],
+                    'artist_photos': json.loads(row[12]) if row[12] else [],
+                    'status': row[13],
+                    'created_at': row[14].isoformat(),
+                    'user_full_name': row[15]
                 })
             
             return {

@@ -6,6 +6,7 @@ import ManagerTasks from '@/components/ManagerTasks';
 import ManagerStats from '@/components/ManagerStats';
 import ManagerTasksView from '@/components/ManagerTasksView';
 import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
+import PitchingManagement from '@/components/PitchingManagement';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
@@ -96,12 +97,13 @@ export default function ManagerView({
           }}
           className="w-full">
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="tasks">✅ Мои задачи<Badge count={unreadCounts.tasks} /></TabsTrigger>
               <TabsTrigger value="old-tasks">📋 Старые задачи</TabsTrigger>
               <TabsTrigger value="releases">🎵 Модерация релизов</TabsTrigger>
               <TabsTrigger value="tickets">🎫 Тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
               <TabsTrigger value="submissions">🎵 Послушайте мой трек</TabsTrigger>
+              <TabsTrigger value="pitchings">🎯 Питчинги</TabsTrigger>
             </TabsList>
           </div>
 
@@ -136,6 +138,10 @@ export default function ManagerView({
 
           <TabsContent value="submissions">
             <SubmissionsManager userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="pitchings">
+            <PitchingManagement userId={user.id} userRole="manager" />
           </TabsContent>
         </Tabs>
 

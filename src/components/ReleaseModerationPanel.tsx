@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 
 const API_URL = 'https://functions.poehali.dev/05d2ddf9-772f-40cb-bcef-0d70fa96e059';
+const PITCHING_API_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
 
 interface Track {
   id: number;
@@ -19,6 +20,22 @@ interface Track {
   author_lyrics?: string;
   language_audio: string;
   lyrics_text?: string;
+}
+
+interface Pitching {
+  id: number;
+  release_id: number;
+  artist_name: string;
+  release_name: string;
+  release_date: string;
+  genre: string;
+  artist_description: string;
+  release_description: string;
+  playlist_fit: string;
+  current_reach: string;
+  preview_link: string;
+  status: string;
+  created_at: string;
 }
 
 interface Release {
@@ -37,6 +54,7 @@ interface Release {
   review_comment?: string;
   reviewer_id?: number;
   reviewer_name?: string;
+  pitching?: Pitching | null;
 }
 
 interface ReleaseModerationPanelProps {
@@ -81,6 +99,18 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
         headers: { 'X-User-Id': userId.toString() }
       });
       const data = await response.json();
+      
+      // Загружаем питчинг для этого релиза
+      try {
+        const pitchingResponse = await fetch(`${PITCHING_API_URL}?release_id=${releaseId}`, {
+          headers: { 'X-User-Id': userId.toString() }
+        });
+        const pitchingData = await pitchingResponse.json();
+        data.pitching = pitchingData && pitchingData.length > 0 ? pitchingData[0] : null;
+      } catch {
+        data.pitching = null;
+      }
+      
       setSelectedRelease(data);
     } catch (error) {
       toast({
@@ -335,6 +365,44 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
                         </CardContent>
                       </Card>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedRelease.pitching && (
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Icon name="Target" size={18} className="text-blue-500" />
+                    Питчинг
+                  </h4>
+                  <div className="space-y-3 bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Описание артиста</p>
+                      <p className="text-sm whitespace-pre-wrap">{selectedRelease.pitching.artist_description}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Описание релиза</p>
+                      <p className="text-sm whitespace-pre-wrap">{selectedRelease.pitching.release_description}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Подходящие плейлисты</p>
+                      <p className="text-sm whitespace-pre-wrap">{selectedRelease.pitching.playlist_fit}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Текущий охват</p>
+                      <p className="text-sm">{selectedRelease.pitching.current_reach}</p>
+                    </div>
+                    {selectedRelease.pitching.preview_link && (
+                      <a 
+                        href={selectedRelease.pitching.preview_link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                      >
+                        <Icon name="ExternalLink" size={14} />
+                        Превью релиза
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

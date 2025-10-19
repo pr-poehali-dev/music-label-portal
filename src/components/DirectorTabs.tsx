@@ -15,6 +15,7 @@ import TaskAssignment from '@/components/TaskAssignment';
 import AnalyticsView from '@/components/AnalyticsView';
 import WeeklyReport from '@/components/WeeklyReport';
 import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
+import PitchingManagement from '@/components/PitchingManagement';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -143,7 +144,7 @@ export default function DirectorTabs({
       }} 
       className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-        <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
+        <TabsList className="grid w-full grid-cols-9 md:grid-cols-9 min-w-[900px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">📊 Аналитика</span>
             <span className="md:hidden">📊</span>
@@ -163,6 +164,10 @@ export default function DirectorTabs({
           <TabsTrigger value="submissions" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">📋 Заявки<Badge count={unreadCounts.submissions} /></span>
             <span className="md:hidden">📋<Badge count={unreadCounts.submissions} /></span>
+          </TabsTrigger>
+          <TabsTrigger value="pitchings" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+            <span className="hidden md:inline">🎯 Питчинги</span>
+            <span className="md:hidden">🎯</span>
           </TabsTrigger>
           <TabsTrigger value="team" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">👥 Команда</span>
@@ -199,6 +204,10 @@ export default function DirectorTabs({
 
       <TabsContent value="submissions" className="animate-fadeIn">
         <SubmissionsManager userId={user.id} />
+      </TabsContent>
+
+      <TabsContent value="pitchings" className="animate-fadeIn">
+        <PitchingManagement userId={user.id} userRole="director" />
       </TabsContent>
 
       <TabsContent value="tasks" className="space-y-4 animate-fadeIn">
