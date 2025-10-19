@@ -72,18 +72,38 @@ export default function TaskCard({
     onDelete(task.id);
   }, [onDelete, task.id]);
 
+  const getPriorityIcon = (priority: string) => {
+    switch(priority) {
+      case 'urgent': return 'AlertTriangle';
+      case 'high': return 'AlertCircle';
+      case 'medium': return 'Circle';
+      case 'low': return 'CircleDot';
+      default: return 'Circle';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'completed': return 'CheckCircle';
+      case 'in_progress': return 'Clock';
+      case 'pending': return 'CircleDashed';
+      default: return 'Circle';
+    }
+  };
+
   return (
-    <Card className="h-full flex flex-col">
-      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3 flex-1 flex flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-base sm:text-lg flex-1 min-w-0 break-words">{task.title}</h3>
-          <Badge className={`${getPriorityColor(task.priority)} text-xs flex-shrink-0`}>
+    <Card className="border-border/50 hover:border-primary/40 cursor-pointer hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 bg-gradient-to-br from-black via-primary/5 to-black flex flex-col">
+      <CardContent className="p-4 flex flex-col h-full">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <h4 className="font-bold text-base text-primary line-clamp-2 flex-1">{task.title}</h4>
+          <Badge className={`gap-1 border ${getPriorityColor(task.priority)} flex-shrink-0`}>
+            <Icon name={getPriorityIcon(task.priority)} size={12} />
             {getPriorityText(task.priority)}
           </Badge>
         </div>
 
         {task.description && (
-          <p className="text-xs sm:text-sm text-muted-foreground break-words">{task.description}</p>
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{task.description}</p>
         )}
 
         {task.completion_report && (
@@ -120,69 +140,74 @@ export default function TaskCard({
           </a>
         )}
 
-        <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+        <div className="space-y-2 text-sm flex-1">
           {task.assigned_name && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Icon name="User" size={14} className="text-primary flex-shrink-0" />
-              <span className="font-medium text-foreground">Менеджер:</span>
-              <span className="text-muted-foreground truncate">{task.assigned_name}</span>
-            </div>
+            <p className="flex items-center gap-1.5 text-muted-foreground">
+              <Icon name="User" size={14} className="text-secondary flex-shrink-0" />
+              <span className="font-medium text-foreground truncate">{task.assigned_name}</span>
+            </p>
           )}
 
-          <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
-            <Icon name="Calendar" size={14} className="text-primary flex-shrink-0" />
-            <span className="break-all">{formattedDeadline}</span>
-          </div>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Icon name="Calendar" size={12} className="text-primary" />
+            {formattedDeadline}
+          </p>
 
           <div className="flex items-center gap-2">
-            <Badge className={`${getStatusColor(task.status)} text-xs`}>
+            <Badge className={`gap-1 border ${getStatusColor(task.status)}`}>
+              <Icon name={getStatusIcon(task.status)} size={12} />
               {getStatusText(task.status)}
             </Badge>
           </div>
         </div>
 
-        <div className="space-y-2 pt-2 mt-auto">
-          <div className="flex gap-2">
-            {task.status !== 'in_progress' && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleUpdateStatus}
-                className="flex-1 min-h-[44px] text-xs sm:text-sm"
+        <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+          {task.status !== 'completed' && (
+            <>
+              {task.status !== 'in_progress' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUpdateStatus();
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Icon name="Play" size={14} />
+                  В работу
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleComplete();
+                }}
+                className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-medium text-green-400 hover:text-green-300 transition-colors"
               >
-                В работу
-              </Button>
-            )}
-            {task.status !== 'completed' && (
-              <Button
-                size="sm"
-                onClick={handleComplete}
-                className="flex-1 min-h-[44px] text-xs sm:text-sm"
-              >
+                <Icon name="CheckCircle" size={14} />
                 Завершить
-              </Button>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleEdit}
-              className="flex-1 min-h-[44px] text-xs sm:text-sm"
-            >
-              <Icon name="Edit" size={12} className="mr-1" />
-              Изменить
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleDelete}
-              className="flex-1 min-h-[44px] text-xs sm:text-sm"
-            >
-              <Icon name="Trash2" size={12} className="mr-1" />
-              Удалить
-            </Button>
-          </div>
+              </button>
+            </>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit();
+            }}
+            className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Icon name="Edit" size={14} />
+            Изменить
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            className="inline-flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors ml-auto"
+          >
+            <Icon name="Trash2" size={14} />
+            Удалить
+          </button>
         </div>
       </CardContent>
     </Card>

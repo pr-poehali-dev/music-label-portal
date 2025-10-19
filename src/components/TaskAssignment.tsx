@@ -465,37 +465,95 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
 
       {/* In Progress Tab */}
       {activeTab === 'in_progress' && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">В работе ({pendingTasks.length + inProgressTasks.length})</h2>
-          <TaskList
-            tasks={[...pendingTasks, ...inProgressTasks]}
-            onUpdateStatus={updateTaskStatus}
-            onComplete={openCompletionDialog}
-            onEdit={openEditDialog}
-            onDelete={deleteTask}
-            getPriorityColor={getPriorityColor}
-            getPriorityText={getPriorityText}
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-          />
+        <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+          {pendingTasks.length > 0 && (
+            <div>
+              <div className="mb-3 md:mb-4 flex items-center gap-2">
+                <Icon name="Clock" size={20} className="text-yellow-500" />
+                <span className="text-base md:text-lg font-semibold text-foreground">Ожидают</span>
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-sm font-medium">
+                  {pendingTasks.length}
+                </span>
+              </div>
+              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {pendingTasks.map((task) => (
+                  <TaskList
+                    key={task.id}
+                    tasks={[task]}
+                    onUpdateStatus={updateTaskStatus}
+                    onComplete={openCompletionDialog}
+                    onEdit={openEditDialog}
+                    onDelete={deleteTask}
+                    getPriorityColor={getPriorityColor}
+                    getPriorityText={getPriorityText}
+                    getStatusColor={getStatusColor}
+                    getStatusText={getStatusText}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {inProgressTasks.length > 0 && (
+            <div>
+              <div className="mb-3 md:mb-4 flex items-center gap-2">
+                <Icon name="Play" size={20} className="text-primary" />
+                <span className="text-base md:text-lg font-semibold text-foreground">В процессе</span>
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
+                  {inProgressTasks.length}
+                </span>
+              </div>
+              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {inProgressTasks.map((task) => (
+                  <TaskList
+                    key={task.id}
+                    tasks={[task]}
+                    onUpdateStatus={updateTaskStatus}
+                    onComplete={openCompletionDialog}
+                    onEdit={openEditDialog}
+                    onDelete={deleteTask}
+                    getPriorityColor={getPriorityColor}
+                    getPriorityText={getPriorityText}
+                    getStatusColor={getStatusColor}
+                    getStatusText={getStatusText}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* Completed Tab */}
       {activeTab === 'completed' && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Выполненные ({completedTasks.length})</h2>
-          <TaskList
-            tasks={completedTasks}
-            onUpdateStatus={updateTaskStatus}
-            onComplete={openCompletionDialog}
-            onEdit={openEditDialog}
-            onDelete={deleteTask}
-            getPriorityColor={getPriorityColor}
-            getPriorityText={getPriorityText}
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-          />
+        <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+          {completedTasks.length > 0 && (
+            <div>
+              <div className="mb-3 md:mb-4 flex items-center gap-2">
+                <Icon name="CheckCircle" size={20} className="text-green-500" />
+                <span className="text-base md:text-lg font-semibold text-foreground">Выполненные задачи</span>
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
+                  {completedTasks.length}
+                </span>
+              </div>
+              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {completedTasks.map((task) => (
+                  <TaskList
+                    key={task.id}
+                    tasks={[task]}
+                    onUpdateStatus={updateTaskStatus}
+                    onComplete={openCompletionDialog}
+                    onEdit={openEditDialog}
+                    onDelete={deleteTask}
+                    getPriorityColor={getPriorityColor}
+                    getPriorityText={getPriorityText}
+                    getStatusColor={getStatusColor}
+                    getStatusText={getStatusText}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
