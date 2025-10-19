@@ -11,7 +11,7 @@ interface Ticket {
   id: number;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  status: 'open' | 'in_progress' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_by: number;
   creator_name: string;
@@ -183,8 +183,7 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
     switch (status) {
       case 'open': return 'Открыт';
       case 'in_progress': return 'В работе';
-      case 'resolved': return 'Решён';
-      case 'closed': return 'Закрыт';
+      case 'closed': return 'Решён';
       default: return status;
     }
   };
@@ -193,8 +192,7 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
     switch (status) {
       case 'open': return 'bg-blue-500';
       case 'in_progress': return 'bg-purple-500';
-      case 'resolved': return 'bg-green-500';
-      case 'closed': return 'bg-gray-500';
+      case 'closed': return 'bg-green-500';
       default: return 'bg-gray-500';
     }
   };

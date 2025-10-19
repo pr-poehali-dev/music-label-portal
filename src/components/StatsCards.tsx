@@ -5,7 +5,7 @@ interface Ticket {
   id: number;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  status: 'open' | 'in_progress' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_by: number;
   creator_name: string;

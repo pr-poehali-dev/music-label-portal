@@ -16,7 +16,7 @@ interface Ticket {
   id: number;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  status: 'open' | 'in_progress' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_by: number;
   creator_name: string;
@@ -51,8 +51,7 @@ const getStatusColor = (status: string) => {
   const colors = {
     open: 'bg-blue-500',
     in_progress: 'bg-yellow-500',
-    resolved: 'bg-green-500',
-    closed: 'bg-gray-500'
+    closed: 'bg-green-500'
   };
   return colors[status as keyof typeof colors] || 'bg-gray-500';
 };
@@ -105,7 +104,7 @@ const MyTickets = React.memo(function MyTickets({
               <SelectItem value="all">Все тикеты</SelectItem>
               <SelectItem value="open">Открытые</SelectItem>
               <SelectItem value="in_progress">В работе</SelectItem>
-              <SelectItem value="resolved">Решённые</SelectItem>
+
               <SelectItem value="closed">Закрытые</SelectItem>
             </SelectContent>
           </Select>
