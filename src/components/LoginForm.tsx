@@ -88,14 +88,39 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     
     setIsLoading(true);
     
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    setIsLoading(false);
-    setIsSuccess(true);
-    
-    setTimeout(() => {
-      onLogin(username, password);
-    }, 1200);
+    try {
+      const response = await fetch('https://functions.poehali.dev/d2601eec-1d55-4956-b655-187431987ed9', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setIsLoading(false);
+        toast({
+          title: "Ошибка входа",
+          description: data.error || "Неверный логин или пароль",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsLoading(false);
+      setIsSuccess(true);
+      
+      setTimeout(() => {
+        onLogin(username, password);
+      }, 1200);
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        title: "Ошибка сети",
+        description: "Не удалось подключиться к серверу",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
