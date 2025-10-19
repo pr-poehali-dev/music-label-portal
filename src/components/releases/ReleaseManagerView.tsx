@@ -14,6 +14,8 @@ interface ReleaseManagerViewProps {
   coverPreview: string | null;
   tracks: any[];
   uploading: boolean;
+  uploadProgress: number;
+  currentUploadFile: string;
   onCreateClick: () => void;
   onTabChange: (tab: 'all' | 'approved' | 'pending' | 'rejected') => void;
   onCancelForm: () => void;
@@ -52,6 +54,8 @@ export default function ReleaseManagerView({
   coverPreview,
   tracks,
   uploading,
+  uploadProgress,
+  currentUploadFile,
   onCreateClick,
   onTabChange,
   onCancelForm,
@@ -104,6 +108,8 @@ export default function ReleaseManagerView({
           handleBatchUpload={handleBatchUpload}
           handleSubmit={handleSubmit}
           uploading={uploading}
+          uploadProgress={uploadProgress}
+          currentUploadFile={currentUploadFile}
           onCancel={onCancelForm}
         />
       )}

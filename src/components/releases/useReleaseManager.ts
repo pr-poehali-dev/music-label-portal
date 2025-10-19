@@ -9,6 +9,8 @@ export const useReleaseManager = (userId: number) => {
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUploadFile, setCurrentUploadFile] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'approved' | 'pending' | 'rejected'>('all');
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
@@ -52,11 +54,22 @@ export const useReleaseManager = (userId: number) => {
   }, [userId, toast]);
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
+    setCurrentUploadFile(file.name);
     return new Promise((resolve) => {
       const reader = new FileReader();
+      
+      reader.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percentLoaded = Math.round((e.loaded / e.total) * 50);
+          setUploadProgress(percentLoaded);
+        }
+      };
+      
       reader.onload = async (e) => {
         try {
           const base64 = e.target?.result as string;
+          setUploadProgress(50);
+          
           const response = await fetch(UPLOAD_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,12 +80,16 @@ export const useReleaseManager = (userId: number) => {
             })
           });
 
+          setUploadProgress(90);
+
           if (!response.ok) {
             resolve(null);
             return;
           }
 
           const result = await response.json();
+          setUploadProgress(100);
+          
           resolve({
             url: result.url,
             fileName: result.fileName,
@@ -205,10 +222,12 @@ export const useReleaseManager = (userId: number) => {
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     try {
       const coverData = await uploadFile(coverFile);
       if (!coverData) throw new Error('Cover upload failed');
+      setUploadProgress(0);
 
       const uploadedTracks = await Promise.all(
         tracks.map(async (track) => {
@@ -403,6 +422,8 @@ export const useReleaseManager = (userId: number) => {
     releases,
     loading,
     uploading,
+    uploadProgress,
+    currentUploadFile,
     showForm,
     setShowForm,
     activeTab,

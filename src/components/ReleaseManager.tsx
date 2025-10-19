@@ -13,6 +13,8 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
     releases,
     loading,
     uploading,
+    uploadProgress,
+    currentUploadFile,
     showForm,
     setShowForm,
     activeTab,
@@ -62,6 +64,8 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
       coverPreview={coverPreview}
       tracks={tracks}
       uploading={uploading}
+      uploadProgress={uploadProgress}
+      currentUploadFile={currentUploadFile}
       onCreateClick={() => setShowForm(true)}
       onTabChange={setActiveTab}
       onCancelForm={() => setShowForm(false)}

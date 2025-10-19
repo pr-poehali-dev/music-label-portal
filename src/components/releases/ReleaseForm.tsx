@@ -29,6 +29,8 @@ interface ReleaseFormProps {
   handleBatchUpload: (files: FileList) => void;
   handleSubmit: () => void;
   uploading: boolean;
+  uploadProgress: number;
+  currentUploadFile: string;
   onCancel: () => void;
 }
 
@@ -45,6 +47,8 @@ export default function ReleaseForm({
   handleBatchUpload,
   handleSubmit,
   uploading,
+  uploadProgress,
+  currentUploadFile,
   onCancel
 }: ReleaseFormProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -270,7 +274,22 @@ export default function ReleaseForm({
             </div>
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 space-y-3">
+            {uploading && uploadProgress > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span className="truncate max-w-[200px]">{currentUploadFile}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            
             <Button 
               onClick={handleSubmit} 
               disabled={uploading} 
