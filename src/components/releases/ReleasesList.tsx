@@ -28,12 +28,12 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
   }, []);
 
   return (
-    <div className="grid gap-2 md:gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
       {releases.map((release) => (
         <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-2 md:gap-4 p-2 md:p-4">
-            <div className="relative group flex-shrink-0">
-              <div className="w-14 md:w-20 aspect-square rounded overflow-hidden bg-muted">
+          <div className="flex md:flex-col items-start gap-2 md:gap-3 p-2 md:p-3">
+            <div className="relative group flex-shrink-0 w-14 md:w-full">
+              <div className="w-14 md:w-full aspect-square rounded overflow-hidden bg-muted">
                 {release.cover_url ? (
                   <LazyImage
                     src={release.cover_url} 
@@ -48,15 +48,15 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
               </div>
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 w-full">
               <div className="flex items-start justify-between gap-1.5 mb-1">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-xs md:text-base leading-tight line-clamp-2">{release.release_name}</h3>
+                  <h3 className="font-semibold text-xs md:text-sm leading-tight line-clamp-2">{release.release_name}</h3>
                   {release.artist_name && (
-                    <p className="text-muted-foreground text-[10px] md:text-sm truncate mt-0.5">{release.artist_name}</p>
+                    <p className="text-muted-foreground text-[10px] md:text-xs truncate mt-0.5">{release.artist_name}</p>
                   )}
                   {release.tracks_count !== undefined && release.tracks_count > 0 && (
-                    <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">{release.tracks_count} трек.</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{release.tracks_count} трек.</p>
                   )}
                 </div>
                 <div className="flex-shrink-0">
@@ -64,28 +64,28 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-1 md:gap-2 text-xs mb-1 md:mb-2">
+              <div className="flex flex-wrap gap-1 text-xs mb-1 md:mb-2">
                 {release.release_date && (
                   <div className="flex items-center gap-0.5 text-muted-foreground">
-                    <Icon name="Calendar" size={10} className="flex-shrink-0 md:w-3 md:h-3" />
-                    <span className="text-[9px] md:text-xs">{formatDate(release.release_date)}</span>
+                    <Icon name="Calendar" size={10} className="flex-shrink-0" />
+                    <span className="text-[9px] md:text-[10px]">{formatDate(release.release_date)}</span>
                   </div>
                 )}
                 {release.genre && release.genre !== '0' && (
-                  <Badge variant="outline" className="gap-0.5 h-4 md:h-5 text-[9px] md:text-xs px-1 md:px-1.5">
-                    <Icon name="Disc" size={8} className="flex-shrink-0 md:w-2.5 md:h-2.5" />
-                    <span className="truncate max-w-[80px] md:max-w-[100px]">{release.genre}</span>
+                  <Badge variant="outline" className="gap-0.5 h-4 text-[9px] md:text-[10px] px-1">
+                    <Icon name="Disc" size={8} className="flex-shrink-0" />
+                    <span className="truncate max-w-[80px]">{release.genre}</span>
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-1">
                 {release.tracks_count > 0 && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
-                    className="gap-1 h-7 md:h-8 -ml-1.5 text-[10px] md:text-xs px-2"
+                    className="gap-1 h-7 md:h-7 -ml-1.5 md:ml-0 text-[10px] px-2 justify-start md:justify-center md:flex-1"
                   >
                     <Icon name={expandedRelease === release.id ? 'ChevronUp' : 'Play'} size={12} className="flex-shrink-0" />
                     {expandedRelease === release.id ? 'Скрыть' : 'Слушать'}
@@ -96,7 +96,7 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
                     size="sm"
                     variant="outline"
                     onClick={() => onEdit(release)}
-                    className="gap-1 h-7 md:h-8 px-2 text-[10px] md:text-xs"
+                    className="gap-1 h-7 px-2 text-[10px] md:flex-1"
                   >
                     <Icon name="Edit" size={12} className="flex-shrink-0" />
                     <span className="hidden md:inline">Изменить</span>
@@ -107,7 +107,7 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
                     size="sm"
                     variant="default"
                     onClick={() => setPitchingRelease(release)}
-                    className="gap-1 h-7 md:h-8 px-2 text-[10px] md:text-xs"
+                    className="gap-1 h-7 px-2 text-[10px] md:flex-1"
                   >
                     <Icon name="Send" size={12} className="flex-shrink-0" />
                     <span className="hidden md:inline">Питчинг</span>
@@ -116,22 +116,22 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
               </div>
 
               {expandedRelease === release.id && (
-                <div className="mt-2 md:mt-3">
-                  <Suspense fallback={<Skeleton className="h-40 md:h-64 w-full" />}>
+                <div className="mt-2">
+                  <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <ReleasePlayer releaseId={release.id} />
                   </Suspense>
                 </div>
               )}
 
               {(release.status === 'rejected' && release.review_comment) && (
-                <div className="mt-2 md:mt-3 bg-destructive/10 border border-destructive/20 p-1.5 md:p-3 rounded">
+                <div className="mt-2 bg-destructive/10 border border-destructive/20 p-1.5 md:p-2 rounded">
                   <div className="flex items-start gap-1.5">
-                    <Icon name="AlertCircle" size={12} className="text-destructive mt-0.5 flex-shrink-0 md:w-3.5 md:h-3.5" />
+                    <Icon name="AlertCircle" size={12} className="text-destructive mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] md:text-xs font-medium text-destructive mb-0.5">Причина отклонения:</p>
-                      <p className="text-[10px] md:text-xs text-foreground break-words">{release.review_comment}</p>
+                      <p className="text-[10px] font-medium text-destructive mb-0.5">Причина отклонения:</p>
+                      <p className="text-[10px] text-foreground break-words">{release.review_comment}</p>
                       {release.reviewer_name && (
-                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">— {release.reviewer_name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">— {release.reviewer_name}</p>
                       )}
                     </div>
                   </div>
@@ -142,7 +142,7 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
         </Card>
       ))}
       {releases.length === 0 && (
-        <div className="text-center py-8 md:py-16 px-4">
+        <div className="col-span-full text-center py-8 md:py-16 px-4">
           <div className="inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full bg-muted mb-2 md:mb-4">
             <Icon name="Music" size={20} className="md:w-8 md:h-8 text-muted-foreground" />
           </div>
