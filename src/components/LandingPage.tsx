@@ -134,12 +134,12 @@ export default function LandingPage() {
               ].map((item, index) => (
                 <Card 
                   key={index}
-                  className="group relative bg-gradient-to-br from-card/50 to-black/50 border-primary/20 backdrop-blur-xl hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 overflow-hidden"
+                  className="group relative bg-gradient-to-br from-card/50 to-black/50 border-primary/20 backdrop-blur-xl hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 overflow-visible"
                   style={{ animationDelay: item.delay }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <CardContent className="pt-10 pb-8 relative z-10">
-                    <div className="text-7xl mb-6 transform group-hover:scale-125 group-hover:rotate-12 transition-transform duration-500">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg`} />
+                  <CardContent className="pt-10 pb-8 relative z-10 overflow-visible">
+                    <div className="text-7xl mb-6 transform group-hover:scale-150 group-hover:rotate-12 transition-transform duration-500 relative z-20">
                       {item.icon}
                     </div>
                     <h4 className="text-2xl font-bold text-primary mb-4 group-hover:text-white transition-colors">
