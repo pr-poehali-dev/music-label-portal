@@ -42,6 +42,11 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                   </div>
                 )}
               </div>
+              {release.tracks_count !== undefined && release.tracks_count > 0 && (
+                <div className="mt-1 text-xs text-muted-foreground text-center">
+                  {release.tracks_count}
+                </div>
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
