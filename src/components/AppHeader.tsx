@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import NotificationBell from '@/components/NotificationBell';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface AppHeaderProps {
   onMessagesClick: () => void;
@@ -14,6 +15,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, onRefreshData, userRole, userId }: AppHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadUnreadCount();
@@ -51,7 +53,9 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, o
         />
         <h1 className="text-xl md:text-3xl font-bold text-primary">420.рф</h1>
       </div>
-      <div className="flex items-center gap-2 md:gap-3">
+      
+      {/* Desktop menu */}
+      <div className="hidden md:flex items-center gap-2 md:gap-3">
         <NotificationBell userId={userId} />
         {userRole !== 'artist' && (
           <Button
@@ -96,6 +100,75 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, o
         >
           Выйти
         </button>
+      </div>
+
+      {/* Mobile menu */}
+      <div className="flex md:hidden items-center gap-2">
+        <NotificationBell userId={userId} />
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm" className="p-2">
+              <Icon name="Menu" size={24} />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[280px] bg-gradient-to-b from-black via-yellow-950/30 to-black border-yellow-500/20">
+            <div className="flex flex-col gap-4 mt-8">
+              {userRole !== 'artist' && (
+                <Button
+                  onClick={() => {
+                    onMessagesClick();
+                    setMobileMenuOpen(false);
+                  }}
+                  variant="outline"
+                  className={`w-full justify-start gap-3 h-12 text-base ${unreadCount > 0 ? 'border-red-500 bg-red-500/10' : ''}`}
+                >
+                  <Icon name="MessageSquare" size={20} />
+                  <span>{getMessagesLabel()}</span>
+                  {unreadCount > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              )}
+              {onRefreshData && (
+                <Button
+                  onClick={() => {
+                    onRefreshData();
+                    setMobileMenuOpen(false);
+                  }}
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 text-base"
+                >
+                  <Icon name="RefreshCw" size={20} />
+                  <span>Обновить данные</span>
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  onProfileClick();
+                  setMobileMenuOpen(false);
+                }}
+                variant="outline"
+                className="w-full justify-start gap-3 h-12 text-base"
+              >
+                <Icon name="User" size={20} />
+                <span>Профиль</span>
+              </Button>
+              <div className="border-t border-yellow-500/20 my-2" />
+              <Button
+                onClick={() => {
+                  onLogout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start gap-3 h-12 text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg hover:shadow-primary/50"
+              >
+                <Icon name="LogOut" size={20} />
+                <span>Выйти</span>
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );
