@@ -34,10 +34,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     count = int(params.get('count', '10'))
     offset = int(params.get('offset', '0'))
     
-    domain = 'fourtwentyru'
+    group_id = '214160827'
     service_key = os.environ.get('VK_SERVICE_KEY', '')
     
-    url = f'https://api.vk.com/method/wall.get?domain={domain}&count={count}&offset={offset}&access_token={service_key}&v=5.199'
+    url = f'https://api.vk.com/method/wall.get?owner_id=-{group_id}&count={count}&offset={offset}&access_token={service_key}&v=5.199'
     
     try:
         with urllib.request.urlopen(url) as response:
