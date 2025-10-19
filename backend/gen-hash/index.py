@@ -11,9 +11,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Verify it works
     is_valid = bcrypt.verify(password, hash_value)
     
-    # Test old hash
-    old_hash = "$2b$12$FJNPu53/hYpsDPpcyGTXKuRsxx4jdc5GrDvu.VnXLNPgXrs8fpFby"
-    old_works = bcrypt.verify(password, old_hash)
+    # Test current hash from DB
+    current_hash = "$2b$12$LWK6UX9rYT1jkzW3OUdWv.Uqq1/0FK5ns5fSzFgxyYXbdWpMXFC8C"
+    current_works = bcrypt.verify(password, current_hash)
     
     return {
         'statusCode': 200,
@@ -22,7 +22,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'password': password,
             'new_hash': hash_value,
             'new_verified': is_valid,
-            'old_hash': old_hash,
-            'old_works': old_works
+            'current_hash': current_hash,
+            'current_works': current_works
         })
     }
