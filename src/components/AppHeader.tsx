@@ -36,7 +36,6 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, u
   };
 
   const getMessagesLabel = () => {
-    if (userRole === 'artist') return 'Написать руководителю';
     if (userRole === 'manager') return 'Написать руководителю';
     return 'Сообщения от команды';
   };
@@ -53,20 +52,22 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, u
       </div>
       <div className="flex items-center gap-2 md:gap-3">
         <NotificationBell userId={userId} />
-        <Button
-          onClick={onMessagesClick}
-          variant="outline"
-          size="sm"
-          className={`flex items-center gap-1 md:gap-2 relative text-xs md:text-sm px-2 md:px-4 ${unreadCount > 0 ? 'animate-pulse border-red-500' : ''}`}
-        >
-          <Icon name="MessageSquare" size={16} className="md:w-[18px] md:h-[18px]" />
-          <span className="hidden md:inline">{getMessagesLabel()}</span>
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          )}
-        </Button>
+        {userRole !== 'artist' && (
+          <Button
+            onClick={onMessagesClick}
+            variant="outline"
+            size="sm"
+            className={`flex items-center gap-1 md:gap-2 relative text-xs md:text-sm px-2 md:px-4 ${unreadCount > 0 ? 'animate-pulse border-red-500' : ''}`}
+          >
+            <Icon name="MessageSquare" size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden md:inline">{getMessagesLabel()}</span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Button>
+        )}
         <Button
           onClick={onProfileClick}
           variant="outline"

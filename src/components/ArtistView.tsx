@@ -68,18 +68,11 @@ export default function ArtistView({
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto p-4 animate-fadeIn">
         <AppHeader 
-          onMessagesClick={() => onMessagesOpenChange(true)}
+          onMessagesClick={() => {}}
           onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
           userRole="artist"
           userId={user.id}
-        />
-
-        <MessagesModal 
-          open={messagesOpen} 
-          onOpenChange={onMessagesOpenChange}
-          userId={user.id}
-          userRole="artist"
         />
 
         <Tabs 
