@@ -61,7 +61,7 @@ export default function ModerationPanel({ releases, userId, onReview, loadTracks
               <div className="flex-1">
                 <CardTitle className="text-lg mb-2">{release.release_name}</CardTitle>
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  {release.genre && <div><Icon name="Disc" size={14} className="inline mr-1" />{release.genre}</div>}
+                  {release.genre && release.genre !== '0' && <div><Icon name="Disc" size={14} className="inline mr-1" />{release.genre}</div>}
                   {release.copyright && <div><Icon name="Copyright" size={14} className="inline mr-1" />{release.copyright}</div>}
                   {release.tracks_count > 0 && <div><Icon name="Music" size={14} className="inline mr-1" />{release.tracks_count} треков</div>}
                 </div>

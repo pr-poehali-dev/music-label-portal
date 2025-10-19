@@ -213,7 +213,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
                               </a>
                             ) : release.artist_name}
                           </p>
-                          {release.genre && <p className="text-xs text-muted-foreground">{release.genre}</p>}
+                          {release.genre && release.genre !== '0' && <p className="text-xs text-muted-foreground">{release.genre}</p>}
                         </div>
                         {getStatusBadge(release.status)}
                       </div>

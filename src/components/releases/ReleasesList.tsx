@@ -86,7 +86,7 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                     <span>{formatDate(release.release_date)}</span>
                   </div>
                 )}
-                {release.genre && (
+                {release.genre && release.genre !== '0' && (
                   <Badge variant="outline" className="gap-1 h-5 text-xs px-1.5">
                     <Icon name="Disc" size={10} />
                     {release.genre}
