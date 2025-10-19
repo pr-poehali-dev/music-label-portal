@@ -36,13 +36,16 @@ export default function Index() {
     }
   };
 
-  const handleUpdateProfile = async (updates: Partial<User>) => {
-    console.log('handleUpdateProfile called with:', updates);
-    if (user) {
-      const success = await updateUser(user.id, updates);
-      if (success) {
-        updateUserProfile(updates);
-      }
+  const handleUpdateProfile = async (userIdOrUpdates: number | Partial<User>, maybeUpdates?: Partial<User>) => {
+    // Если первый параметр — число (userId), то второй параметр — updates
+    const updates = typeof userIdOrUpdates === 'number' ? maybeUpdates! : userIdOrUpdates;
+    const userId = typeof userIdOrUpdates === 'number' ? userIdOrUpdates : user!.id;
+    
+    console.log('handleUpdateProfile called with userId:', userId, 'updates:', updates);
+    
+    const success = await updateUser(userId, updates);
+    if (success) {
+      updateUserProfile(updates);
     }
   };
 
