@@ -112,7 +112,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
@@ -237,6 +237,110 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False,
                 'body': json.dumps({'error': 'Username already exists'})
             }
+    
+    if method == 'PUT':
+        body_data = json.loads(event.get('body', '{}'))
+        user_id = body_data.get('id')
+        
+        if not user_id:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'User ID is required'})
+            }
+        
+        update_fields = []
+        params = []
+        
+        if 'fullName' in body_data or 'full_name' in body_data:
+            full_name = body_data.get('fullName') or body_data.get('full_name')
+            update_fields.append('full_name = %s')
+            params.append(full_name)
+        
+        if 'username' in body_data:
+            update_fields.append('username = %s')
+            params.append(body_data['username'])
+        
+        if 'email' in body_data:
+            update_fields.append('email = %s')
+            params.append(body_data['email'])
+        
+        if 'avatar' in body_data:
+            update_fields.append('avatar = %s')
+            params.append(body_data['avatar'])
+        
+        if 'revenue_share_percent' in body_data:
+            update_fields.append('revenue_share_percent = %s')
+            params.append(body_data['revenue_share_percent'])
+        
+        if 'is_blocked' in body_data:
+            update_fields.append('is_blocked = %s')
+            params.append(body_data['is_blocked'])
+        
+        if 'is_frozen' in body_data:
+            update_fields.append('is_frozen = %s')
+            params.append(body_data['is_frozen'])
+        
+        if 'frozen_until' in body_data:
+            update_fields.append('frozen_until = %s')
+            params.append(body_data['frozen_until'])
+        
+        if 'blocked_reason' in body_data:
+            update_fields.append('blocked_reason = %s')
+            params.append(body_data['blocked_reason'])
+        
+        if not update_fields:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'No fields to update'})
+            }
+        
+        params.append(user_id)
+        query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
+        
+        try:
+            cur.execute(query, params)
+            conn.commit()
+            
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'success': True, 'message': 'User updated'})
+            }
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 409,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Username already exists'})
+            }
+        except Exception as e:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': str(e)})
+            }
+    
+    cur.close()
+    conn.close()
     
     return {
         'statusCode': 405,
