@@ -131,7 +131,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Icon name="Loader2" className="animate-spin" size={32} />
+        <Icon name="Loader2" className="animate-spin text-primary" size={32} />
       </div>
     );
   }
@@ -140,16 +140,16 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
   const reviewedReleases = releases.filter((r) => r.status !== 'pending');
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <h2 className="text-xl md:text-2xl font-bold">Модерация релизов</h2>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <h2 className="text-xl md:text-2xl font-bold text-foreground">Модерация релизов</h2>
 
       {pendingReleases.length > 0 && (
         <div>
-          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 text-yellow-600 flex items-center gap-2">
-            <Icon name="Clock" size={18} />
-            Ожидают проверки ({pendingReleases.length})
+          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 flex items-center gap-2">
+            <Icon name="Clock" size={20} className="text-primary" />
+            <span className="text-primary">Ожидают проверки ({pendingReleases.length})</span>
           </h3>
-          <div className="grid gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {pendingReleases.map((release) => (
               <ReleaseCard
                 key={release.id}
@@ -168,10 +168,10 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
       {reviewedReleases.length > 0 && (
         <div>
           <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 flex items-center gap-2">
-            <Icon name="Archive" size={18} />
-            Проверенные ({reviewedReleases.length})
+            <Icon name="Archive" size={20} className="text-muted-foreground" />
+            <span className="text-muted-foreground">Проверенные ({reviewedReleases.length})</span>
           </h3>
-          <div className="grid gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {reviewedReleases.map((release) => (
               <ReleaseCard
                 key={release.id}
@@ -186,7 +186,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
       )}
 
       {releases.length === 0 && (
-        <Card>
+        <Card className="bg-card/50 border-border/50">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Icon name="Music" size={48} className="text-muted-foreground mb-4" />
             <p className="text-muted-foreground">Релизов пока нет</p>
