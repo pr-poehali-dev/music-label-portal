@@ -94,7 +94,7 @@ export default function LandingPage() {
         </section>
 
         <section className="mb-16">
-          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Последние релизы</h3>
+          <h3 className="text-3xl font-bold text-primary mb-8 text-center">Крайние релизы</h3>
           <VKPosts />
         </section>
 
