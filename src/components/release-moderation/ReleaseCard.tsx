@@ -107,66 +107,47 @@ export default function ReleaseCard({
           )}
         </div>
 
-        {isPending && (
-          <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-border/50">
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full text-xs border-border/50 hover:border-primary/50 hover:bg-primary/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                onView(release.id);
-              }}
-            >
-              <Icon name="Eye" size={14} className="mr-1" />
-              Просмотреть
-            </Button>
-            <div className="flex gap-2">
+        <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+          {isPending ? (
+            <>
               {onApprove && (
-                <Button
-                  size="sm"
-                  className="flex-1 text-xs bg-green-600 hover:bg-green-700"
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onApprove(release.id);
                   }}
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-medium text-green-400 hover:text-green-300 transition-colors"
                 >
-                  <Icon name="CheckCircle" size={14} className="mr-1" />
+                  <Icon name="CheckCircle" size={14} />
                   Одобрить
-                </Button>
+                </button>
               )}
               {onReject && (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="flex-1 text-xs"
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onReject(release.id);
                   }}
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors"
                 >
-                  <Icon name="XCircle" size={14} className="mr-1" />
+                  <Icon name="XCircle" size={14} />
                   Отклонить
-                </Button>
+                </button>
               )}
-            </div>
-          </div>
-        )}
-
-        {!isPending && (
-          <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+            </>
+          ) : (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onView(release.id);
               }}
-              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto"
+              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto transition-colors"
             >
               <Icon name="Eye" size={14} />
               Подробнее
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
