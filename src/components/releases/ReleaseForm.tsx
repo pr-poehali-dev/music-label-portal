@@ -76,33 +76,31 @@ export default function ReleaseForm({
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <Card className="border-2">
-        <CardHeader className="bg-muted/30">
+    <div className="max-w-6xl mx-auto">
+      <Card>
+        <CardHeader className="pb-4">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-2xl">Создать релиз</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">Заполните информацию о вашем альбоме</p>
+              <CardTitle className="text-xl">Создать релиз</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Заполните информацию о вашем альбоме</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onCancel}>
-              <Icon name="X" size={20} />
+            <Button variant="ghost" size="icon" onClick={onCancel} className="h-8 w-8">
+              <Icon name="X" size={18} />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-8 pt-8">
-          {/* Cover Upload Section */}
-          <div className="grid md:grid-cols-[300px_1fr] gap-6 items-start">
-            <div className="space-y-3">
-              <label className="text-sm font-semibold block">Обложка альбома *</label>
+        <CardContent className="space-y-6">
+          <div className="grid md:grid-cols-[200px_1fr] gap-4 items-start">
+            <div className="space-y-2">
+              <label className="text-sm font-medium block">Обложка *</label>
               <div className="relative group">
-                <div className="w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all">
+                <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all">
                   {coverPreview ? (
-                    <img src={coverPreview} alt="Cover Preview" className="w-full h-full object-cover" />
+                    <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                      <Icon name="ImagePlus" size={48} className="mb-2" />
-                      <p className="text-sm">Загрузите обложку</p>
-                      <p className="text-xs mt-1">Минимум 3000×3000 px</p>
+                      <Icon name="ImagePlus" size={32} className="mb-1" />
+                      <p className="text-xs">Загрузить</p>
                     </div>
                   )}
                 </div>
@@ -113,65 +111,59 @@ export default function ReleaseForm({
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Формат: JPG или PNG<br />
-                Размер: не более 10 МБ
-              </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-3">
               <div>
-                <label className="text-sm font-semibold mb-2 block">Название релиза *</label>
+                <label className="text-sm font-medium mb-1.5 block">Название релиза *</label>
                 <Input
                   placeholder="Введите название альбома"
                   value={newRelease.release_name}
                   onChange={(e) => setNewRelease({ ...newRelease, release_name: e.target.value })}
-                  className="text-lg h-12"
                 />
               </div>
               
               <div>
-                <label className="text-sm font-semibold mb-2 block">Дата релиза *</label>
+                <label className="text-sm font-medium mb-1.5 block">Дата релиза *</label>
                 <Input
                   type="date"
                   value={newRelease.release_date}
                   onChange={(e) => setNewRelease({ ...newRelease, release_date: e.target.value })}
-                  className="h-12"
                 />
               </div>
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t" />
 
-          {/* Additional Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Icon name="Info" size={20} />
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
+              <Icon name="Info" size={16} />
               Дополнительная информация
             </h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-3">
               <div>
-                <label className="text-sm font-medium mb-2 block">Дата предзаказа</label>
+                <label className="text-xs font-medium mb-1.5 block">Дата предзаказа</label>
                 <Input
                   type="date"
                   value={newRelease.preorder_date}
                   onChange={(e) => setNewRelease({ ...newRelease, preorder_date: e.target.value })}
+                  className="h-9"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Начало продаж</label>
+                <label className="text-xs font-medium mb-1.5 block">Начало продаж</label>
                 <Input
                   type="date"
                   value={newRelease.sales_start_date}
                   onChange={(e) => setNewRelease({ ...newRelease, sales_start_date: e.target.value })}
+                  className="h-9"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Жанр</label>
+                <label className="text-xs font-medium mb-1.5 block">Жанр</label>
                 <Select value={newRelease.genre} onValueChange={(value) => setNewRelease({ ...newRelease, genre: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue placeholder="Выберите жанр" />
                   </SelectTrigger>
                   <SelectContent>
@@ -182,17 +174,18 @@ export default function ReleaseForm({
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Копирайт</label>
+                <label className="text-xs font-medium mb-1.5 block">Копирайт</label>
                 <Input
                   placeholder="© 2024 Artist Name"
                   value={newRelease.copyright}
                   onChange={(e) => setNewRelease({ ...newRelease, copyright: e.target.value })}
+                  className="h-9"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Ценовая категория</label>
+                <label className="text-xs font-medium mb-1.5 block">Ценовая категория</label>
                 <Select value={newRelease.price_category} onValueChange={(value) => setNewRelease({ ...newRelease, price_category: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -203,9 +196,9 @@ export default function ReleaseForm({
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Язык названия</label>
+                <label className="text-xs font-medium mb-1.5 block">Язык названия</label>
                 <Select value={newRelease.title_language} onValueChange={(value) => setNewRelease({ ...newRelease, title_language: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -218,14 +211,12 @@ export default function ReleaseForm({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t" />
 
-          {/* Tracks Section */}
           <div>
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Icon name="Music" size={20} />
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-sm font-semibold flex items-center gap-1.5">
+                <Icon name="Music" size={16} />
                 Треки ({tracks.length})
               </h3>
               <div className="flex gap-2">
@@ -237,19 +228,19 @@ export default function ReleaseForm({
                     onChange={(e) => e.target.files && handleBatchUpload(e.target.files)}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Icon name="Upload" size={16} />
-                    Загрузить несколько
+                  <Button size="sm" variant="outline" className="gap-1.5 h-8 text-xs">
+                    <Icon name="Upload" size={14} />
+                    Загрузить файлы
                   </Button>
                 </div>
-                <Button onClick={addTrack} size="sm" className="gap-2">
-                  <Icon name="Plus" size={16} />
-                  Добавить трек
+                <Button onClick={addTrack} size="sm" className="gap-1.5 h-8 text-xs">
+                  <Icon name="Plus" size={14} />
+                  Добавить
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               {tracks.map((track, index) => (
                 <TrackItem
                   key={index}
@@ -267,11 +258,11 @@ export default function ReleaseForm({
               ))}
 
               {tracks.length === 0 && (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg bg-muted/20">
-                  <Icon name="Music" size={40} className="text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground mb-4">Треков пока нет</p>
-                  <Button onClick={addTrack} variant="outline" size="sm" className="gap-2">
-                    <Icon name="Plus" size={16} />
+                <div className="text-center py-8 border-2 border-dashed rounded-md bg-muted/20">
+                  <Icon name="Music" size={32} className="text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-3">Треков пока нет</p>
+                  <Button onClick={addTrack} variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
+                    <Icon name="Plus" size={14} />
                     Добавить первый трек
                   </Button>
                 </div>
@@ -279,16 +270,14 @@ export default function ReleaseForm({
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="border-t pt-6">
+          <div className="border-t pt-4">
             <Button 
               onClick={handleSubmit} 
               disabled={uploading} 
-              className="w-full h-14 text-lg gap-3" 
-              size="lg"
+              className="w-full h-10 gap-2" 
             >
-              <Icon name={uploading ? 'Loader2' : 'Send'} size={20} className={uploading ? 'animate-spin' : ''} />
-              {uploading ? 'Загрузка релиза...' : 'Отправить на модерацию'}
+              <Icon name={uploading ? 'Loader2' : 'Send'} size={16} className={uploading ? 'animate-spin' : ''} />
+              {uploading ? 'Загрузка...' : 'Отправить на модерацию'}
             </Button>
           </div>
         </CardContent>

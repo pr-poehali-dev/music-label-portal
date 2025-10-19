@@ -71,13 +71,13 @@ export default function ReleaseManagerView({
     : releases.filter(r => r.status === activeTab);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {!showForm && (
         <>
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Мои релизы</h2>
-            <Button onClick={onCreateClick}>
-              <Icon name="Plus" size={18} className="mr-2" />
+            <h2 className="text-xl font-bold">Мои релизы</h2>
+            <Button onClick={onCreateClick} size="sm" className="gap-1.5">
+              <Icon name="Plus" size={16} />
               Создать релиз
             </Button>
           </div>

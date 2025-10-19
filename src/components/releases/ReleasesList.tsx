@@ -24,12 +24,12 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3">
       {releases.map((release) => (
-        <Card key={release.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-          <div className="flex items-start gap-6 p-6">
+        <Card key={release.id} className="overflow-hidden hover:shadow-md transition-shadow">
+          <div className="flex items-start gap-4 p-4">
             <div className="relative group flex-shrink-0">
-              <div className="w-32 h-32 rounded-lg overflow-hidden bg-muted shadow-md">
+              <div className="w-20 h-20 rounded-md overflow-hidden bg-muted">
                 {release.cover_url ? (
                   <img 
                     src={release.cover_url} 
@@ -38,31 +38,31 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <Icon name="Disc" size={48} />
+                    <Icon name="Disc" size={32} />
                   </div>
                 )}
               </div>
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-bold mb-1 truncate">{release.release_name}</h3>
+                  <h3 className="font-semibold mb-0.5 truncate text-base">{release.release_name}</h3>
                   {release.artist_name && (
-                    <p className="text-muted-foreground text-sm mb-2">{release.artist_name}</p>
+                    <p className="text-muted-foreground text-sm">{release.artist_name}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   {getStatusBadge(release.status)}
                   {release.status === 'pending' && onEdit && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => onEdit(release)}
-                      className="gap-1"
+                      className="gap-1 h-7 px-2"
                     >
-                      <Icon name="Edit" size={14} />
-                      Редактировать
+                      <Icon name="Edit" size={12} />
+                      <span className="hidden sm:inline">Изменить</span>
                     </Button>
                   )}
                   {release.status === 'approved' && onPitching && (
@@ -70,84 +70,63 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitch
                       size="sm"
                       variant="default"
                       onClick={() => setPitchingRelease(release)}
-                      className="gap-1"
+                      className="gap-1 h-7 px-2"
                     >
-                      <Icon name="Send" size={14} />
-                      Питчинг
+                      <Icon name="Send" size={12} />
+                      <span className="hidden sm:inline">Питчинг</span>
                     </Button>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 text-sm mb-3">
+              <div className="flex flex-wrap gap-2 text-xs mb-2">
                 {release.release_date && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Icon name="Calendar" size={16} />
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Icon name="Calendar" size={12} />
                     <span>{formatDate(release.release_date)}</span>
                   </div>
                 )}
                 {release.genre && (
-                  <Badge variant="outline" className="gap-1">
-                    <Icon name="Disc" size={14} />
+                  <Badge variant="outline" className="gap-1 h-5 text-xs px-1.5">
+                    <Icon name="Disc" size={10} />
                     {release.genre}
                   </Badge>
                 )}
-                <Badge variant="outline" className="gap-1">
-                  <Icon name="Music" size={14} />
-                  {release.tracks_count || 0} {release.tracks_count === 1 ? 'трек' : 'треков'}
+                <Badge variant="outline" className="gap-1 h-5 text-xs px-1.5">
+                  <Icon name="Music" size={10} />
+                  {release.tracks_count || 0}
                 </Badge>
               </div>
 
-              {release.copyright && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                  <Icon name="Copyright" size={12} />
-                  <span>{release.copyright}</span>
-                </div>
-              )}
-
               {release.tracks_count && release.tracks_count > 0 && (
-                <div className="mt-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
-                    className="gap-2 -ml-2"
-                  >
-                    <Icon name="Play" size={16} />
-                    {expandedRelease === release.id ? 'Скрыть плеер' : 'Прослушать альбом'}
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExpandedRelease(expandedRelease === release.id ? null : release.id)}
+                  className="gap-1.5 h-7 -ml-2 text-xs"
+                >
+                  <Icon name={expandedRelease === release.id ? 'ChevronUp' : 'Play'} size={12} />
+                  {expandedRelease === release.id ? 'Скрыть' : 'Прослушать'}
+                </Button>
               )}
 
               {expandedRelease === release.id && (
-                <div className="mt-4">
+                <div className="mt-3">
                   <ReleasePlayer releaseId={release.id} />
                 </div>
               )}
 
               {(release.status === 'rejected' && release.review_comment) && (
-                <div className="mt-4 bg-destructive/10 border border-destructive/20 p-4 rounded-lg">
+                <div className="mt-3 bg-destructive/10 border border-destructive/20 p-3 rounded-md">
                   <div className="flex items-start gap-2">
-                    <Icon name="AlertCircle" size={16} className="text-destructive mt-0.5 flex-shrink-0" />
+                    <Icon name="AlertCircle" size={14} className="text-destructive mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-destructive mb-1">Причина отклонения:</p>
-                      <p className="text-sm text-foreground">{release.review_comment}</p>
+                      <p className="text-xs font-medium text-destructive mb-1">Причина отклонения:</p>
+                      <p className="text-xs text-foreground">{release.review_comment}</p>
                       {release.reviewer_name && (
-                        <p className="text-xs text-muted-foreground mt-2">— {release.reviewer_name}</p>
+                        <p className="text-xs text-muted-foreground mt-1.5">— {release.reviewer_name}</p>
                       )}
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {(release.status === 'approved' || release.status === 'rejected') && (
-                <div className="mt-4 bg-muted/50 border p-3 rounded-lg">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name={release.status === 'approved' ? 'CheckCircle' : 'XCircle'} size={16} className={release.status === 'approved' ? 'text-green-600' : 'text-destructive'} />
-                    <span className="text-muted-foreground">
-                      {release.status === 'approved' ? 'Релиз одобрен' : 'Релиз отклонён'}
-                      {release.reviewer_name && ` — ${release.reviewer_name}`}
-                    </span>
                   </div>
                 </div>
               )}
