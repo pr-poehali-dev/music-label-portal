@@ -227,15 +227,16 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
         <div>
           <button
             onClick={() => toggleSection('pending')}
-            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 group"
           >
+            <Icon name="Clock" size={20} className="text-primary" />
+            <span className="text-base md:text-lg font-semibold text-foreground">Ожидают проверки</span>
+            <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-sm font-medium">({pendingReleases.length})</span>
             <Icon 
               name={collapsedSections.has('pending') ? 'ChevronRight' : 'ChevronDown'} 
-              size={20} 
-              className="text-primary" 
+              size={18} 
+              className="text-muted-foreground ml-auto group-hover:text-foreground transition-colors" 
             />
-            <Icon name="Clock" size={20} className="text-primary" />
-            <span className="text-base md:text-lg font-semibold text-primary">Ожидают проверки ({pendingReleases.length})</span>
           </button>
           {!collapsedSections.has('pending') && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -259,15 +260,16 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
         <div>
           <button
             onClick={() => toggleSection('approved')}
-            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 group"
           >
+            <Icon name="CheckCircle" size={20} className="text-green-400" />
+            <span className="text-base md:text-lg font-semibold text-foreground">Одобренные</span>
+            <span className="ml-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">({approvedReleases.length})</span>
             <Icon 
               name={collapsedSections.has('approved') ? 'ChevronRight' : 'ChevronDown'} 
-              size={20} 
-              className="text-green-400" 
+              size={18} 
+              className="text-muted-foreground ml-auto group-hover:text-foreground transition-colors" 
             />
-            <Icon name="CheckCircle" size={20} className="text-green-400" />
-            <span className="text-base md:text-lg font-semibold text-green-400">Одобренные ({approvedReleases.length})</span>
           </button>
           {!collapsedSections.has('approved') && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -289,15 +291,16 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
         <div>
           <button
             onClick={() => toggleSection('rejected')}
-            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 group"
           >
+            <Icon name="XCircle" size={20} className="text-red-400" />
+            <span className="text-base md:text-lg font-semibold text-foreground">Отклонённые</span>
+            <span className="ml-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">({rejectedReleases.length})</span>
             <Icon 
               name={collapsedSections.has('rejected') ? 'ChevronRight' : 'ChevronDown'} 
-              size={20} 
-              className="text-red-400" 
+              size={18} 
+              className="text-muted-foreground ml-auto group-hover:text-foreground transition-colors" 
             />
-            <Icon name="XCircle" size={20} className="text-red-400" />
-            <span className="text-base md:text-lg font-semibold text-red-400">Отклонённые ({rejectedReleases.length})</span>
           </button>
           {!collapsedSections.has('rejected') && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
