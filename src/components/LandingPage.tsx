@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -5,6 +6,22 @@ import { useNavigate } from 'react-router-dom';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://vk.com/js/api/openapi.js?169';
+    script.async = true;
+    script.onload = () => {
+      if (window.VK) {
+        window.VK.Widgets.Group('vk_groups', { mode: 4, width: 'auto', height: '600' }, 214160827);
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black">
@@ -115,24 +132,6 @@ export default function LandingPage() {
           </div>
         </footer>
       </div>
-
-      <script
-        type="text/javascript"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.vkAsyncInit = function() {
-              VK.Widgets.Group("vk_groups", {mode: 4, width: "auto", height: "600"}, 214160827);
-            };
-            setTimeout(function() {
-              var el = document.createElement("script");
-              el.type = "text/javascript";
-              el.src = "https://vk.com/js/api/openapi.js?169";
-              el.async = true;
-              document.getElementsByTagName("head")[0].appendChild(el);
-            }, 0);
-          `
-        }}
-      />
     </div>
   );
 }
