@@ -35,29 +35,9 @@ export default function LandingPage() {
           <h2 className="text-5xl md:text-6xl font-bold text-primary mb-6 animate-slideIn">
             Добро пожаловать в 420.рф
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8 animate-slideIn" style={{ animationDelay: '0.2s' }}>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto animate-slideIn" style={{ animationDelay: '0.2s' }}>
             Независимый музыкальный лейбл, создающий уникальный звук и поддерживающий талантливых артистов
           </p>
-          <div className="flex flex-wrap justify-center gap-4 animate-slideIn" style={{ animationDelay: '0.4s' }}>
-            <a 
-              href="https://vk.com/fourtwentyru" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0077FF] hover:bg-[#0066DD] text-white rounded-lg transition-all"
-            >
-              <Icon name="MessageCircle" size={20} />
-              ВКонтакте
-            </a>
-            <a 
-              href="https://t.me/fourtwentyru" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#229ED9] hover:bg-[#1E8BC3] text-white rounded-lg transition-all"
-            >
-              <Icon name="Send" size={20} />
-              Telegram
-            </a>
-          </div>
         </section>
 
         <section className="mb-16">
