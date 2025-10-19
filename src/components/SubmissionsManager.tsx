@@ -159,7 +159,7 @@ export default function SubmissionsManager({ userId, userRole = 'manager' }: Sub
       </div>
 
       <Tabs defaultValue="submissions" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger value="submissions">🎵 Прослушивания</TabsTrigger>
           <TabsTrigger value="pitchings">🎯 Питчинги</TabsTrigger>
         </TabsList>
