@@ -332,7 +332,43 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
         </div>
 
         <div className="border-t p-2 md:p-4 shrink-0">
-          {(currentUserRole === 'manager' || currentUserRole === 'director') && ticket.status === 'in_progress' && (
+          {currentUserRole === 'director' && (
+            <div className="mb-2 md:mb-3 flex gap-2">
+              {ticket.status === 'closed' && (
+                <Button 
+                  onClick={async () => {
+                    if (onUpdateStatus) {
+                      await onUpdateStatus(ticket.id, 'in_progress');
+                      if (onReload) onReload();
+                    }
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Icon name="RotateCcw" size={16} className="mr-2" />
+                  Вернуть в работу
+                </Button>
+              )}
+              {ticket.status === 'in_progress' && (
+                <Button 
+                  onClick={async () => {
+                    if (onUpdateStatus) {
+                      await onUpdateStatus(ticket.id, 'closed');
+                      if (onReload) onReload();
+                      onClose();
+                    }
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  size="sm"
+                >
+                  <Icon name="Check" size={16} className="mr-2" />
+                  Решить тикет
+                </Button>
+              )}
+            </div>
+          )}
+          {currentUserRole === 'manager' && ticket.status === 'in_progress' && (
             <div className="mb-2 md:mb-3">
               <Button 
                 onClick={async () => {
