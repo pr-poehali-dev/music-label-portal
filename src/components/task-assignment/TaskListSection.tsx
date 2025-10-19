@@ -1,5 +1,5 @@
 import Icon from '@/components/ui/icon';
-import TaskList from '../tasks/TaskList';
+import TaskRow from '../tasks/TaskRow';
 
 interface Task {
   id: number;
@@ -54,32 +54,41 @@ export default function TaskListSection({
   getStatusColor,
   getStatusText
 }: TaskListSectionProps) {
-  if (tasks.length === 0) return null;
-
   return (
-    <div>
-      <div className="mb-3 md:mb-4 flex items-center gap-2">
-        <Icon name={iconName as any} size={20} className={iconColor} />
-        <span className="text-base md:text-lg font-semibold text-foreground">{sectionTitle}</span>
-        <span className={`ml-1 px-2 py-0.5 rounded-full ${badgeColor} text-sm font-medium`}>
-          {tasks.length}
-        </span>
+    <div className="border-primary/20 bg-card/95 rounded-lg border">
+      <div className="p-3 md:p-4 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <Icon name={iconName as any} size={18} className={iconColor} />
+          <span className="text-primary text-base font-semibold">{sectionTitle}</span>
+          <span className={`ml-auto px-2 py-0.5 rounded-full ${badgeColor} text-xs font-medium`}>
+            {tasks.length}
+          </span>
+        </div>
       </div>
-      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {tasks.map((task) => (
-          <TaskList
-            key={task.id}
-            tasks={[task]}
-            onUpdateStatus={onUpdateStatus}
-            onComplete={onComplete}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            getPriorityColor={getPriorityColor}
-            getPriorityText={getPriorityText}
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-          />
-        ))}
+      <div className="p-3 md:p-6">
+        <div className="space-y-2 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+          {tasks.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              <Icon name="Inbox" size={40} className="mx-auto mb-2 opacity-50" />
+              Нет задач
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                onUpdateStatus={onUpdateStatus}
+                onComplete={onComplete}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                getPriorityColor={getPriorityColor}
+                getPriorityText={getPriorityText}
+                getStatusColor={getStatusColor}
+                getStatusText={getStatusText}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

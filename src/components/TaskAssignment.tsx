@@ -51,64 +51,35 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     loadTasks();
   }, []);
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending');
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const allTasks = [...tasks].sort((a, b) => {
+    const statusOrder = { pending: 0, in_progress: 1, completed: 2 };
+    return statusOrder[a.status] - statusOrder[b.status];
+  });
 
   return (
-    <div className="space-y-6">
-      <TaskCreateSection
-        newTask={newTask}
-        managers={managers}
-        selectedFile={selectedFile}
-        uploading={uploading}
-        onTaskChange={setNewTask}
-        onFileChange={setSelectedFile}
-        onSubmit={createTask}
-        onToggleManager={(managerId) => toggleManager(managerId, false)}
-        getManagerTaskCount={getManagerTaskCount}
-        onShowInfo={(message) => console.log(message)}
-      />
-
-      <div className="space-y-4 md:space-y-6">
-        <TaskListSection
-          tasks={pendingTasks}
-          sectionTitle="Ожидают"
-          iconName="Clock"
-          iconColor="text-yellow-500"
-          badgeColor="bg-yellow-500/20 text-yellow-500"
-          onUpdateStatus={updateTaskStatus}
-          onComplete={openCompletionDialog}
-          onEdit={openEditDialog}
-          onDelete={deleteTask}
-          getPriorityColor={getPriorityColor}
-          getPriorityText={getPriorityText}
-          getStatusColor={getStatusColor}
-          getStatusText={getStatusText}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-1">
+        <TaskCreateSection
+          newTask={newTask}
+          managers={managers}
+          selectedFile={selectedFile}
+          uploading={uploading}
+          onTaskChange={setNewTask}
+          onFileChange={setSelectedFile}
+          onSubmit={createTask}
+          onToggleManager={(managerId) => toggleManager(managerId, false)}
+          getManagerTaskCount={getManagerTaskCount}
+          onShowInfo={(message) => console.log(message)}
         />
+      </div>
 
+      <div className="lg:col-span-2">
         <TaskListSection
-          tasks={inProgressTasks}
-          sectionTitle="В процессе"
-          iconName="Play"
+          tasks={allTasks}
+          sectionTitle="Все задачи"
+          iconName="ListChecks"
           iconColor="text-primary"
           badgeColor="bg-primary/20 text-primary"
-          onUpdateStatus={updateTaskStatus}
-          onComplete={openCompletionDialog}
-          onEdit={openEditDialog}
-          onDelete={deleteTask}
-          getPriorityColor={getPriorityColor}
-          getPriorityText={getPriorityText}
-          getStatusColor={getStatusColor}
-          getStatusText={getStatusText}
-        />
-
-        <TaskListSection
-          tasks={completedTasks}
-          sectionTitle="Выполненные"
-          iconName="CheckCircle"
-          iconColor="text-green-500"
-          badgeColor="bg-green-500/20 text-green-400"
           onUpdateStatus={updateTaskStatus}
           onComplete={openCompletionDialog}
           onEdit={openEditDialog}
