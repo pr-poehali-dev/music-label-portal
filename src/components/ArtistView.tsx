@@ -27,6 +27,7 @@ interface ArtistViewProps {
   onMessagesOpenChange: (open: boolean) => void;
   onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;
+  onRefreshData?: () => void;
 }
 
 export default function ArtistView({
@@ -44,7 +45,8 @@ export default function ArtistView({
   onLoadTickets,
   onMessagesOpenChange,
   onUpdateUser,
-  onLogout
+  onLogout,
+  onRefreshData
 }: ArtistViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('artist_active_tab') || 'tracks';
@@ -71,6 +73,7 @@ export default function ArtistView({
           onMessagesClick={() => {}}
           onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
+          onRefreshData={onRefreshData}
           userRole="artist"
           userId={user.id}
         />

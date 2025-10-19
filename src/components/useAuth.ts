@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logActivity } from '@/utils/activityLogger';
 import { User, API_URLS } from '@/types';
@@ -76,6 +76,30 @@ export const useAuth = () => {
     }
   };
 
+  const refreshUserData = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`${API_URLS.users}?role=all`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const updatedUser = data.users.find((u: User) => u.id === user.id);
+        
+        if (updatedUser) {
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          toast({ title: '✅ Данные обновлены', description: 'Ваши права доступа изменены' });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  }, [user, toast]);
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -83,5 +107,15 @@ export const useAuth = () => {
     }
   }, []);
 
-  return { user, login, logout, updateUserProfile };
+  useEffect(() => {
+    if (!user) return;
+    
+    const interval = setInterval(() => {
+      refreshUserData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [user?.id, refreshUserData]);
+
+  return { user, login, logout, updateUserProfile, refreshUserData };
 };

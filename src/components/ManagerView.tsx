@@ -31,6 +31,7 @@ interface ManagerViewProps {
   onMessagesOpenChange: (open: boolean) => void;
   onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;
+  onRefreshData?: () => void;
 }
 
 export default function ManagerView({
@@ -48,7 +49,8 @@ export default function ManagerView({
   onUpdateTaskStatus,
   onMessagesOpenChange,
   onUpdateUser,
-  onLogout
+  onLogout,
+  onRefreshData
 }: ManagerViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('manager_active_tab') || 'tasks';
@@ -75,6 +77,7 @@ export default function ManagerView({
           onMessagesClick={() => onMessagesOpenChange(true)}
           onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
+          onRefreshData={onRefreshData}
           userRole="manager"
           userId={user.id}
         />

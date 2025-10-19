@@ -9,7 +9,7 @@ import { useUsers } from '@/components/useUsers';
 import { useTasks } from '@/components/useTasks';
 
 export default function Index() {
-  const { user, login, logout, updateUserProfile } = useAuth();
+  const { user, login, logout, updateUserProfile, refreshUserData } = useAuth();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [newTicket, setNewTicket] = useState({ title: '', description: '', priority: 'medium' });
   const [selectedTicketFile, setSelectedTicketFile] = useState<File | null>(null);
@@ -89,6 +89,7 @@ export default function Index() {
         onMessagesOpenChange={setMessagesOpen}
         onUpdateUser={handleUpdateProfile}
         onLogout={logout}
+        onRefreshData={refreshUserData}
       />
     );
   }
@@ -120,6 +121,7 @@ export default function Index() {
       onDeleteTask={deleteTask}
       onMessagesOpenChange={setMessagesOpen}
       onLogout={logout}
+      onRefreshData={refreshUserData}
     />
   );
 }

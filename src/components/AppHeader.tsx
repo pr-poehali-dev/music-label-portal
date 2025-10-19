@@ -7,11 +7,12 @@ interface AppHeaderProps {
   onMessagesClick: () => void;
   onProfileClick: () => void;
   onLogout: () => void;
+  onRefreshData?: () => void;
   userRole: 'artist' | 'manager' | 'director';
   userId: number;
 }
 
-export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, userRole, userId }: AppHeaderProps) {
+export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, onRefreshData, userRole, userId }: AppHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -66,6 +67,18 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, u
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
+          </Button>
+        )}
+        {onRefreshData && (
+          <Button
+            onClick={onRefreshData}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4"
+            title="Обновить данные профиля"
+          >
+            <Icon name="RefreshCw" size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden lg:inline">Обновить</span>
           </Button>
         )}
         <Button

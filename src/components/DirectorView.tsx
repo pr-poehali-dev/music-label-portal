@@ -32,6 +32,7 @@ interface DirectorViewProps {
   onDeleteTask: (taskId: number) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onLogout: () => void;
+  onRefreshData?: () => void;
 }
 
 export default function DirectorView({
@@ -59,7 +60,8 @@ export default function DirectorView({
   onUpdateTaskStatus,
   onDeleteTask,
   onMessagesOpenChange,
-  onLogout
+  onLogout,
+  onRefreshData
 }: DirectorViewProps) {
   const [showProfile, setShowProfile] = useState(false);
   
@@ -70,6 +72,7 @@ export default function DirectorView({
           onMessagesClick={() => onMessagesOpenChange(true)}
           onProfileClick={() => setShowProfile(true)}
           onLogout={onLogout}
+          onRefreshData={onRefreshData}
           userRole="director"
           userId={user.id}
         />
