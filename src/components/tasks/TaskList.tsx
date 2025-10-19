@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import TaskCard from './TaskCard';
@@ -47,27 +48,47 @@ export default function TaskList({
   getStatusColor,
   getStatusText
 }: TaskListProps) {
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleUpdateStatus = useCallback((taskId: number, status: string) => {
+    onUpdateStatus(taskId, status);
+  }, [onUpdateStatus]);
+
+  const handleComplete = useCallback((taskId: number) => {
+    onComplete(taskId);
+  }, [onComplete]);
+
+  const handleEdit = useCallback((task: Task) => {
+    onEdit(task);
+  }, [onEdit]);
+
+  const handleDelete = useCallback((taskId: number) => {
+    onDelete(taskId);
+  }, [onDelete]);
+
+  // Memoize empty state to avoid re-creation
+  const emptyState = useMemo(() => (
+    <Card>
+      <CardContent className="text-center py-8 sm:py-12 px-4">
+        <Icon name="Inbox" size={40} className="sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50 text-muted-foreground" />
+        <p className="text-sm sm:text-base text-muted-foreground">Нет назначенных задач</p>
+      </CardContent>
+    </Card>
+  ), []);
+
   if (tasks.length === 0) {
-    return (
-      <Card>
-        <CardContent className="text-center py-12">
-          <Icon name="Inbox" size={48} className="mx-auto mb-4 opacity-50 text-muted-foreground" />
-          <p className="text-muted-foreground">Нет назначенных задач</p>
-        </CardContent>
-      </Card>
-    );
+    return emptyState;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
       {tasks.map((task) => (
         <TaskCard
           key={task.id}
           task={task}
-          onUpdateStatus={onUpdateStatus}
-          onComplete={onComplete}
-          onEdit={onEdit}
-          onDelete={onDelete}
+          onUpdateStatus={handleUpdateStatus}
+          onComplete={handleComplete}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
           getPriorityColor={getPriorityColor}
           getPriorityText={getPriorityText}
           getStatusColor={getStatusColor}

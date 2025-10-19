@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,34 +49,57 @@ export default function TaskCard({
   getStatusColor,
   getStatusText
 }: TaskCardProps) {
+  // Memoize formatted date to avoid re-computation
+  const formattedDeadline = useMemo(() => 
+    new Date(task.deadline).toLocaleString('ru-RU'),
+    [task.deadline]
+  );
+
+  // Memoize callbacks
+  const handleUpdateStatus = useCallback(() => {
+    onUpdateStatus(task.id, 'in_progress');
+  }, [onUpdateStatus, task.id]);
+
+  const handleComplete = useCallback(() => {
+    onComplete(task.id);
+  }, [onComplete, task.id]);
+
+  const handleEdit = useCallback(() => {
+    onEdit(task);
+  }, [onEdit, task]);
+
+  const handleDelete = useCallback(() => {
+    onDelete(task.id);
+  }, [onDelete, task.id]);
+
   return (
-    <Card>
-      <CardContent className="p-4 space-y-3">
+    <Card className="h-full flex flex-col">
+      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3 flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg">{task.title}</h3>
-          <Badge className={getPriorityColor(task.priority)}>
+          <h3 className="font-semibold text-base sm:text-lg flex-1 min-w-0 break-words">{task.title}</h3>
+          <Badge className={`${getPriorityColor(task.priority)} text-xs flex-shrink-0`}>
             {getPriorityText(task.priority)}
           </Badge>
         </div>
 
         {task.description && (
-          <p className="text-sm text-muted-foreground">{task.description}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground break-words">{task.description}</p>
         )}
 
         {task.completion_report && (
-          <div className="border-l-4 border-green-500 bg-green-500/10 p-3 rounded space-y-2">
+          <div className="border-l-4 border-green-500 bg-green-500/10 p-2 sm:p-3 rounded space-y-2">
             <p className="text-xs font-semibold text-green-600 mb-1">Итоги выполнения:</p>
-            <p className="text-sm text-muted-foreground">{task.completion_report}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground break-words">{task.completion_report}</p>
             {task.completion_attachment_url && (
               <a 
                 href={task.completion_attachment_url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 transition-colors"
+                className="flex items-center gap-1.5 text-xs sm:text-sm text-green-600 md:hover:text-green-700 transition-colors active:text-green-700 min-h-[44px] sm:min-h-0"
               >
-                <Icon name="FileText" size={14} />
-                <span className="font-medium">{task.completion_attachment_name}</span>
-                <span className="text-xs text-muted-foreground">
+                <Icon name="FileText" size={14} className="flex-shrink-0" />
+                <span className="font-medium truncate">{task.completion_attachment_name}</span>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
                   ({(task.completion_attachment_size! / 1024 / 1024).toFixed(2)} МБ)
                 </span>
               </a>
@@ -88,42 +112,43 @@ export default function TaskCard({
             href={task.attachment_url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1.5 text-xs sm:text-sm text-blue-500 md:hover:text-blue-600 transition-colors active:text-blue-600 min-h-[44px] sm:min-h-0 break-all"
           >
-            <Icon name="Paperclip" size={14} />
-            {task.attachment_name} ({(task.attachment_size! / 1024 / 1024).toFixed(2)} МБ)
+            <Icon name="Paperclip" size={14} className="flex-shrink-0" />
+            <span className="truncate">{task.attachment_name}</span>
+            <span className="flex-shrink-0">({(task.attachment_size! / 1024 / 1024).toFixed(2)} МБ)</span>
           </a>
         )}
 
-        <div className="space-y-2 text-sm">
+        <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
           {task.assigned_name && (
-            <div className="flex items-center gap-2">
-              <Icon name="User" size={14} className="text-primary" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Icon name="User" size={14} className="text-primary flex-shrink-0" />
               <span className="font-medium text-foreground">Менеджер:</span>
-              <span className="text-muted-foreground">{task.assigned_name}</span>
+              <span className="text-muted-foreground truncate">{task.assigned_name}</span>
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Icon name="Calendar" size={14} className="text-primary" />
-            <span>{new Date(task.deadline).toLocaleString('ru-RU')}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+            <Icon name="Calendar" size={14} className="text-primary flex-shrink-0" />
+            <span className="break-all">{formattedDeadline}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge className={getStatusColor(task.status)}>
+            <Badge className={`${getStatusColor(task.status)} text-xs`}>
               {getStatusText(task.status)}
             </Badge>
           </div>
         </div>
 
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-2 mt-auto">
           <div className="flex gap-2">
             {task.status !== 'in_progress' && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onUpdateStatus(task.id, 'in_progress')}
-                className="flex-1"
+                onClick={handleUpdateStatus}
+                className="flex-1 min-h-[44px] text-xs sm:text-sm"
               >
                 В работу
               </Button>
@@ -131,8 +156,8 @@ export default function TaskCard({
             {task.status !== 'completed' && (
               <Button
                 size="sm"
-                onClick={() => onComplete(task.id)}
-                className="flex-1"
+                onClick={handleComplete}
+                className="flex-1 min-h-[44px] text-xs sm:text-sm"
               >
                 Завершить
               </Button>
@@ -142,19 +167,19 @@ export default function TaskCard({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onEdit(task)}
-              className="flex-1"
+              onClick={handleEdit}
+              className="flex-1 min-h-[44px] text-xs sm:text-sm"
             >
-              <Icon name="Edit" size={14} className="mr-1" />
+              <Icon name="Edit" size={12} className="mr-1" />
               Изменить
             </Button>
             <Button
               size="sm"
               variant="destructive"
-              onClick={() => onDelete(task.id)}
-              className="flex-1"
+              onClick={handleDelete}
+              className="flex-1 min-h-[44px] text-xs sm:text-sm"
             >
-              <Icon name="Trash2" size={14} className="mr-1" />
+              <Icon name="Trash2" size={12} className="mr-1" />
               Удалить
             </Button>
           </div>

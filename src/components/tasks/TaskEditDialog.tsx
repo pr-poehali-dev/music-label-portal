@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,46 +38,53 @@ export default function TaskEditDialog({
   onSubmit,
   onToggleManager
 }: TaskEditDialogProps) {
+  // Memoize submit handler
+  const handleSubmit = useCallback(() => {
+    onSubmit();
+  }, [onSubmit]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle>Редактировать задачу</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Редактировать задачу</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1 block">Название задачи *</label>
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Название задачи *</label>
             <Input
               placeholder="Проверить отчёты артистов"
               value={editForm.title}
               onChange={(e) => onFormChange({ ...editForm, title: e.target.value })}
+              className="text-sm"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Описание</label>
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Описание</label>
             <Textarea
               placeholder="Детали задачи..."
               value={editForm.description}
               onChange={(e) => onFormChange({ ...editForm, description: e.target.value })}
-              className="min-h-[100px]"
+              className="min-h-[80px] sm:min-h-[100px] text-sm"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Менеджеры * (можно выбрать несколько)</label>
-            <div className="border rounded-md p-3 space-y-2 max-h-[200px] overflow-y-auto">
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Менеджеры * (можно выбрать несколько)</label>
+            <div className="border rounded-md p-2 sm:p-3 space-y-2 max-h-[200px] overflow-y-auto">
               {managers.map((manager) => (
-                <div key={manager.id} className="flex items-center space-x-2">
+                <div key={manager.id} className="flex items-center gap-2 min-h-[44px] sm:min-h-0">
                   <Checkbox
                     id={`edit-manager-${manager.id}`}
                     checked={editForm.assigned_to.includes(manager.id)}
                     onCheckedChange={() => onToggleManager(manager.id)}
+                    className="flex-shrink-0"
                   />
                   <label
                     htmlFor={`edit-manager-${manager.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1 min-h-[44px] sm:min-h-0 flex items-center"
                   >
                     {manager.full_name}
                   </label>
@@ -90,20 +98,21 @@ export default function TaskEditDialog({
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Дедлайн *</label>
+              <label className="text-xs sm:text-sm font-medium mb-1 block">Дедлайн *</label>
               <Input
                 type="datetime-local"
                 value={editForm.deadline}
                 onChange={(e) => onFormChange({ ...editForm, deadline: e.target.value })}
+                className="text-sm"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1 block">Приоритет</label>
+              <label className="text-xs sm:text-sm font-medium mb-1 block">Приоритет</label>
               <Select value={editForm.priority} onValueChange={(value) => onFormChange({ ...editForm, priority: value })}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -116,12 +125,12 @@ export default function TaskEditDialog({
             </div>
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button onClick={onSubmit} className="flex-1">
-              <Icon name="Save" size={18} className="mr-2" />
+          <div className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button onClick={handleSubmit} className="flex-1 min-h-[44px] text-sm sm:text-base">
+              <Icon name="Save" size={16} className="mr-2" />
               Сохранить изменения
             </Button>
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 min-h-[44px] text-sm sm:text-base">
               Отмена
             </Button>
           </div>

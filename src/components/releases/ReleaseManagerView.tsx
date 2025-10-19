@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -39,9 +40,9 @@ const getStatusBadge = (status: string) => {
   };
   const config = variants[status] || variants.pending;
   return (
-    <Badge variant={config.variant} className="gap-1">
-      <Icon name={config.icon} size={12} />
-      {config.text}
+    <Badge variant={config.variant} className="gap-1 text-xs">
+      <Icon name={config.icon} size={12} className="flex-shrink-0" />
+      <span className="truncate">{config.text}</span>
     </Badge>
   );
 };
@@ -70,18 +71,29 @@ export default function ReleaseManagerView({
   handleBatchUpload,
   handleSubmit
 }: ReleaseManagerViewProps) {
-  const filteredReleases = activeTab === 'all' 
-    ? releases 
-    : releases.filter(r => r.status === activeTab);
+  // Memoize filtered releases to avoid re-filtering on every render
+  const filteredReleases = useMemo(() => 
+    activeTab === 'all' ? releases : releases.filter(r => r.status === activeTab),
+    [activeTab, releases]
+  );
+
+  // Memoize callbacks
+  const handleCreateClick = useCallback(() => {
+    onCreateClick();
+  }, [onCreateClick]);
+
+  const handleCancelForm = useCallback(() => {
+    onCancelForm();
+  }, [onCancelForm]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {!showForm && (
         <>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <h2 className="text-xl font-bold">Мои релизы</h2>
-            <Button onClick={onCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto">
-              <Icon name="Plus" size={16} />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
+            <h2 className="text-lg sm:text-xl font-bold">Мои релизы</h2>
+            <Button onClick={handleCreateClick} size="sm" className="gap-1.5 w-full sm:w-auto min-h-[44px] sm:min-h-0 text-sm">
+              <Icon name="Plus" size={14} className="sm:w-4 sm:h-4" />
               Создать релиз
             </Button>
           </div>
