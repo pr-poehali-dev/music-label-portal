@@ -200,7 +200,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <footer className="text-center py-12 md:py-16 relative px-4">
+          <footer className="text-center py-16 md:py-24 relative px-4 mt-16 md:mt-24">
             <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent rounded-3xl" />
             <div className="relative">
               <div className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-4 md:mb-6">
