@@ -37,7 +37,7 @@ interface DailyStats {
   tasks_by_manager: { [key: string]: number };
 }
 
-const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
+const API_URL = 'https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890';
 
 export default function TaskAnalyticsDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
