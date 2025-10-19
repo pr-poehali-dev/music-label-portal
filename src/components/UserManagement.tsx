@@ -95,6 +95,7 @@ const UserManagement = React.memo(function UserManagement({
     setEditData({
       full_name: user.full_name,
       username: user.username,
+      role: user.role,
       revenue_share_percent: user.revenue_share_percent || 50
     });
     setShowEditModal(true);
@@ -288,7 +289,23 @@ const UserManagement = React.memo(function UserManagement({
                   placeholder="username"
                 />
               </div>
-              {selectedUser.role === 'artist' && (
+              <div>
+                <Label>Роль</Label>
+                <Select 
+                  value={editData.role || selectedUser.role} 
+                  onValueChange={(val) => setEditData({ ...editData, role: val as 'artist' | 'manager' | 'director' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="artist">🎤 Артист</SelectItem>
+                    <SelectItem value="manager">🎯 Менеджер</SelectItem>
+                    <SelectItem value="director">👑 Руководитель</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(editData.role === 'artist' || selectedUser.role === 'artist') && (
                 <div>
                   <Label>% артиста от дохода</Label>
                   <Input
