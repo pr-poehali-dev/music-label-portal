@@ -65,20 +65,43 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
       return;
     }
 
-    if (newPassword.length < 6) {
-      setPasswordError('Пароль должен быть не менее 6 символов');
+    if (newPassword.length < 4) {
+      setPasswordError('Пароль должен быть не менее 4 символов');
       return;
     }
 
-    setPasswordSuccess(true);
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setTimeout(() => {
-      setIsChangingPassword(false);
-      setPasswordSuccess(false);
-    }, 2000);
-  }, [oldPassword, newPassword, confirmPassword]);
+    try {
+      const response = await fetch('https://functions.poehali.dev/fc19a64b-eb76-4cdf-bf49-f7ed121edba7', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: user.username || user.login,
+          old_password: oldPassword,
+          new_password: newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPasswordError(data.error || 'Не удалось изменить пароль');
+        return;
+      }
+
+      setPasswordSuccess(true);
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setIsChangingPassword(false);
+        setPasswordSuccess(false);
+      }, 2000);
+    } catch (error) {
+      setPasswordError('Ошибка сети. Попробуйте еще раз');
+    }
+  }, [oldPassword, newPassword, confirmPassword, user]);
 
   const handleCancelPasswordChange = useCallback(() => {
     setOldPassword('');

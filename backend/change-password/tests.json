@@ -1,0 +1,50 @@
+{
+  "tests": [
+    {
+      "name": "Successful password change",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "manager",
+        "old_password": "12345",
+        "new_password": "newpass123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Failed password change with wrong old password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "manager",
+        "old_password": "wrongpass",
+        "new_password": "newpass123"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Failed password change with short new password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "manager",
+        "old_password": "12345",
+        "new_password": "123"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
