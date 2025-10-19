@@ -70,6 +70,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         ticket_id = body_data.get('ticket_id')
         user_id = body_data.get('user_id')
         comment = body_data.get('comment')
+        attachment_url = body_data.get('attachment_url')
+        attachment_name = body_data.get('attachment_name')
         
         if not all([ticket_id, user_id, comment]):
             cur.close()
@@ -82,10 +84,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cur.execute('''
-            INSERT INTO ticket_comments (ticket_id, user_id, comment)
-            VALUES (%s, %s, %s)
+            INSERT INTO ticket_comments (ticket_id, user_id, comment, attachment_url, attachment_name)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING id, created_at
-        ''', (int(ticket_id), int(user_id), comment))
+        ''', (int(ticket_id), int(user_id), comment, attachment_url, attachment_name))
         
         result = cur.fetchone()
         conn.commit()
