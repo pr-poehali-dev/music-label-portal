@@ -44,7 +44,7 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, o
   };
 
   return (
-    <div className="flex justify-between items-center mb-4 md:mb-6 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-3 md:p-4 animate-slideIn">
+    <div className="flex justify-between items-center bg-card/60 backdrop-blur-sm border border-border rounded-xl p-3 md:p-4 animate-slideIn">
       <div className="flex items-center gap-2 md:gap-4">
         <img 
           src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
