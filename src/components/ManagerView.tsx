@@ -82,7 +82,7 @@ export default function ManagerView({
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-20 md:pb-0">
       <div className="container mx-auto p-4 animate-fadeIn">
-        <div className="sticky top-0 z-30 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-yellow-500/20 rounded-b-xl">
+        <div className="sticky top-0 z-30">
           <AppHeader 
             onMessagesClick={() => onMessagesOpenChange(true)}
             onProfileClick={() => setShowProfile(true)}
