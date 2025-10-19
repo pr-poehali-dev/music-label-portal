@@ -17,16 +17,19 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
   const [fullName, setFullName] = useState(user.fullName || user.full_name || '');
   const [email, setEmail] = useState(user.email || '');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.vk_photo || user.avatar || null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
@@ -35,19 +38,45 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     }
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    let avatarUrl = avatarPreview;
+    
+    if (avatarFile) {
+      setIsUploadingAvatar(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', avatarFile);
+        
+        const response = await fetch('https://functions.poehali.dev/5ce1cb99-44a3-487f-b61a-d4a29f3c8ce1', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          avatarUrl = data.url;
+        }
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    }
+    
     onUpdateProfile({
       fullName,
       email,
-      avatar: avatarPreview || undefined
+      avatar: avatarUrl || undefined
     });
     setIsEditing(false);
-  }, [fullName, email, avatarPreview, onUpdateProfile]);
+    setAvatarFile(null);
+  }, [fullName, email, avatarPreview, avatarFile, onUpdateProfile]);
 
   const handleCancel = useCallback(() => {
     setFullName(user.fullName || user.full_name || '');
     setEmail(user.email || '');
-    setAvatarPreview(user.avatar || null);
+    setAvatarPreview(user.vk_photo || user.avatar || null);
+    setAvatarFile(null);
     setIsEditing(false);
   }, [user]);
 
@@ -263,15 +292,26 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
                   onClick={handleSave}
                   className="flex-1 h-11 gap-2"
                   size="lg"
+                  disabled={isUploadingAvatar}
                 >
-                  <Icon name="Check" size={18} />
-                  Сохранить изменения
+                  {isUploadingAvatar ? (
+                    <>
+                      <Icon name="Loader" size={18} className="animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Check" size={18} />
+                      Сохранить изменения
+                    </>
+                  )}
                 </Button>
                 <Button 
                   onClick={handleCancel}
                   variant="outline"
                   className="flex-1 h-11 gap-2"
                   size="lg"
+                  disabled={isUploadingAvatar}
                 >
                   <Icon name="X" size={18} />
                   Отмена
