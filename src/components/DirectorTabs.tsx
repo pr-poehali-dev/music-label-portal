@@ -143,14 +143,10 @@ export default function DirectorTabs({
       }} 
       className="w-full">
       <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-        <TabsList className="grid w-full grid-cols-9 md:grid-cols-9 min-w-[900px] md:min-w-0">
+        <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">📊 Аналитика</span>
             <span className="md:hidden">📊</span>
-          </TabsTrigger>
-          <TabsTrigger value="weekly" className="text-xs md:text-sm px-2 md:px-4">
-            <span className="hidden md:inline">📅 Отчёт</span>
-            <span className="md:hidden">📅</span>
           </TabsTrigger>
           <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4">
             <span className="hidden md:inline">🎫 Тикеты<Badge count={unreadCounts.tickets} /></span>
@@ -218,10 +214,6 @@ export default function DirectorTabs({
         <AnalyticsView />
       </TabsContent>
 
-      <TabsContent value="weekly">
-        <WeeklyReport />
-      </TabsContent>
-
       <TabsContent value="team">
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="mb-4">
@@ -257,7 +249,18 @@ export default function DirectorTabs({
       </TabsContent>
 
       <TabsContent value="reports">
-        <ReportsUploader userId={user.id} />
+        <Tabs defaultValue="weekly" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="weekly">Еженедельный отчёт</TabsTrigger>
+            <TabsTrigger value="upload">Загрузить отчёт</TabsTrigger>
+          </TabsList>
+          <TabsContent value="weekly">
+            <WeeklyReport />
+          </TabsContent>
+          <TabsContent value="upload">
+            <ReportsUploader userId={user.id} />
+          </TabsContent>
+        </Tabs>
       </TabsContent>
 
       <TabsContent value="settings">
