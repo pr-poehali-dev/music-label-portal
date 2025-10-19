@@ -150,8 +150,8 @@ export default function DirectorTabs({
         localStorage.setItem('director_active_tab', value);
       }} 
       className="w-full">
-      <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide">
-        <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0">
+      <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
+        <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <span className="hidden md:inline">📊 Аналитика</span>
             <span className="md:hidden">📊</span>
@@ -223,7 +223,7 @@ export default function DirectorTabs({
 
       <TabsContent value="reports" className="animate-fadeIn">
         <Tabs defaultValue="weekly" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
             <TabsTrigger value="weekly" className="transition-all duration-200 hover:scale-105">Еженедельный отчёт</TabsTrigger>
             <TabsTrigger value="upload" className="transition-all duration-200 hover:scale-105">Загрузить отчёт</TabsTrigger>
           </TabsList>
@@ -238,7 +238,7 @@ export default function DirectorTabs({
 
       <TabsContent value="settings" className="animate-fadeIn">
         <Tabs defaultValue="team" className="w-full">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
             <TabsTrigger value="team" className="transition-all duration-200 hover:scale-105">Команда</TabsTrigger>
             <TabsTrigger value="reminders" className="transition-all duration-200 hover:scale-105">Напоминания</TabsTrigger>
             <TabsTrigger value="telegram" className="transition-all duration-200 hover:scale-105">Telegram бот</TabsTrigger>
@@ -246,7 +246,7 @@ export default function DirectorTabs({
           
           <TabsContent value="team" className="animate-fadeIn">
             <Tabs defaultValue="users" className="w-full">
-              <TabsList className="mb-4">
+              <TabsList className="mb-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
                 <TabsTrigger value="users" className="transition-all duration-200 hover:scale-105">Пользователи</TabsTrigger>
                 <TabsTrigger value="activity" className="transition-all duration-200 hover:scale-105">Статистика активности</TabsTrigger>
                 <TabsTrigger value="monitoring" className="transition-all duration-200 hover:scale-105">Мониторинг активности</TabsTrigger>
