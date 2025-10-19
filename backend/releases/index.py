@@ -147,6 +147,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             body_data = json.loads(event.get('body', '{}'))
             
+            genre = body_data.get('genre')
+            if genre == '' or genre == '0':
+                genre = None
+            
             cur.execute(f"""
                 INSERT INTO {schema}.releases 
                 (artist_id, title, release_name, cover_url, release_date, preorder_date, 
@@ -161,7 +165,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body_data.get('release_date'),
                 body_data.get('preorder_date'),
                 body_data.get('sales_start_date'),
-                body_data.get('genre'),
+                genre,
                 body_data.get('copyright'),
                 body_data.get('price_category'),
                 body_data.get('title_language')
