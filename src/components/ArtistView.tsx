@@ -75,15 +75,25 @@ export default function ArtistView({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
-      <div className="container mx-auto p-4 pb-24 md:pb-4 animate-fadeIn">
-        <AppHeader 
-          onMessagesClick={() => {}}
-          onProfileClick={() => setShowProfile(true)}
-          onLogout={onLogout}
-          onRefreshData={onRefreshData}
-          userRole="artist"
-          userId={user.id}
-        />
+      <div className="container mx-auto p-4 animate-fadeIn">
+        <div className="sticky top-0 z-30 -mx-4 px-4 bg-gradient-to-br from-black via-yellow-950/30 to-black pb-2 md:pb-0">
+          <AppHeader 
+            onMessagesClick={() => {}}
+            onProfileClick={() => setShowProfile(true)}
+            onLogout={onLogout}
+            onRefreshData={onRefreshData}
+            userRole="artist"
+            userId={user.id}
+          />
+          <MobileNav 
+            items={mobileNavItems}
+            activeTab={activeTab}
+            onTabChange={(value) => {
+              setActiveTab(value);
+              localStorage.setItem('artist_active_tab', value);
+            }}
+          />
+        </div>
 
         <Tabs 
           value={activeTab}
@@ -163,15 +173,6 @@ export default function ArtistView({
             </div>
           </div>
         )}
-
-        <MobileNav 
-          items={mobileNavItems}
-          activeTab={activeTab}
-          onTabChange={(value) => {
-            setActiveTab(value);
-            localStorage.setItem('artist_active_tab', value);
-          }}
-        />
       </div>
     </div>
   );

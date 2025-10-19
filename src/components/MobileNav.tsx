@@ -15,8 +15,8 @@ interface MobileNavProps {
 
 export default function MobileNav({ items, activeTab, onTabChange }: MobileNavProps) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-black via-yellow-950/40 to-black/95 backdrop-blur-lg border-t border-yellow-500/20 safe-area-inset-bottom">
-      <div className="grid gap-1 px-2 py-3" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+    <div className="md:hidden w-full bg-gradient-to-b from-black/80 via-yellow-950/20 to-transparent backdrop-blur-sm border-t border-yellow-500/20">
+      <div className="grid gap-1 px-2 py-2" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => {
           const isActive = activeTab === item.value;
           return (
@@ -24,9 +24,9 @@ export default function MobileNav({ items, activeTab, onTabChange }: MobileNavPr
               key={item.value}
               onClick={() => onTabChange(item.value)}
               className={`
-                relative flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl transition-all duration-300
+                relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-lg transition-all duration-300
                 ${isActive 
-                  ? 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 scale-105 shadow-lg shadow-yellow-500/20' 
+                  ? 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 shadow-md shadow-yellow-500/10' 
                   : 'hover:bg-yellow-500/10 active:scale-95'
                 }
               `}
@@ -34,7 +34,7 @@ export default function MobileNav({ items, activeTab, onTabChange }: MobileNavPr
               <div className="relative">
                 <Icon 
                   name={item.icon} 
-                  size={22} 
+                  size={20} 
                   className={`transition-colors duration-200 ${isActive ? 'text-yellow-400' : 'text-gray-400'}`}
                 />
                 {item.badge !== undefined && item.badge > 0 && (
@@ -43,11 +43,11 @@ export default function MobileNav({ items, activeTab, onTabChange }: MobileNavPr
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] font-medium transition-colors duration-200 ${isActive ? 'text-yellow-400' : 'text-gray-400'}`}>
+              <span className={`text-[9px] font-medium transition-colors duration-200 leading-tight ${isActive ? 'text-yellow-400' : 'text-gray-400'}`}>
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-yellow-400 rounded-full animate-slideIn" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-yellow-400 rounded-full" />
               )}
             </button>
           );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DirectorTabs from '@/components/DirectorTabs';
+import DirectorTabs, { DirectorMobileNav } from '@/components/DirectorTabs';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
@@ -68,21 +68,24 @@ export default function DirectorView({
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto p-2 md:p-4 animate-fadeIn">
-        <AppHeader 
-          onMessagesClick={() => onMessagesOpenChange(true)}
-          onProfileClick={() => setShowProfile(true)}
-          onLogout={onLogout}
-          onRefreshData={onRefreshData}
-          userRole="director"
-          userId={user.id}
-        />
-
         <MessagesModal 
           open={messagesOpen} 
           onOpenChange={onMessagesOpenChange}
           userId={user.id}
           userRole="boss"
         />
+
+        <div className="sticky top-0 z-30 -mx-2 md:-mx-4 px-2 md:px-4 bg-gradient-to-br from-black via-yellow-950/30 to-black pb-2 md:pb-0">
+          <AppHeader 
+            onMessagesClick={() => onMessagesOpenChange(true)}
+            onProfileClick={() => setShowProfile(true)}
+            onLogout={onLogout}
+            onRefreshData={onRefreshData}
+            userRole="director"
+            userId={user.id}
+          />
+          <DirectorMobileNav />
+        </div>
 
         <DirectorTabs
           user={user}
