@@ -4,10 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createNotification } from '@/hooks/useNotifications';
+import PitchingManagement from './PitchingManagement';
 
 interface Submission {
   id: number;
@@ -25,11 +27,12 @@ interface Submission {
 
 interface SubmissionsManagerProps {
   userId: number;
+  userRole?: string;
 }
 
 const API_URL = 'https://functions.poehali.dev/40a44285-32b8-4e3e-8f8f-b77f16293727';
 
-export default function SubmissionsManager({ userId }: SubmissionsManagerProps) {
+export default function SubmissionsManager({ userId, userRole = 'manager' }: SubmissionsManagerProps) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
@@ -149,24 +152,33 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Icon name="Music" size={32} className="text-primary" />
-          <h1 className="text-3xl font-bold">Заявки на прослушивание</h1>
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все заявки</SelectItem>
-            <SelectItem value="new">Новые</SelectItem>
-            <SelectItem value="reviewing">На рассмотрении</SelectItem>
-            <SelectItem value="approved">Одобренные</SelectItem>
-            <SelectItem value="rejected">Отклонённые</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex items-center gap-3 mb-6">
+        <Icon name="Music" size={32} className="text-primary" />
+        <h1 className="text-3xl font-bold">Заявки</h1>
       </div>
+
+      <Tabs defaultValue="submissions" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="submissions">🎵 Прослушивания</TabsTrigger>
+          <TabsTrigger value="pitchings">🎯 Питчинги</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="submissions" className="space-y-6 mt-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Заявки на прослушивание</h2>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все заявки</SelectItem>
+                <SelectItem value="new">Новые</SelectItem>
+                <SelectItem value="reviewing">На рассмотрении</SelectItem>
+                <SelectItem value="approved">Одобренные</SelectItem>
+                <SelectItem value="rejected">Отклонённые</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
       {submissions.length === 0 ? (
         <Card>
@@ -331,6 +343,12 @@ export default function SubmissionsManager({ userId }: SubmissionsManagerProps) 
           </Card>
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="pitchings" className="mt-6">
+          <PitchingManagement userId={userId} userRole={userRole} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
