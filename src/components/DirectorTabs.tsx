@@ -76,6 +76,8 @@ interface DirectorTabsProps {
   onLoadAllUsers: () => void;
   onDeleteTicket: (ticketId: number) => void;
   onUpdateUser: (userId: number, userData: Partial<User>) => void;
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
 }
 
 export default function DirectorTabs({
@@ -100,11 +102,16 @@ export default function DirectorTabs({
   onCreateUser,
   onLoadAllUsers,
   onDeleteTicket,
-  onUpdateUser
+  onUpdateUser,
+  activeTab: propActiveTab,
+  onTabChange: propOnTabChange
 }: DirectorTabsProps) {
-  const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('director_active_tab') || 'home';
+  const [internalActiveTab, setInternalActiveTab] = useState(() => {
+    return localStorage.getItem('director_active_tab') || 'analytics';
   });
+  
+  const activeTab = propActiveTab !== undefined ? propActiveTab : internalActiveTab;
+  const setActiveTab = propOnTabChange || setInternalActiveTab;
 
   const { unreadCounts, refreshCounts } = useNotifications();
   const { isUserOnline, getUserLastSeen } = useOnlineStatus(user.id);
@@ -284,11 +291,7 @@ export default function DirectorTabs({
   );
 }
 
-export function DirectorMobileNav() {
-  const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('director_active_tab') || 'home';
-  });
-  
+export function DirectorMobileNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (value: string) => void }) {
   const { unreadCounts } = useNotifications();
   
   const mobileNavItems = [
@@ -305,10 +308,7 @@ export function DirectorMobileNav() {
     <MobileNav 
       items={mobileNavItems}
       activeTab={activeTab}
-      onTabChange={(value) => {
-        setActiveTab(value);
-        localStorage.setItem('director_active_tab', value);
-      }}
+      onTabChange={onTabChange}
     />
   );
 }

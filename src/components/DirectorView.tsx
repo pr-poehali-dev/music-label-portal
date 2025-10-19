@@ -64,6 +64,14 @@ export default function DirectorView({
   onRefreshData
 }: DirectorViewProps) {
   const [showProfile, setShowProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('director_active_tab') || 'analytics';
+  });
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    localStorage.setItem('director_active_tab', value);
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
@@ -75,7 +83,7 @@ export default function DirectorView({
           userRole="boss"
         />
 
-        <div className="sticky top-0 z-30 -mx-2 md:-mx-4 px-2 md:px-4 bg-gradient-to-br from-black via-yellow-950/30 to-black pb-2 md:pb-0">
+        <div className="sticky top-0 z-30 -mx-2 md:-mx-4 px-2 md:px-4 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl pb-2 md:pb-0 shadow-2xl shadow-black/50 border-b border-yellow-500/20">
           <AppHeader 
             onMessagesClick={() => onMessagesOpenChange(true)}
             onProfileClick={() => setShowProfile(true)}
@@ -84,7 +92,7 @@ export default function DirectorView({
             userRole="director"
             userId={user.id}
           />
-          <DirectorMobileNav />
+          <DirectorMobileNav activeTab={activeTab} onTabChange={handleTabChange} />
         </div>
 
         <DirectorTabs
@@ -110,6 +118,8 @@ export default function DirectorView({
           onCreateTask={onCreateTask}
           onUpdateTaskStatus={onUpdateTaskStatus}
           onDeleteTask={onDeleteTask}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
         />
 
         {showProfile && (
