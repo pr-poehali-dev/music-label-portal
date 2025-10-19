@@ -244,6 +244,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'PUT':
         body_data = json.loads(event.get('body', '{}'))
+        print(f"PUT request body_data: {body_data}")
         user_id = body_data.get('id')
         
         if not user_id:
@@ -260,8 +261,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if 'fullName' in body_data or 'full_name' in body_data:
             full_name = body_data.get('fullName') or body_data.get('full_name')
-            safe_name = full_name.replace("'", "''")
-            update_fields.append(f"full_name = '{safe_name}'")
+            if full_name:
+                safe_name = full_name.replace("'", "''")
+                update_fields.append(f"full_name = '{safe_name}'")
         
         if 'username' in body_data:
             safe_username = body_data['username'].replace("'", "''")
