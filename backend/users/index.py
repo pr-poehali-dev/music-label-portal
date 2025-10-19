@@ -265,11 +265,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             params.append(body_data['username'])
         
         if 'email' in body_data:
-            update_fields.append('email = %s')
+            update_fields.append('vk_email = %s')
             params.append(body_data['email'])
         
         if 'avatar' in body_data:
-            update_fields.append('avatar = %s')
+            update_fields.append('vk_photo = %s')
             params.append(body_data['avatar'])
         
         if 'revenue_share_percent' in body_data:
