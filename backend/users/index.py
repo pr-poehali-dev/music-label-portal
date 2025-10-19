@@ -292,6 +292,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             update_fields.append('blocked_reason = %s')
             params.append(body_data['blocked_reason'])
         
+        if 'password' in body_data:
+            import bcrypt
+            password = body_data['password']
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            update_fields.append('password_hash = %s')
+            params.append(password_hash)
+        
         if not update_fields:
             cur.close()
             conn.close()
