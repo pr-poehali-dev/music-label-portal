@@ -148,6 +148,15 @@
     }
   }
 
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
   .animate-fadeIn {
     animation: fadeIn 0.8s ease-out;
   }
@@ -166,6 +175,22 @@
 
   .animate-pulse {
     animation: pulse 4s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+    background: linear-gradient(
+      90deg,
+      var(--primary) 0%,
+      var(--secondary) 25%,
+      var(--primary) 50%,
+      var(--secondary) 75%,
+      var(--primary) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .bg-grid-pattern {
