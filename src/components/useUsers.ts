@@ -72,10 +72,12 @@ export const useUsers = (user: User | null) => {
 
   const updateUser = useCallback(async (userId: number, userData: Partial<User>) => {
     try {
+      const payload = { id: userId, ...userData };
+      console.log('updateUser payload:', payload);
       const response = await fetch(API_URLS.users, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId, ...userData })
+        body: JSON.stringify(payload)
       });
       
       if (response.ok) {
