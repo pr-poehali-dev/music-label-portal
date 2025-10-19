@@ -52,12 +52,12 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
 
         const data = await response.json();
         
-        // Сохраняем токен
-        localStorage.setItem('telegram_token', data.token);
-        localStorage.setItem('telegram_user', JSON.stringify(data.user));
-        
-        // Вызываем onLogin с данными Telegram
-        onLogin('', '', undefined, data.user);
+        if (data.user) {
+          // Вызываем onLogin с данными пользователя из БД
+          onLogin('', '', undefined, data.user);
+        } else {
+          throw new Error('Не удалось получить данные пользователя');
+        }
       } catch (error: any) {
         toast({
           title: 'Ошибка',

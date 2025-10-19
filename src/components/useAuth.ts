@@ -10,16 +10,20 @@ export const useAuth = () => {
   const login = async (username: string, password: string, vkData?: any, telegramData?: any) => {
     try {
       if (telegramData) {
-        const mockUser: User = {
-          id: telegramData.telegram_id,
-          username: telegramData.username || `tg_${telegramData.telegram_id}`,
-          full_name: `${telegramData.first_name} ${telegramData.last_name || ''}`.trim(),
-          role: 'artist',
-          telegram_chat_id: telegramData.telegram_id.toString()
+        const userData: User = {
+          id: telegramData.id,
+          username: telegramData.username,
+          full_name: telegramData.full_name,
+          role: telegramData.role as 'artist' | 'manager' | 'director',
+          telegram_chat_id: telegramData.telegram_chat_id,
+          avatar: telegramData.avatar,
+          is_blocked: telegramData.is_blocked,
+          is_frozen: telegramData.is_frozen
         };
-        setUser(mockUser);
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        toast({ title: '✅ Вход выполнен', description: `Добро пожаловать, ${mockUser.full_name}` });
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        logActivity(userData.id, 'login', `Пользователь ${userData.full_name} вошёл через Telegram`);
+        toast({ title: '✅ Вход выполнен', description: `Добро пожаловать, ${userData.full_name}` });
         return;
       }
 
