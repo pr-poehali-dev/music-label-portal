@@ -216,44 +216,44 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl h-[85vh] flex flex-col p-0">
-        <DialogHeader className="p-4 md:p-6 border-b shrink-0">
-          <DialogTitle className="text-lg md:text-xl mb-2">Тикет #{ticket.id}</DialogTitle>
+      <DialogContent className="max-w-3xl h-[90vh] md:h-[85vh] max-h-screen flex flex-col p-0 gap-0">
+        <DialogHeader className="p-3 md:p-6 border-b shrink-0">
+          <DialogTitle className="text-base md:text-xl">Тикет #{ticket.id}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-          <div className="bg-muted/50 rounded-lg p-4 border-l-4 border-primary">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <h3 className="font-bold text-base md:text-lg">{ticket.title}</h3>
-              <div className="flex gap-2 shrink-0">
-                <Badge className={`${getPriorityColor(ticket.priority)} text-white text-xs`}>
+        <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-4">
+          <div className="bg-muted/50 rounded-lg p-3 md:p-4 border-l-4 border-primary">
+            <div className="flex items-start justify-between gap-2 md:gap-3 mb-2 md:mb-3">
+              <h3 className="font-bold text-sm md:text-lg leading-tight">{ticket.title}</h3>
+              <div className="flex gap-1 md:gap-2 shrink-0">
+                <Badge className={`${getPriorityColor(ticket.priority)} text-white text-[10px] md:text-xs px-1.5 md:px-2`}>
                   {ticket.priority === 'urgent' ? '🔥' : 
                    ticket.priority === 'high' ? '⚠️' :
                    ticket.priority === 'medium' ? '📌' : '📋'} {getPriorityLabel(ticket.priority)}
                 </Badge>
-                <Badge className={`${getStatusColor(ticket.status)} text-white text-xs`}>
+                <Badge className={`${getStatusColor(ticket.status)} text-white text-[10px] md:text-xs px-1.5 md:px-2`}>
                   {getStatusLabel(ticket.status)}
                 </Badge>
               </div>
             </div>
             
-            <p className="text-sm text-foreground/80 mb-3 whitespace-pre-wrap">{ticket.description}</p>
+            <p className="text-xs md:text-sm text-foreground/80 mb-2 md:mb-3 whitespace-pre-wrap leading-snug">{ticket.description}</p>
             
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <div className="flex flex-wrap gap-2 md:gap-3 text-[10px] md:text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Icon name="User" size={14} />
+                <Icon name="User" size={12} className="md:size-3.5" />
                 <span className="font-medium">Создатель:</span>
-                <span>{ticket.creator_name}</span>
+                <span className="truncate">{ticket.creator_name}</span>
               </div>
               {ticket.assigned_name && (
                 <div className="flex items-center gap-1 text-primary">
-                  <Icon name="UserCheck" size={14} />
+                  <Icon name="UserCheck" size={12} className="md:size-3.5" />
                   <span className="font-medium">Назначен:</span>
-                  <span>{ticket.assigned_name}</span>
+                  <span className="truncate">{ticket.assigned_name}</span>
                 </div>
               )}
               <div className="flex items-center gap-1">
-                <Icon name="Calendar" size={14} />
+                <Icon name="Calendar" size={12} className="md:size-3.5" />
                 <span>{new Date(ticket.created_at).toLocaleDateString('ru-RU', { 
                   day: '2-digit', 
                   month: 'long', 
@@ -265,19 +265,19 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
             </div>
 
             {ticket.attachment_url && (
-              <div className="mt-3 pt-3 border-t border-border">
-                <p className="text-xs font-semibold mb-2 flex items-center gap-1">
-                  <Icon name="Paperclip" size={14} />
+              <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-border">
+                <p className="text-[10px] md:text-xs font-semibold mb-1.5 md:mb-2 flex items-center gap-1">
+                  <Icon name="Paperclip" size={12} className="md:size-3.5" />
                   Прикреплённый файл:
                 </p>
                 <a 
                   href={ticket.attachment_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline bg-background px-3 py-2 rounded border"
+                  className="inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-primary hover:underline bg-background px-2 md:px-3 py-1.5 md:py-2 rounded border truncate max-w-full"
                 >
-                  <Icon name="Download" size={16} />
-                  {ticket.attachment_name}
+                  <Icon name="Download" size={14} className="md:size-4 shrink-0" />
+                  <span className="truncate">{ticket.attachment_name}</span>
                 </a>
               </div>
             )}
@@ -298,30 +298,30 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
               const isOwnMessage = comment.user_id === currentUserId;
               return (
                 <div key={comment.id} className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[75%] rounded-lg p-3 ${
+                  <div className={`max-w-[85%] md:max-w-[75%] rounded-lg p-2.5 md:p-3 ${
                     isOwnMessage 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted'
                   }`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold">{comment.user_name}</span>
-                      <Badge variant="outline" className="text-[10px] px-1 py-0">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-1">
+                      <span className="text-[11px] md:text-xs font-semibold">{comment.user_name}</span>
+                      <Badge variant="outline" className="text-[9px] md:text-[10px] px-1 py-0">
                         {comment.user_role === 'artist' ? '🎵' : comment.user_role === 'manager' ? '👤' : '👔'}
                       </Badge>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{comment.comment}</p>
+                    <p className="text-xs md:text-sm whitespace-pre-wrap leading-snug">{comment.comment}</p>
                     {comment.attachment_url && (
                       <a 
                         href={comment.attachment_url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs mt-2 opacity-90 hover:opacity-100 hover:underline"
+                        className="inline-flex items-center gap-1 text-[11px] md:text-xs mt-1.5 md:mt-2 opacity-90 hover:opacity-100 hover:underline truncate max-w-full"
                       >
-                        <Icon name="Paperclip" size={12} />
-                        {comment.attachment_name}
+                        <Icon name="Paperclip" size={10} className="md:size-3 shrink-0" />
+                        <span className="truncate">{comment.attachment_name}</span>
                       </a>
                     )}
-                    <p className="text-[10px] opacity-70 mt-1">{formatDate(comment.created_at)}</p>
+                    <p className="text-[9px] md:text-[10px] opacity-70 mt-0.5 md:mt-1">{formatDate(comment.created_at)}</p>
                   </div>
                 </div>
               );
@@ -330,11 +330,11 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t p-4 md:p-6 shrink-0">
+        <div className="border-t p-2 md:p-4 shrink-0">
           {selectedFile && (
-            <div className="mb-2 flex items-center gap-2 bg-muted p-2 rounded text-sm">
-              <Icon name="Paperclip" size={14} className="text-primary" />
-              <span className="flex-1 truncate">{selectedFile.name}</span>
+            <div className="mb-1.5 md:mb-2 flex items-center gap-1.5 md:gap-2 bg-muted p-1.5 md:p-2 rounded text-xs md:text-sm">
+              <Icon name="Paperclip" size={12} className="text-primary md:size-3.5 shrink-0" />
+              <span className="flex-1 truncate text-[11px] md:text-sm">{selectedFile.name}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -344,13 +344,13 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
                     fileInputRef.current.value = '';
                   }
                 }}
-                className="h-6 w-6 p-0"
+                className="h-5 w-5 md:h-6 md:w-6 p-0"
               >
-                <Icon name="X" size={14} />
+                <Icon name="X" size={12} className="md:size-3.5" />
               </Button>
             </div>
           )}
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 md:gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -368,15 +368,15 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
               size="icon"
               onClick={() => fileInputRef.current?.click()}
               disabled={sending || uploading}
-              className="h-[80px] w-[50px] shrink-0"
+              className="h-[60px] w-[40px] md:h-[80px] md:w-[50px] shrink-0"
             >
-              <Icon name="Paperclip" size={20} />
+              <Icon name="Paperclip" size={18} className="md:size-5" />
             </Button>
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Напишите сообщение..."
-              className="min-h-[80px] resize-none"
+              placeholder="Сообщение..."
+              className="min-h-[60px] md:min-h-[80px] resize-none text-sm"
               disabled={sending || uploading}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -388,14 +388,14 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
             <Button 
               onClick={sendComment} 
               disabled={!newComment.trim() || sending || uploading}
-              className="shrink-0 h-[80px] w-[50px]"
+              className="shrink-0 h-[60px] w-[40px] md:h-[80px] md:w-[50px]"
               size="icon"
             >
-              <Icon name={sending || uploading ? "Loader2" : "Send"} size={20} className={sending || uploading ? 'animate-spin' : ''} />
+              <Icon name={sending || uploading ? "Loader2" : "Send"} size={18} className={`md:size-5 ${sending || uploading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {uploading ? 'Загрузка файла...' : 'Нажмите Enter для отправки, Shift+Enter для новой строки'}
+          <p className="text-[10px] md:text-xs text-muted-foreground mt-1 md:mt-2">
+            {uploading ? 'Загрузка файла...' : 'Enter — отправить, Shift+Enter — новая строка'}
           </p>
         </div>
       </DialogContent>

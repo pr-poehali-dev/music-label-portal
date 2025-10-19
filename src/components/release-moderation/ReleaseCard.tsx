@@ -45,9 +45,9 @@ export default function ReleaseCard({
       } cursor-pointer hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-200 bg-gradient-to-br from-black via-yellow-950/20 to-black flex flex-col`}
       onClick={() => onView(release.id)}
     >
-      <CardContent className="p-4 flex flex-col h-full">
-        <div className="flex items-start justify-between mb-3 gap-2">
-          <h4 className="font-bold text-base text-primary line-clamp-2 flex-1">{release.release_name}</h4>
+      <CardContent className="p-3 md:p-4 flex flex-col h-full">
+        <div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
+          <h4 className="font-bold text-sm md:text-base text-primary line-clamp-2 flex-1 leading-tight">{release.release_name}</h4>
           {getStatusBadge(release.status)}
         </div>
 
@@ -55,13 +55,14 @@ export default function ReleaseCard({
           <img 
             src={release.cover_url} 
             alt={release.release_name} 
-            className="w-full aspect-square object-cover rounded-lg mb-3 border border-border/50" 
+            className="w-full aspect-square object-cover rounded-lg mb-2 md:mb-3 border border-border/50" 
+            loading="lazy"
           />
         )}
 
-        <div className="space-y-2 text-sm flex-1">
-          <p className="flex items-center gap-1.5 text-muted-foreground">
-            <Icon name="Mic2" size={14} className="text-secondary flex-shrink-0" />
+        <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm flex-1">
+          <p className="flex items-center gap-1 md:gap-1.5 text-muted-foreground">
+            <Icon name="Mic2" size={12} className="md:size-3.5 text-secondary flex-shrink-0" />
             {userRole === 'director' && release.user_id ? (
               <a 
                 href={`/user/${release.user_id}`} 

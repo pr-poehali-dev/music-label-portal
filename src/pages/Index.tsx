@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import LoginForm from '@/components/LoginForm';
-import ArtistView from '@/components/ArtistView';
-import ManagerView from '@/components/ManagerView';
-import DirectorView from '@/components/DirectorView';
 import { useAuth } from '@/components/useAuth';
 import { useTickets } from '@/components/useTickets';
 import { useUsers } from '@/components/useUsers';
 import { useTasks } from '@/components/useTasks';
+import Icon from '@/components/ui/icon';
+
+const ArtistView = lazy(() => import('@/components/ArtistView'));
+const ManagerView = lazy(() => import('@/components/ManagerView'));
+const DirectorView = lazy(() => import('@/components/DirectorView'));
 
 export default function Index() {
   const { user, login, logout, updateUserProfile, refreshUserData } = useAuth();
@@ -49,13 +51,23 @@ export default function Index() {
     }
   };
 
+  const LoadingFallback = () => (
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <Icon name="Loader2" size={48} className="animate-spin text-primary mx-auto" />
+        <p className="text-muted-foreground">Загрузка...</p>
+      </div>
+    </div>
+  );
+
   if (!user) {
     return <LoginForm onLogin={login} />;
   }
 
   if (user.role === 'artist') {
     return (
-      <ArtistView
+      <Suspense fallback={<LoadingFallback />}>
+        <ArtistView
         user={user}
         tickets={tickets}
         statusFilter={statusFilter}
@@ -71,13 +83,16 @@ export default function Index() {
         onMessagesOpenChange={setMessagesOpen}
         onUpdateUser={handleUpdateProfile}
         onLogout={logout}
+        onRefreshData={refreshUserData}
       />
+      </Suspense>
     );
   }
 
   if (user.role === 'manager') {
     return (
-      <ManagerView
+      <Suspense fallback={<LoadingFallback />}>
+        <ManagerView
         user={user}
         tickets={tickets}
         managers={managers}
@@ -95,11 +110,13 @@ export default function Index() {
         onLogout={logout}
         onRefreshData={refreshUserData}
       />
+      </Suspense>
     );
   }
 
   return (
-    <DirectorView
+    <Suspense fallback={<LoadingFallback />}>
+      <DirectorView
       user={user}
       tickets={tickets}
       managers={managers}
@@ -127,5 +144,6 @@ export default function Index() {
       onLogout={logout}
       onRefreshData={refreshUserData}
     />
+    </Suspense>
   );
 }

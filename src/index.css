@@ -90,6 +90,21 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+  }
+
+  @media (max-width: 768px) {
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -239,5 +254,24 @@
 
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @supports (backdrop-filter: blur(10px)) {
+    .backdrop-blur-sm {
+      backdrop-filter: blur(4px);
+    }
+    .backdrop-blur-xl {
+      backdrop-filter: blur(24px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
