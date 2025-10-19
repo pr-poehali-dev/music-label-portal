@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useState, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
+import { uploadFile } from '@/utils/uploadFile';
 
 interface TaskCompletionDialogProps {
   isOpen: boolean;
@@ -36,33 +37,12 @@ export default function TaskCompletionDialog({
     setIsUploading(true);
 
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-        
-        const response = await fetch('https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: base64,
-            fileName: file.name,
-            fileSize: file.size
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Ошибка загрузки файла');
-        }
-
-        const data = await response.json();
-        setAttachment({
-          url: data.url,
-          name: data.fileName,
-          size: data.fileSize
-        });
-      };
+      const result = await uploadFile(file);
+      setAttachment({
+        url: result.url,
+        name: result.fileName,
+        size: result.fileSize
+      });
     } catch (error) {
       console.error('Upload error:', error);
       alert('Не удалось загрузить файл');

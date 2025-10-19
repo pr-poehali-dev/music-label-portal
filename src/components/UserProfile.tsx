@@ -6,6 +6,7 @@ import { ProfileStats } from './UserProfile/ProfileStats';
 import { ProfileInfo } from './UserProfile/ProfileInfo';
 import { PasswordChangeForm } from './UserProfile/PasswordChangeForm';
 import { useToast } from '@/hooks/use-toast';
+import { uploadFile } from '@/utils/uploadFile';
 
 interface UserProfileProps {
   user: User;
@@ -53,48 +54,12 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     if (avatarFile) {
       setIsUploadingAvatar(true);
       try {
-        console.log('Starting avatar upload:', avatarFile.name, avatarFile.size);
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve) => {
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(avatarFile);
+        const result = await uploadFile(avatarFile);
+        avatarUrl = result.url;
+        toast({
+          title: 'Аватарка загружена',
+          description: 'Изображение успешно сохранено в облачном хранилище'
         });
-        
-        const base64Data = await base64Promise;
-        console.log('Base64 data ready, length:', base64Data.length);
-        
-        const response = await fetch('https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            file: base64Data,
-            fileName: avatarFile.name,
-            fileSize: avatarFile.size
-          })
-        });
-        
-        console.log('Upload response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Upload success, URL:', data.url);
-          avatarUrl = data.url;
-          toast({
-            title: 'Аватарка загружена',
-            description: 'Изображение успешно сохранено'
-          });
-        } else {
-          const errorText = await response.text();
-          console.error('Upload failed:', response.status, errorText);
-          toast({
-            title: 'Ошибка загрузки',
-            description: `Не удалось загрузить аватарку (${response.status}). Проверьте размер файла.`,
-            variant: 'destructive'
-          });
-          avatarUrl = avatarPreview;
-        }
       } catch (error) {
         console.error('Failed to upload avatar:', error);
         toast({

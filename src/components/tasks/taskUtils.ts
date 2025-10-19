@@ -1,3 +1,5 @@
+import { uploadFile as uploadFileUtil } from '@/utils/uploadFile';
+
 export const API_URL = 'https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890';
 export const UPLOAD_URL = 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa';
 
@@ -40,31 +42,6 @@ export const getStatusText = (status: string) => {
 };
 
 export const uploadFile = async (file: File, uploadUrl: string) => {
-  const reader = new FileReader();
-  return new Promise<{url: string, name: string, size: number}>((resolve, reject) => {
-    reader.onload = async () => {
-      try {
-        const response = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: reader.result,
-            fileName: file.name,
-            fileSize: file.size
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          resolve({ url: data.url, name: data.fileName, size: data.fileSize });
-        } else {
-          reject(new Error('Upload failed'));
-        }
-      } catch (error) {
-        reject(error);
-      }
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
+  const result = await uploadFileUtil(file);
+  return { url: result.url, name: result.fileName, size: result.fileSize };
 };

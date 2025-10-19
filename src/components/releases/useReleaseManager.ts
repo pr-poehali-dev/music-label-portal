@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Track, Release, Pitching, API_URL, UPLOAD_URL } from './types';
 import { createNotification } from '@/hooks/useNotifications';
+import { uploadFile as uploadFileUtil } from '@/utils/uploadFile';
 
 const PITCHING_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
 
@@ -55,52 +56,21 @@ export const useReleaseManager = (userId: number) => {
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
     setCurrentUploadFile(file.name);
-    return new Promise((resolve) => {
-      const reader = new FileReader();
+    setUploadProgress(10);
+    
+    try {
+      setUploadProgress(50);
+      const result = await uploadFileUtil(file);
+      setUploadProgress(100);
       
-      reader.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const percentLoaded = Math.round((e.loaded / e.total) * 50);
-          setUploadProgress(percentLoaded);
-        }
+      return {
+        url: result.url,
+        fileName: result.fileName,
+        fileSize: result.fileSize
       };
-      
-      reader.onload = async (e) => {
-        try {
-          const base64 = e.target?.result as string;
-          setUploadProgress(50);
-          
-          const response = await fetch(UPLOAD_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              file: base64,
-              fileName: file.name,
-              fileSize: file.size
-            })
-          });
-
-          setUploadProgress(90);
-
-          if (!response.ok) {
-            resolve(null);
-            return;
-          }
-
-          const result = await response.json();
-          setUploadProgress(100);
-          
-          resolve({
-            url: result.url,
-            fileName: result.fileName,
-            fileSize: result.fileSize
-          });
-        } catch (error) {
-          resolve(null);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    } catch (error) {
+      return null;
+    }
   };
 
   const handleCoverChange = (file: File | null) => {
