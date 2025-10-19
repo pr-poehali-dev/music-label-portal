@@ -27,7 +27,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
     selectedFile: File | null,
     setUploadingTicket: (uploading: boolean) => void
   ) => {
-    if (!newTicket.title || !newTicket.description || !user) return;
+    if (!newTicket.title || !newTicket.description || !user) return false;
     
     setUploadingTicket(true);
     try {
