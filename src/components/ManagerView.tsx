@@ -93,16 +93,6 @@ export default function ManagerView({
           />
         </div>
 
-        <MobileNav 
-          items={mobileNavItems}
-          activeTab={activeTab}
-          onTabChange={(value) => {
-            console.log('Manager tab change:', value);
-            setActiveTab(value);
-            localStorage.setItem('manager_active_tab', value);
-          }}
-        />
-
         <MessagesModal 
           open={messagesOpen} 
           onOpenChange={onMessagesOpenChange}
@@ -182,6 +172,16 @@ export default function ManagerView({
           </div>
         )}
       </div>
+
+      <MobileNav 
+        items={mobileNavItems}
+        activeTab={activeTab}
+        onTabChange={(value) => {
+          console.log('Manager tab change:', value);
+          setActiveTab(value);
+          localStorage.setItem('manager_active_tab', value);
+        }}
+      />
     </div>
   );
 }

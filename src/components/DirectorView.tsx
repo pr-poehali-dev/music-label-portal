@@ -94,8 +94,6 @@ export default function DirectorView({
           />
         </div>
 
-        <DirectorMobileNav activeTab={activeTab} onTabChange={handleTabChange} />
-
         <DirectorTabs
           user={user}
           tickets={tickets}
@@ -142,6 +140,8 @@ export default function DirectorView({
           </div>
         )}
       </div>
+
+      <DirectorMobileNav activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }

@@ -87,16 +87,6 @@ export default function ArtistView({
           />
         </div>
 
-        <MobileNav 
-          items={mobileNavItems}
-          activeTab={activeTab}
-          onTabChange={(value) => {
-            console.log('Artist tab change:', value);
-            setActiveTab(value);
-            localStorage.setItem('artist_active_tab', value);
-          }}
-        />
-
         <Tabs 
           value={activeTab}
           onValueChange={(value) => {
@@ -176,6 +166,16 @@ export default function ArtistView({
           </div>
         )}
       </div>
+
+      <MobileNav 
+        items={mobileNavItems}
+        activeTab={activeTab}
+        onTabChange={(value) => {
+          console.log('Artist tab change:', value);
+          setActiveTab(value);
+          localStorage.setItem('artist_active_tab', value);
+        }}
+      />
     </div>
   );
 }
