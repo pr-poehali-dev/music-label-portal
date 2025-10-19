@@ -191,7 +191,7 @@ export default function LandingPage() {
               <p className="text-gray-500 text-sm">Последние работы наших артистов</p>
             </div>
             
-            <div className="relative">
+            <div className="relative max-w-6xl mx-auto">
               <VKPosts />
             </div>
           </section>
