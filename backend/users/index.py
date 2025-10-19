@@ -207,7 +207,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Invalid role'})
             }
         
-        password_hash = '$2a$10$N9qo8uLOickgx2ZMRZoMye1w8lQvN3s6W/KdDmrJmLZMDr1FzU7B2'
+        import bcrypt
+        password_hash = bcrypt.hashpw('12345'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        # Log hash for debugging
+        print(f"Generated password hash for user {username}: {password_hash}")
         
         try:
             cur.execute(

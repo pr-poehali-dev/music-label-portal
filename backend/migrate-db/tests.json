@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Apply migration",
+    "event": {
+      "httpMethod": "POST",
+      "body": "{}"
+    },
+    "expected": {
+      "statusCode": 200
+    }
+  }
+]

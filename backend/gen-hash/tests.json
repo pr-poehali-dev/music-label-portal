@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Generate hash",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "hash": "string",
+        "verified": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
