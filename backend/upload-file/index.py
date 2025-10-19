@@ -46,7 +46,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         file_name = body_data.get('fileName')
         file_size = body_data.get('fileSize', 0)
         
+        print(f"Upload request: fileName={file_name}, fileSize={file_size}")
+        
         if not file_content or not file_name:
+            print(f"Missing data: file_content={bool(file_content)}, file_name={file_name}")
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -114,6 +117,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif file_ext.lower() == 'm4a':
             content_type = 'audio/mp4'
         
+        print(f"Uploading to S3: {s3_key}, size={len(file_bytes)} bytes")
+        
         s3_client.put_object(
             Bucket=bucket_name,
             Key=s3_key,
@@ -123,6 +128,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Формируем публичный URL
         file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
+        
+        print(f"Upload successful: {file_url}")
         
         return {
             'statusCode': 200,
@@ -137,6 +144,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
+        print(f"Upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
