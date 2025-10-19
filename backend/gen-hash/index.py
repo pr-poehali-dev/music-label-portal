@@ -1,23 +1,28 @@
 import json
-import bcrypt
+from passlib.hash import bcrypt
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    '''Generate bcrypt hash for testing'''
+    '''Generate bcrypt hash using passlib'''
     
     password = "12345"
-    salt = bcrypt.gensalt(rounds=12)
-    hash_value = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    hash_value = bcrypt.hash(password, rounds=12)
     
     # Verify it works
-    is_valid = bcrypt.checkpw(password.encode('utf-8'), hash_value.encode('utf-8'))
+    is_valid = bcrypt.verify(password, hash_value)
+    
+    # Test old hash
+    old_hash = "$2b$12$FJNPu53/hYpsDPpcyGTXKuRsxx4jdc5GrDvu.VnXLNPgXrs8fpFby"
+    old_works = bcrypt.verify(password, old_hash)
     
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': json.dumps({
             'password': password,
-            'hash': hash_value,
-            'verified': is_valid
+            'new_hash': hash_value,
+            'new_verified': is_valid,
+            'old_hash': old_hash,
+            'old_works': old_works
         })
     }

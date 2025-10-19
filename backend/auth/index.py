@@ -87,11 +87,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user = cur.fetchone()
             conn.commit()
     else:
-        import bcrypt
+        from passlib.hash import bcrypt
+        
+        safe_username = username.replace("'", "''")
         
         cur.execute(
-            "SELECT id, username, role, full_name, vk_photo, password_hash FROM t_p35759334_music_label_portal.users WHERE username = %s",
-            (username,)
+            f"SELECT id, username, role, full_name, vk_photo, password_hash FROM t_p35759334_music_label_portal.users WHERE username = '{safe_username}'"
         )
         user_row = cur.fetchone()
         
@@ -110,8 +111,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         password_valid = False
         
         try:
-            password_valid = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
-        except Exception:
+            password_valid = bcrypt.verify(password, stored_hash)
+        except Exception as e:
             password_valid = False
         
         if not password_valid:

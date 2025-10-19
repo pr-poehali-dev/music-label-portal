@@ -6,9 +6,8 @@ Returns: Success or error response
 
 import json
 import os
-import bcrypt
+from passlib.hash import bcrypt
 import psycopg2
-from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -61,12 +60,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     conn = psycopg2.connect(dsn)
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor = conn.cursor()
     
-    cursor.execute("SELECT id, username, password_hash, role FROM users WHERE username = %s", (username,))
-    user = cursor.fetchone()
+    safe_username = username.replace("'", "''")
+    cursor.execute(f"SELECT id, username, password_hash, role FROM t_p35759334_music_label_portal.users WHERE username = '{safe_username}'")
+    user_row = cursor.fetchone()
     
-    if not user:
+    if not user_row:
         cursor.close()
         conn.close()
         return {
@@ -75,7 +75,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Invalid credentials'})
         }
     
-    if not bcrypt.checkpw(old_password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+    user = {'id': user_row[0], 'username': user_row[1], 'password_hash': user_row[2], 'role': user_row[3]}
+    
+    if not bcrypt.verify(old_password, user['password_hash']):
         cursor.close()
         conn.close()
         return {
@@ -84,11 +86,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Old password is incorrect'})
         }
     
-    new_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    new_hash = bcrypt.hash(new_password, rounds=12)
     
+    safe_hash = new_hash.replace("'", "''")
     cursor.execute(
-        "UPDATE users SET password_hash = %s WHERE id = %s",
-        (new_hash, user['id'])
+        f"UPDATE t_p35759334_music_label_portal.users SET password_hash = '{safe_hash}' WHERE id = {user['id']}"
     )
     conn.commit()
     cursor.close()
