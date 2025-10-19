@@ -39,6 +39,7 @@ interface TicketCardProps {
   onUpdateStatus: (ticketId: number, status: string) => void;
   onAssign?: (ticketId: number, managerId: number | null, deadline?: string) => void;
   onDelete?: (ticketId: number) => void;
+  onOpenDialog?: (ticket: Ticket) => void;
   getPriorityColor: (priority: string) => string;
   getStatusColor: (status: string) => string;
 }
@@ -51,6 +52,7 @@ const TicketCard = React.memo(function TicketCard({
   onUpdateStatus, 
   onAssign,
   onDelete,
+  onOpenDialog,
   getPriorityColor,
   getStatusColor
 }: TicketCardProps) {
@@ -74,7 +76,10 @@ const TicketCard = React.memo(function TicketCard({
   };
 
   return (
-    <Card className={`border-primary/20 bg-card/95 hover:shadow-lg transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
+    <Card 
+      className={`border-primary/20 bg-card/95 hover:shadow-lg transition-all cursor-pointer ${isOverdue ? 'border-red-500/50' : ''}`}
+      onClick={() => onOpenDialog?.(ticket)}
+    >
       <CardHeader className="pb-2 space-y-2 p-3 md:p-6">
         <div className="flex items-start justify-between gap-2">
           <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 shrink-0`}>
@@ -86,7 +91,10 @@ const TicketCard = React.memo(function TicketCard({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onDelete(ticket.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(ticket.id);
+              }}
               className="h-6 w-6 md:h-8 md:w-8 text-red-500 hover:text-red-700 hover:bg-red-500/10 shrink-0"
             >
               <Icon name="Trash2" size={12} className="md:size-4" />
@@ -148,7 +156,7 @@ const TicketCard = React.memo(function TicketCard({
         </div>
 
         {effectiveRole === 'director' && ticket.status === 'open' && onAssign && (
-          <div className="space-y-1.5">
+          <div className="space-y-1.5" onClick={(e) => e.stopPropagation()}>
             <Select
               onValueChange={(val) => {
                 const managerId = val === 'unassign' ? null : Number(val);
@@ -181,7 +189,7 @@ const TicketCard = React.memo(function TicketCard({
         )}
 
         {(effectiveRole === 'manager' || effectiveRole === 'director') && ticket.status !== 'closed' && (
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
             {ticket.status === 'open' && (
               <Button 
                 onClick={() => onUpdateStatus(ticket.id, 'in_progress')} 

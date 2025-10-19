@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import TicketCard from '@/components/TicketCard';
+import TicketDialog from '@/components/TicketDialog';
 
 interface User {
   id: number;
@@ -63,11 +64,32 @@ const MyTickets = React.memo(function MyTickets({
   onStatusFilterChange,
   onLoadTickets
 }: MyTicketsProps) {
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   useEffect(() => {
     onLoadTickets();
   }, [statusFilter]);
 
+  const handleOpenDialog = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedTicket(null);
+  };
+
   return (
+    <>
+      <TicketDialog
+        ticket={selectedTicket}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        currentUserId={user.id}
+        currentUserRole={user.role}
+      />
     <Card>
       <CardHeader className="p-4 md:p-6">
         <CardTitle className="text-lg md:text-2xl">Мои тикеты</CardTitle>
@@ -103,6 +125,7 @@ const MyTickets = React.memo(function MyTickets({
                 user={user}
                 managers={[]}
                 onUpdateStatus={() => {}}
+                onOpenDialog={handleOpenDialog}
                 getPriorityColor={getPriorityColor}
                 getStatusColor={getStatusColor}
               />
@@ -111,6 +134,7 @@ const MyTickets = React.memo(function MyTickets({
         </div>
       </CardContent>
     </Card>
+    </>
   );
 });
 

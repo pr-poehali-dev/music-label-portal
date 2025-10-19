@@ -62,5 +62,6 @@ export const API_URLS = {
   auth: 'https://functions.poehali.dev/d2601eec-1d55-4956-b655-187431987ed9',
   tickets: 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296',
   users: 'https://functions.poehali.dev/cf5d45c1-d64b-4400-af77-a51c7588d942',
-  uploadFile: 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa'
+  uploadFile: 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa',
+  ticketComments: 'https://functions.poehali.dev/b636dc56-7328-4fb7-933d-5d6d32e9ee96'
 } as const;

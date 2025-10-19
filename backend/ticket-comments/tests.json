@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get comments for ticket",
+      "method": "GET",
+      "path": "/?ticket_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "comments": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create comment",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "ticket_id": 1,
+        "user_id": 1,
+        "comment": "Test comment"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "success": true,
+        "comment_id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

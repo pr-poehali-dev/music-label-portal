@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TicketCard from '@/components/TicketCard';
+import TicketDialog from '@/components/TicketDialog';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
@@ -70,6 +71,18 @@ const TicketManagement = React.memo(function TicketManagement({
 }: TicketManagementProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'resolved'>('open');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDialog = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedTicket(null);
+  };
 
   useEffect(() => {
     onLoadTickets();
@@ -87,6 +100,14 @@ const TicketManagement = React.memo(function TicketManagement({
   }), [tickets, sortByDate]);
 
   return (
+    <>
+      <TicketDialog
+        ticket={selectedTicket}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        currentUserId={user.id}
+        currentUserRole={user.role}
+      />
     <div className="space-y-4 md:space-y-6 p-3 md:p-6">
       <div className="flex items-center gap-2 md:gap-3">
         <Icon name="Ticket" size={24} className="text-primary md:hidden" />
@@ -130,6 +151,7 @@ const TicketManagement = React.memo(function TicketManagement({
                   onUpdateStatus={onUpdateStatus}
                   onAssign={onAssignTicket}
                   onDelete={onDeleteTicket}
+                  onOpenDialog={handleOpenDialog}
                   getPriorityColor={getPriorityColor}
                   getStatusColor={getStatusColor}
                 />
@@ -155,6 +177,7 @@ const TicketManagement = React.memo(function TicketManagement({
                   onUpdateStatus={onUpdateStatus}
                   onAssign={onAssignTicket}
                   onDelete={onDeleteTicket}
+                  onOpenDialog={handleOpenDialog}
                   getPriorityColor={getPriorityColor}
                   getStatusColor={getStatusColor}
                 />
@@ -180,6 +203,7 @@ const TicketManagement = React.memo(function TicketManagement({
                   onUpdateStatus={onUpdateStatus}
                   onAssign={onAssignTicket}
                   onDelete={onDeleteTicket}
+                  onOpenDialog={handleOpenDialog}
                   getPriorityColor={getPriorityColor}
                   getStatusColor={getStatusColor}
                 />
@@ -189,6 +213,7 @@ const TicketManagement = React.memo(function TicketManagement({
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 });
 
