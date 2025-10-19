@@ -62,13 +62,21 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
         if (response.ok) {
           const data = await response.json();
           avatarUrl = data.url;
+          console.log('Avatar URL length:', avatarUrl?.length, 'URL:', avatarUrl);
+        } else {
+          const errorText = await response.text();
+          console.error('Upload failed:', response.status, errorText);
+          avatarUrl = avatarPreview;
         }
       } catch (error) {
         console.error('Failed to upload avatar:', error);
+        avatarUrl = avatarPreview;
       } finally {
         setIsUploadingAvatar(false);
       }
     }
+    
+    console.log('Saving profile:', { fullName, email, avatarUrl, lengths: { fullName: fullName.length, email: email.length, avatar: avatarUrl?.length } });
     
     onUpdateProfile({
       fullName,
