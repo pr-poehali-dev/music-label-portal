@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormProps {
-  onLogin: (username: string, password: string, vkData?: any) => void;
+  onLogin: (username: string, password: string, vkData?: any, telegramData?: any) => void;
 }
 
 declare global {
@@ -56,13 +56,8 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
         localStorage.setItem('telegram_token', data.token);
         localStorage.setItem('telegram_user', JSON.stringify(data.user));
         
-        toast({
-          title: 'Успешно!',
-          description: `Добро пожаловать, ${data.user.first_name}!`
-        });
-        
         // Вызываем onLogin с данными Telegram
-        onLogin('', '', data.user);
+        onLogin('', '', undefined, data.user);
       } catch (error: any) {
         toast({
           title: 'Ошибка',

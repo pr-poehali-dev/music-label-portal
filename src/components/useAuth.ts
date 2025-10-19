@@ -7,8 +7,22 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  const login = async (username: string, password: string, vkData?: any) => {
+  const login = async (username: string, password: string, vkData?: any, telegramData?: any) => {
     try {
+      if (telegramData) {
+        const mockUser: User = {
+          id: telegramData.telegram_id,
+          username: telegramData.username || `tg_${telegramData.telegram_id}`,
+          full_name: `${telegramData.first_name} ${telegramData.last_name || ''}`.trim(),
+          role: 'artist',
+          telegram_chat_id: telegramData.telegram_id.toString()
+        };
+        setUser(mockUser);
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        toast({ title: '✅ Вход выполнен', description: `Добро пожаловать, ${mockUser.full_name}` });
+        return;
+      }
+
       if (!password && !vkData) {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
