@@ -19,6 +19,8 @@ declare global {
 export default function LoginForm({ onLogin }: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const telegramRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -81,23 +83,58 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     };
   }, [onLogin]);
 
-  const handleSubmit = () => {
-    onLogin(username, password);
+  const handleSubmit = async () => {
+    if (!username || !password) return;
+    
+    setIsLoading(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setIsLoading(false);
+    setIsSuccess(true);
+    
+    setTimeout(() => {
+      onLogin(username, password);
+    }, 1200);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-yellow-950/20 to-black bg-grid-pattern p-4">
-      <Card className="w-full max-w-md border-yellow-500/20 bg-black/60 backdrop-blur-xl animate-fadeIn">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-32 h-32 rounded-full overflow-hidden shadow-2xl shadow-yellow-500/50">
-            <img 
-              src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
-              alt="420 Logo" 
-              className="w-full h-full object-cover"
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-yellow-950/20 to-black bg-grid-pattern p-4 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
+      </div>
+      
+      {isSuccess && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="text-center">
+            <div className="relative w-32 h-32 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+              <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Icon name="CheckCircle2" size={48} className="text-primary animate-scaleIn" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-primary mb-2 animate-slideIn">Вход выполнен!</h3>
+            <p className="text-gray-400 animate-slideIn" style={{ animationDelay: '0.1s' }}>Загружаем личный кабинет...</p>
           </div>
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Авторизация</CardTitle>
-          <CardDescription className="text-gray-400">Музыкальный лейбл • Техподдержка</CardDescription>
+        </div>
+      )}
+      
+      <Card className={`w-full max-w-md border-yellow-500/20 bg-black/60 backdrop-blur-xl transition-all duration-700 ${isSuccess ? 'scale-95 opacity-0' : 'animate-fadeIn scale-100 opacity-100'}`}>
+        <CardHeader className="text-center">
+          <div className="relative mx-auto mb-4 w-32 h-32 group">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-pulse" />
+            <div className="relative w-full h-full rounded-full overflow-hidden shadow-2xl shadow-yellow-500/50 border-2 border-primary/30 group-hover:border-primary/60 transition-all duration-500 group-hover:scale-110">
+              <img 
+                src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
+                alt="420 Logo" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+          </div>
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent animate-shimmer">Авторизация</CardTitle>
+          <CardDescription className="text-gray-400 animate-fadeIn" style={{ animationDelay: '0.2s' }}>Музыкальный лейбл • Техподдержка</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -121,9 +158,23 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             />
           </div>
-          <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:shadow-lg hover:shadow-yellow-500/50 text-black font-semibold transition-all">
-            <Icon name="LogIn" size={16} className="mr-2" />
-            Войти
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isLoading || !username || !password}
+            className="group relative w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:shadow-lg hover:shadow-yellow-500/50 text-black font-semibold transition-all overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ animationDuration: '1.5s' }} />
+                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                Проверка данных...
+              </>
+            ) : (
+              <>
+                <Icon name="LogIn" size={16} className="mr-2 group-hover:translate-x-1 transition-transform" />
+                Войти
+              </>
+            )}
           </Button>
           
           <div className="relative">
