@@ -287,7 +287,7 @@ export const useReleaseManager = (userId: number) => {
     } finally {
       setUploading(false);
     }
-  };
+  }, [newRelease, coverFile, tracks, userId, editingRelease, toast, loadReleases]);
 
   const loadTracks = async (releaseId: number): Promise<Track[]> => {
     try {
