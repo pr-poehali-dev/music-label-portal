@@ -31,7 +31,7 @@ export default function VKPosts() {
   const loadPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://functions.poehali.dev/2a44eeac-eb38-454b-a031-3713ae83a3d2?count=6');
+      const response = await fetch(`https://functions.poehali.dev/2a44eeac-eb38-454b-a031-3713ae83a3d2?count=6&_=${Date.now()}`);
       const data = await response.json();
       
       if (data.error) {
