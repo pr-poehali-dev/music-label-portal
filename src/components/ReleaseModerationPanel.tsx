@@ -21,6 +21,8 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
   const [reviewComment, setReviewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -136,52 +138,180 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
     );
   }
 
-  const pendingReleases = releases.filter((r) => r.status === 'pending');
-  const reviewedReleases = releases.filter((r) => r.status !== 'pending');
+  const filterByDate = (release: Release) => {
+    if (dateFilter === 'all') return true;
+    const releaseDate = new Date(release.created_at);
+    const now = new Date();
+    
+    if (dateFilter === 'today') {
+      return releaseDate.toDateString() === now.toDateString();
+    }
+    if (dateFilter === 'week') {
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return releaseDate >= weekAgo;
+    }
+    if (dateFilter === 'month') {
+      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      return releaseDate >= monthAgo;
+    }
+    return true;
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setCollapsedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
+
+  const filteredReleases = releases.filter(filterByDate);
+  const pendingReleases = filteredReleases.filter((r) => r.status === 'pending');
+  const approvedReleases = filteredReleases.filter((r) => r.status === 'approved');
+  const rejectedReleases = filteredReleases.filter((r) => r.status === 'rejected');
 
   return (
     <div className="space-y-4 md:space-y-6 p-3 md:p-0">
-      <h2 className="text-xl md:text-2xl font-bold text-foreground">Модерация релизов</h2>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">Модерация релизов</h2>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={() => setDateFilter('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              dateFilter === 'all'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-muted-foreground hover:text-foreground border border-border/50'
+            }`}
+          >
+            Все время
+          </button>
+          <button
+            onClick={() => setDateFilter('today')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              dateFilter === 'today'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-muted-foreground hover:text-foreground border border-border/50'
+            }`}
+          >
+            Сегодня
+          </button>
+          <button
+            onClick={() => setDateFilter('week')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              dateFilter === 'week'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-muted-foreground hover:text-foreground border border-border/50'
+            }`}
+          >
+            Неделя
+          </button>
+          <button
+            onClick={() => setDateFilter('month')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              dateFilter === 'month'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-muted-foreground hover:text-foreground border border-border/50'
+            }`}
+          >
+            Месяц
+          </button>
+        </div>
+      </div>
 
       {pendingReleases.length > 0 && (
         <div>
-          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 flex items-center gap-2">
+          <button
+            onClick={() => toggleSection('pending')}
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <Icon 
+              name={collapsedSections.has('pending') ? 'ChevronRight' : 'ChevronDown'} 
+              size={20} 
+              className="text-primary" 
+            />
             <Icon name="Clock" size={20} className="text-primary" />
-            <span className="text-primary">Ожидают проверки ({pendingReleases.length})</span>
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {pendingReleases.map((release) => (
-              <ReleaseCard
-                key={release.id}
-                release={release}
-                userRole={userRole}
-                onView={loadReleaseDetails}
-                onApprove={handleApprove}
-                onReject={handleReject}
-                isPending={true}
-              />
-            ))}
-          </div>
+            <span className="text-base md:text-lg font-semibold text-primary">Ожидают проверки ({pendingReleases.length})</span>
+          </button>
+          {!collapsedSections.has('pending') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {pendingReleases.map((release) => (
+                <ReleaseCard
+                  key={release.id}
+                  release={release}
+                  userRole={userRole}
+                  onView={loadReleaseDetails}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                  isPending={true}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {reviewedReleases.length > 0 && (
+      {approvedReleases.length > 0 && (
         <div>
-          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 flex items-center gap-2">
-            <Icon name="Archive" size={20} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Проверенные ({reviewedReleases.length})</span>
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {reviewedReleases.map((release) => (
-              <ReleaseCard
-                key={release.id}
-                release={release}
-                userRole={userRole}
-                onView={loadReleaseDetails}
-                isPending={false}
-              />
-            ))}
-          </div>
+          <button
+            onClick={() => toggleSection('approved')}
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <Icon 
+              name={collapsedSections.has('approved') ? 'ChevronRight' : 'ChevronDown'} 
+              size={20} 
+              className="text-green-400" 
+            />
+            <Icon name="CheckCircle" size={20} className="text-green-400" />
+            <span className="text-base md:text-lg font-semibold text-green-400">Одобренные ({approvedReleases.length})</span>
+          </button>
+          {!collapsedSections.has('approved') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {approvedReleases.map((release) => (
+                <ReleaseCard
+                  key={release.id}
+                  release={release}
+                  userRole={userRole}
+                  onView={loadReleaseDetails}
+                  isPending={false}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {rejectedReleases.length > 0 && (
+        <div>
+          <button
+            onClick={() => toggleSection('rejected')}
+            className="w-full text-left mb-3 md:mb-4 flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <Icon 
+              name={collapsedSections.has('rejected') ? 'ChevronRight' : 'ChevronDown'} 
+              size={20} 
+              className="text-red-400" 
+            />
+            <Icon name="XCircle" size={20} className="text-red-400" />
+            <span className="text-base md:text-lg font-semibold text-red-400">Отклонённые ({rejectedReleases.length})</span>
+          </button>
+          {!collapsedSections.has('rejected') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {rejectedReleases.map((release) => (
+                <ReleaseCard
+                  key={release.id}
+                  release={release}
+                  userRole={userRole}
+                  onView={loadReleaseDetails}
+                  isPending={false}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
