@@ -43,17 +43,13 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
         }
         
         if (data.user) {
+          console.log('Calling onLogin with user:', data.user);
           onLogin('', '', undefined, data.user);
         } else {
           throw new Error('Не удалось получить данные пользователя');
         }
       } catch (error: any) {
         console.error('Telegram auth error:', error);
-        toast({
-          title: 'Ошибка',
-          description: error.message || 'Не удалось авторизоваться через Telegram',
-          variant: 'destructive'
-        });
       }
     };
 
@@ -83,7 +79,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     return () => {
       delete (window as any).onTelegramAuth;
     };
-  }, [onLogin, toast]);
+  }, [onLogin]);
 
   const handleSubmit = () => {
     onLogin(username, password);
