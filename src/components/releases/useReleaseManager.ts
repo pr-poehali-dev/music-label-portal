@@ -201,17 +201,22 @@ export const useReleaseManager = (userId: number) => {
     setUploadProgress(0);
 
     try {
+      console.log('Starting cover upload...');
       const coverData = await uploadFile(coverFile);
-      if (!coverData) throw new Error('Cover upload failed');
+      if (!coverData) throw new Error('Не удалось загрузить обложку');
+      console.log('Cover uploaded successfully:', coverData.url);
       setUploadProgress(0);
 
+      console.log(`Starting tracks upload (${tracks.length} tracks)...`);
       const uploadedTracks = await Promise.all(
-        tracks.map(async (track) => {
+        tracks.map(async (track, index) => {
           if (!track.file) {
-            throw new Error(`Track ${track.track_number} file missing`);
+            throw new Error(`Трек ${track.track_number}: файл отсутствует`);
           }
+          console.log(`Uploading track ${index + 1}/${tracks.length}: ${track.file.name}`);
           const trackData = await uploadFile(track.file);
-          if (!trackData) throw new Error(`Track ${track.track_number} upload failed`);
+          if (!trackData) throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
+          console.log(`Track ${index + 1} uploaded successfully`);
           
           return {
             ...track,
@@ -222,6 +227,7 @@ export const useReleaseManager = (userId: number) => {
           };
         })
       );
+      console.log('All tracks uploaded successfully');
 
       const response = await fetch(API_URL, {
         method: 'POST',
