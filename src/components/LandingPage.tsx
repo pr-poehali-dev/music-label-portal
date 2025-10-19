@@ -105,73 +105,73 @@ export default function LandingPage() {
           </section>
 
           <section className="mb-32">
-            <h3 className="text-5xl font-black text-center mb-16 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+            <h3 className="text-5xl font-black text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
               Наши преимущества
             </h3>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {[
                 {
                   icon: '🚀',
                   title: 'Индивидуальная логистика',
-                  desc: 'Доставка релизов на площадки с учётом всех ваших требований',
+                  desc: 'Доставка релизов на площадки',
                   gradient: 'from-primary/20 to-transparent',
                   delay: '0s'
                 },
                 {
                   icon: '📊',
                   title: 'Прозрачные отчёты',
-                  desc: 'Полная прозрачность финансов и статистики ваших релизов',
+                  desc: 'Полная прозрачность финансов',
                   gradient: 'from-secondary/20 to-transparent',
-                  delay: '0.2s'
+                  delay: '0.1s'
                 },
                 {
                   icon: '💬',
                   title: 'Поддержка 24/7',
-                  desc: 'Всегда на связи - решаем любые вопросы в любое время',
+                  desc: 'Всегда на связи с вами',
                   gradient: 'from-primary/20 to-transparent',
-                  delay: '0.4s'
+                  delay: '0.2s'
                 },
                 {
                   icon: '🎛️',
                   title: 'Личный кабинет',
-                  desc: 'Возможность самостоятельной отгрузки релизов через удобный интерфейс',
+                  desc: 'Самостоятельная отгрузка',
                   gradient: 'from-secondary/20 to-transparent',
-                  delay: '0.6s'
+                  delay: '0.3s'
                 },
                 {
                   icon: '⚖️',
                   title: 'Гибкие условия',
-                  desc: 'Возможность нивелировать неудобные условия под ваши требования',
+                  desc: 'Под ваши требования',
                   gradient: 'from-primary/20 to-transparent',
-                  delay: '0.8s'
+                  delay: '0.4s'
                 },
                 {
                   icon: '🎵',
                   title: 'Бесплатный питчинг',
-                  desc: 'Бесплатный питчинг ваших треков в плейлисты крупных площадок',
+                  desc: 'Продвижение в плейлисты',
                   gradient: 'from-secondary/20 to-transparent',
-                  delay: '1s'
+                  delay: '0.5s'
                 }
               ].map((item, index) => (
-                <Card 
+                <div
                   key={index}
-                  className="group relative bg-gradient-to-br from-card/50 to-black/50 border-primary/20 backdrop-blur-xl hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 overflow-visible"
+                  className="group relative bg-gradient-to-br from-card/40 to-black/40 border border-primary/10 backdrop-blur-xl hover:border-primary/40 transition-all duration-300 hover:scale-105 overflow-visible rounded-2xl p-6"
                   style={{ animationDelay: item.delay }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg`} />
-                  <CardContent className="pt-10 pb-8 relative z-10 overflow-visible">
-                    <div className="text-7xl mb-6 transform group-hover:scale-150 group-hover:rotate-12 transition-transform duration-500 relative z-20">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl`} />
+                  <div className="relative z-10 overflow-visible">
+                    <div className="text-5xl mb-3 transform group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300 relative z-20">
                       {item.icon}
                     </div>
-                    <h4 className="text-2xl font-bold text-primary mb-4 group-hover:text-white transition-colors">
+                    <h4 className="text-lg font-bold text-primary mb-2 group-hover:text-white transition-colors">
                       {item.title}
                     </h4>
-                    <p className="text-gray-400 text-lg leading-relaxed group-hover:text-gray-300 transition-colors">
+                    <p className="text-gray-500 text-sm group-hover:text-gray-300 transition-colors">
                       {item.desc}
                     </p>
-                  </CardContent>
-                  <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                </Card>
+                  </div>
+                  <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-primary/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
+                </div>
               ))}
             </div>
           </section>
