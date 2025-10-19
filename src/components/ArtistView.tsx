@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Icon from '@/components/ui/icon';
 import ReleaseManager from '@/components/ReleaseManager';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
@@ -61,7 +62,7 @@ export default function ArtistView({
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
     return (
-      <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+      <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
         {count > 99 ? '99+' : count}
       </span>
     );
@@ -94,11 +95,21 @@ export default function ArtistView({
             localStorage.setItem('artist_active_tab', value);
           }}
           className="w-full">
-          <div className="hidden md:block w-full overflow-x-auto pb-2">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="tracks">🎵 Релизы</TabsTrigger>
-              <TabsTrigger value="support">✉️ Обратиться<Badge count={unreadCounts.tickets} /></TabsTrigger>
-              <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
+          <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
+            <TabsList className="grid w-full grid-cols-3 min-w-[600px] md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
+              <TabsTrigger value="tracks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+                <Icon name="Music" className="w-4 h-4 md:w-5 md:h-5 text-purple-500 animate-pulse" />
+                <span className="hidden md:inline ml-2">Релизы</span>
+              </TabsTrigger>
+              <TabsTrigger value="support" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+                <Icon name="MessageSquare" className="w-4 h-4 md:w-5 md:h-5 text-blue-500 animate-pulse" />
+                <span className="hidden md:inline ml-2">Обратиться</span>
+                <Badge count={unreadCounts.tickets} />
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+                <Icon name="FileText" className="w-4 h-4 md:w-5 md:h-5 text-orange-500 animate-pulse" />
+                <span className="hidden md:inline ml-2">Отчёты</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -108,9 +119,16 @@ export default function ArtistView({
 
           <TabsContent value="support">
             <Tabs defaultValue="create" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="create">✏️ Создать тикет</TabsTrigger>
-                <TabsTrigger value="my-tickets">📋 Мои тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
+                <TabsTrigger value="create" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+                  <Icon name="Edit" className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
+                  <span className="ml-2">Создать тикет</span>
+                </TabsTrigger>
+                <TabsTrigger value="my-tickets" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
+                  <Icon name="List" className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" />
+                  <span className="ml-2">Мои тикеты</span>
+                  <Badge count={unreadCounts.tickets} />
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="create">
