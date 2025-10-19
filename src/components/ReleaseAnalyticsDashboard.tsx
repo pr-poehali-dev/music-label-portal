@@ -65,15 +65,15 @@ export default function ReleaseAnalyticsDashboard() {
   if (!stats) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card className="border-yellow-500/20 bg-black/40">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Всего релизов</CardTitle>
-            <Icon name="Music" className="text-yellow-500" size={20} />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Всего релизов</CardTitle>
+            <Icon name="Music" className="text-yellow-500" size={16} />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">{stats.total_releases}</div>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold text-yellow-500">{stats.total_releases}</div>
           </CardContent>
         </Card>
 
@@ -108,7 +108,7 @@ export default function ReleaseAnalyticsDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card className="border-yellow-500/20 bg-black/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

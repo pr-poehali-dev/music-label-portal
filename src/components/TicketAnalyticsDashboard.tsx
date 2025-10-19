@@ -92,19 +92,19 @@ export default function TicketAnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6 p-3 md:p-6">
-      <div className="flex items-center gap-3">
-        <Icon name="TicketCheck" size={24} className="text-primary md:w-8 md:h-8" />
-        <h1 className="text-xl md:text-3xl font-bold">Аналитика тикетов</h1>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex items-center gap-2 md:gap-3">
+        <Icon name="TicketCheck" size={20} className="text-primary md:size-8" />
+        <h1 className="text-lg md:text-3xl font-bold">Аналитика тикетов</h1>
       </div>
 
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Всего</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 md:p-6 pt-0">
               <div className="text-xl md:text-2xl font-bold">{summary.total_tickets}</div>
             </CardContent>
           </Card>
@@ -161,20 +161,20 @@ export default function TicketAnalyticsDashboard() {
       )}
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="TrendingUp" size={20} />
-            Статистика по рабочим дням (последние 30 дней)
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <Icon name="TrendingUp" size={16} className="md:size-5" />
+            <span className="truncate">Статистика по рабочим дням (последние 30 дней)</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6">
           {workdayStats.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               Нет данных за последние 30 рабочих дней
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="flex gap-6 text-sm">
+            <div className="space-y-4 md:space-y-6">
+              <div className="flex gap-3 md:gap-6 text-xs md:text-sm flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                   <span className="text-muted-foreground">Создано</span>
@@ -185,7 +185,8 @@ export default function TicketAnalyticsDashboard() {
                 </div>
               </div>
 
-              <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 overflow-x-auto scrollbar-hide">
+              <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 min-w-[600px] md:min-w-0">
                 <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
                   {[maxDaily, Math.floor(maxDaily * 0.75), Math.floor(maxDaily * 0.5), Math.floor(maxDaily * 0.25), 0].map((val, i) => (
                     <div key={i} className="flex items-center">
@@ -243,6 +244,7 @@ export default function TicketAnalyticsDashboard() {
                     </div>
                   );
                 })}
+                </div>
               </div>
             </div>
           )}

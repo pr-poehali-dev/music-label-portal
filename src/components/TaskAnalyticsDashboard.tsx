@@ -253,15 +253,15 @@ export default function TaskAnalyticsDashboard() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="TrendingUp" size={20} />
-            Статистика по рабочим дням (последние 30 дней)
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <Icon name="TrendingUp" size={16} className="md:size-5" />
+            <span className="truncate">Статистика по рабочим дням (последние 30 дней)</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="flex gap-6 text-sm">
+        <CardContent className="p-4 md:p-6">
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex gap-3 md:gap-6 text-xs md:text-sm flex-wrap">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 <span className="text-gray-400">Создано</span>
@@ -276,7 +276,8 @@ export default function TaskAnalyticsDashboard() {
               </div>
             </div>
 
-            <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 overflow-x-auto scrollbar-hide">
+            <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+              <div className="relative h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 border-b border-border pb-2 min-w-[600px] md:min-w-0">
               <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between h-full pointer-events-none">
                 {(() => {
                   const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)), 1);
@@ -289,7 +290,7 @@ export default function TaskAnalyticsDashboard() {
                 })()}
               </div>
 
-              {dailyStats.map((day, idx) => {
+                {dailyStats.map((day, idx) => {
                 const maxValue = Math.max(...dailyStats.map(d => Math.max(d.created, d.accepted, d.completed)), 1);
                 const createdHeight = (day.created / maxValue) * 100;
                 const acceptedHeight = (day.accepted / maxValue) * 100;
@@ -344,8 +345,9 @@ export default function TaskAnalyticsDashboard() {
                       </span>
                     </div>
                   </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
