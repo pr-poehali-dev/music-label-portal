@@ -66,9 +66,13 @@ export default function TaskRow({
     }
   };
 
+  const isOverdue = task.deadline && task.status !== 'completed' && new Date(task.deadline) < new Date();
+
   return (
     <div className={`p-2 md:p-2.5 rounded-lg border transition-all ${
-      task.status === 'completed' 
+      isOverdue
+        ? 'bg-red-500/10 border-red-500/30'
+        : task.status === 'completed' 
         ? 'bg-green-500/10 border-green-500/30' 
         : task.status === 'in_progress'
         ? 'bg-primary/10 border-primary/30'
@@ -99,15 +103,22 @@ export default function TaskRow({
               </p>
             )}
             {task.deadline && (
-              <p className="text-[10px] md:text-xs text-muted-foreground">
+              <p className={`text-[10px] md:text-xs ${isOverdue ? 'text-red-400 font-semibold' : 'text-muted-foreground'}`}>
                 <Icon name="Calendar" size={10} className="inline mr-0.5" />
                 {new Date(task.deadline).toLocaleDateString('ru-RU')}
+                {isOverdue && ' ⚠️'}
               </p>
             )}
             {task.completion_report && (
               <Badge variant="outline" className="border-green-500/50 bg-green-500/10 text-[10px] px-1.5 py-0">
                 <Icon name="FileCheck" size={8} className="mr-0.5" />
                 Отчёт
+              </Badge>
+            )}
+            {isOverdue && (
+              <Badge variant="outline" className="border-red-500/50 bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0">
+                <Icon name="AlertTriangle" size={8} className="mr-0.5" />
+                Просрочено
               </Badge>
             )}
           </div>
