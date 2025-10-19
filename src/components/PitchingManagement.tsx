@@ -138,68 +138,69 @@ ${selectedPitching.playlist_fit}
             <Icon name="Clock" size={20} className="text-primary" />
             <span className="text-primary">На рассмотрении ({pendingPitchings.length})</span>
           </h3>
-          <div className="grid gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {pendingPitchings.map((pitching) => (
               <Card 
                 key={pitching.id} 
-                className="border-yellow-500/30 hover:border-yellow-500/60 cursor-pointer hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-200 bg-gradient-to-br from-black via-yellow-950/20 to-black"
+                className="border-yellow-500/30 hover:border-yellow-500/60 cursor-pointer hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-200 bg-gradient-to-br from-black via-yellow-950/20 to-black flex flex-col"
                 onClick={() => setSelectedPitching(pitching)}
               >
-                <CardContent className="p-5 md:p-6">
-                  <div className="flex items-start justify-between mb-4 gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-base md:text-xl mb-2 text-primary">{pitching.release_name}</h4>
-                      <p className="text-sm md:text-base text-muted-foreground mb-2 flex items-center gap-2">
-                        <Icon name="Mic2" size={16} className="text-secondary flex-shrink-0" />
-                        {userRole === 'director' && pitching.user_id ? (
-                          <a href={`/user/${pitching.user_id}`} className="text-secondary hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
-                            {pitching.artist_name}
-                          </a>
-                        ) : (
-                          <span className="font-medium text-foreground">{pitching.artist_name}</span>
-                        )}
-                      </p>
-                      <div className="flex flex-wrap gap-3 text-xs md:text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1.5 bg-card/50 px-2.5 py-1 rounded-full border border-border">
-                          <Icon name="Calendar" size={14} className="text-primary" />
-                          {formatDate(pitching.release_date)}
-                        </span>
-                        <span className="flex items-center gap-1.5 bg-card/50 px-2.5 py-1 rounded-full border border-border">
-                          <Icon name="Disc" size={14} className="text-primary" />
-                          {pitching.genre}
-                        </span>
-                      </div>
-                    </div>
+                <CardContent className="p-4 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-3 gap-2">
+                    <h4 className="font-bold text-base text-primary line-clamp-2 flex-1">{pitching.release_name}</h4>
                     {getStatusBadge(pitching.status)}
                   </div>
+
+                  <div className="space-y-2 text-sm mb-3">
+                    <p className="flex items-center gap-1.5 text-muted-foreground">
+                      <Icon name="Mic2" size={14} className="text-secondary flex-shrink-0" />
+                      {userRole === 'director' && pitching.user_id ? (
+                        <a href={`/user/${pitching.user_id}`} className="text-secondary hover:underline font-medium truncate" onClick={(e) => e.stopPropagation()}>
+                          {pitching.artist_name}
+                        </a>
+                      ) : (
+                        <span className="font-medium text-foreground truncate">{pitching.artist_name}</span>
+                      )}
+                    </p>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="flex items-center gap-1 bg-card/50 px-2 py-0.5 rounded-full border border-border">
+                        <Icon name="Calendar" size={12} className="text-primary" />
+                        {formatDate(pitching.release_date)}
+                      </span>
+                      <span className="flex items-center gap-1 bg-card/50 px-2 py-0.5 rounded-full border border-border">
+                        <Icon name="Disc" size={12} className="text-primary" />
+                        {pitching.genre}
+                      </span>
+                    </div>
+                  </div>
                   
-                  <div className="space-y-3 text-sm md:text-base">
-                    <div className="bg-card/30 p-3 rounded-lg border border-border/50">
-                      <p className="font-semibold text-foreground mb-1 flex items-center gap-1.5">
-                        <Icon name="TrendingUp" size={14} className="text-primary" />
+                  <div className="space-y-2 text-xs flex-1">
+                    <div className="bg-card/30 p-2 rounded border border-border/50">
+                      <p className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Icon name="TrendingUp" size={12} className="text-primary" />
                         Охват:
                       </p>
-                      <p className="text-muted-foreground">{pitching.current_reach}</p>
+                      <p className="text-muted-foreground line-clamp-2">{pitching.current_reach}</p>
                     </div>
-                    <div className="bg-card/30 p-3 rounded-lg border border-border/50">
-                      <p className="font-semibold text-foreground mb-1 flex items-center gap-1.5">
-                        <Icon name="ListMusic" size={14} className="text-primary" />
-                        Подходящие плейлисты:
+                    <div className="bg-card/30 p-2 rounded border border-border/50">
+                      <p className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Icon name="ListMusic" size={12} className="text-primary" />
+                        Плейлисты:
                       </p>
                       <p className="text-muted-foreground line-clamp-2">{pitching.playlist_fit}</p>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-border/50">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
                     {pitching.preview_link && (
                       <a 
                         href={pitching.preview_link} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-secondary hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-secondary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Icon name="Play" size={16} />
+                        <Icon name="Play" size={14} />
                         Прослушать
                       </a>
                     )}
@@ -208,9 +209,9 @@ ${selectedPitching.playlist_fit}
                         e.stopPropagation();
                         setSelectedPitching(pitching);
                       }}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto"
                     >
-                      <Icon name="Eye" size={16} />
+                      <Icon name="Eye" size={14} />
                       Подробнее
                     </button>
                   </div>
