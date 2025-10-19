@@ -45,13 +45,19 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, o
 
   return (
     <div className="flex justify-between items-center bg-card/60 backdrop-blur-sm border border-border rounded-xl p-3 md:p-4 animate-slideIn">
-      <div className="flex items-center gap-2 md:gap-4">
-        <img 
-          src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
-          alt="420 Logo" 
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg shadow-primary/50 animate-glow"
-        />
-        <h1 className="text-xl md:text-3xl font-bold text-primary">420.рф</h1>
+      <div className="flex items-center gap-2 md:gap-4 group cursor-pointer">
+        <div className="relative">
+          <img 
+            src="https://cdn.poehali.dev/files/89837016-5bd9-4196-8bef-fad51c37ba4e.jpg" 
+            alt="420 Logo" 
+            className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl shadow-2xl shadow-primary/50 group-hover:scale-110 transition-transform duration-300 border-2 border-primary/30"
+          />
+          <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-0 group-hover:opacity-75 transition-opacity duration-300 -z-10" />
+        </div>
+        <div>
+          <h1 className="text-2xl md:text-4xl font-black animate-shimmer">420</h1>
+          <p className="text-xs text-primary/60 tracking-wider">Музыкальный лейбл</p>
+        </div>
       </div>
       
       {/* Desktop menu */}
