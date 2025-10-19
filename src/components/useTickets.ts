@@ -39,7 +39,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
         const formData = new FormData();
         formData.append('file', selectedFile);
 
-        const uploadResponse = await fetch('https://functions.poehali.dev/f7d3af63-4868-4f2e-a1bd-73dad1c7c7d5', {
+        const uploadResponse = await fetch(API_URLS.uploadFile, {
           method: 'POST',
           body: formData
         });
