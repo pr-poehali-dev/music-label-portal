@@ -176,18 +176,23 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="mb-32">
-            <div className="text-center mb-16">
-              <h3 className="text-5xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+          <section className="mb-32 relative">
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+            
+            <div className="text-center mb-12 relative z-10">
+              <h3 className="text-5xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-secondary animate-slideIn">
                 Крайние релизы
               </h3>
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
-            </div>
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-3xl blur-2xl" />
-              <div className="relative bg-black/50 backdrop-blur-xl rounded-3xl p-8 border border-primary/20">
-                <VKPosts />
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary"></div>
+                <Icon name="Disc3" size={20} className="text-primary animate-spin" style={{ animationDuration: '3s' }} />
+                <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary"></div>
               </div>
+              <p className="text-gray-500 text-sm">Последние работы наших артистов</p>
+            </div>
+            
+            <div className="relative">
+              <VKPosts />
             </div>
           </section>
 
