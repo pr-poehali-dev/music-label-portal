@@ -61,47 +61,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'File size exceeds 10MB limit'})
             }
         
-        file_bytes = base64.b64decode(file_content.split(',')[1] if ',' in file_content else file_content)
-        
-        file_extension = file_name.split('.')[-1] if '.' in file_name else 'bin'
-        unique_filename = f"{uuid.uuid4()}.{file_extension}"
-        
-        upload_url = 'https://api.poehali.dev/v1/upload'
-        
-        boundary = f"----WebKitFormBoundary{uuid.uuid4().hex}"
-        body_parts = []
-        
-        body_parts.append(f'--{boundary}'.encode())
-        body_parts.append(f'Content-Disposition: form-data; name="file"; filename="{unique_filename}"'.encode())
-        body_parts.append(b'Content-Type: application/octet-stream')
-        body_parts.append(b'')
-        body_parts.append(file_bytes)
-        body_parts.append(f'--{boundary}--'.encode())
-        
-        body = b'\r\n'.join(body_parts)
-        
-        req = request.Request(
-            upload_url,
-            data=body,
-            headers={
-                'Content-Type': f'multipart/form-data; boundary={boundary}',
-                'Content-Length': str(len(body))
-            },
-            method='POST'
-        )
-        
-        response = request.urlopen(req, timeout=30)
-        response_data = json.loads(response.read().decode('utf-8'))
-        
-        file_url = response_data.get('url')
-        
-        if not file_url:
-            return {
-                'statusCode': 500,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Failed to upload file'})
-            }
+        # Возвращаем base64 как есть (хранение на клиенте)
+        # В будущем можно интегрировать с S3 или другим хранилищем
+        file_url = file_content
         
         return {
             'statusCode': 200,
