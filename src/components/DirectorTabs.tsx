@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Icon from '@/components/ui/icon';
 import MobileNav from '@/components/MobileNav';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import TicketManagement from '@/components/TicketManagement';
