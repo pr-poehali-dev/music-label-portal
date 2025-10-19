@@ -5,6 +5,7 @@ import { ProfileEditForm } from './UserProfile/ProfileEditForm';
 import { ProfileStats } from './UserProfile/ProfileStats';
 import { ProfileInfo } from './UserProfile/ProfileInfo';
 import { PasswordChangeForm } from './UserProfile/PasswordChangeForm';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfileProps {
   user: User;
@@ -12,6 +13,7 @@ interface UserProfileProps {
 }
 
 const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: UserProfileProps) {
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user.fullName || user.full_name || '');
   const [email, setEmail] = useState(user.email || '');
@@ -74,14 +76,27 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
         if (response.ok) {
           const data = await response.json();
           avatarUrl = data.url;
-          console.log('Avatar URL length:', avatarUrl?.length, 'URL:', avatarUrl);
+          toast({
+            title: 'Аватарка загружена',
+            description: 'Изображение успешно сохранено'
+          });
         } else {
           const errorText = await response.text();
           console.error('Upload failed:', response.status, errorText);
+          toast({
+            title: 'Ошибка загрузки',
+            description: 'Не удалось загрузить аватарку. Проверьте размер файла.',
+            variant: 'destructive'
+          });
           avatarUrl = avatarPreview;
         }
       } catch (error) {
         console.error('Failed to upload avatar:', error);
+        toast({
+          title: 'Ошибка загрузки',
+          description: 'Не удалось загрузить аватарку. Попробуйте позже.',
+          variant: 'destructive'
+        });
         avatarUrl = avatarPreview;
       } finally {
         setIsUploadingAvatar(false);
