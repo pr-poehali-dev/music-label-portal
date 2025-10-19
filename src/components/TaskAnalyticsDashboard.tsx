@@ -52,7 +52,20 @@ export default function TaskAnalyticsDashboard() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await fetch(`${API_URL}?type=tasks&include_all=true`);
+      const token = localStorage.getItem('auth_token') || 'director-token';
+      const userId = localStorage.getItem('user_id') || '1';
+      
+      const response = await fetch(API_URL, {
+        headers: {
+          'X-User-Id': userId,
+          'X-Auth-Token': token
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
       const allTasks = data.tasks || [];
       setTasks(allTasks);
@@ -60,6 +73,7 @@ export default function TaskAnalyticsDashboard() {
       calculateManagerStats(allTasks);
       calculateDailyStats(allTasks);
     } catch (error) {
+      console.error('Error loading task analytics:', error);
       toast({ title: '❌ Ошибка загрузки аналитики', variant: 'destructive' });
     } finally {
       setLoading(false);
