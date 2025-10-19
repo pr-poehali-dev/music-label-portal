@@ -71,6 +71,15 @@ export const useAuth = () => {
   const updateUserProfile = (updates: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...updates };
+      
+      // Синхронизируем camelCase и snake_case поля
+      if (updates.fullName) {
+        updatedUser.full_name = updates.fullName;
+      }
+      if (updates.avatar) {
+        updatedUser.vk_photo = updates.avatar;
+      }
+      
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
     }
