@@ -61,7 +61,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
         
         const base64Data = await base64Promise;
         
-        const response = await fetch('https://functions.poehali.dev/5ce1cb99-44a3-487f-b61a-d4a29f3c8ce1', {
+        const response = await fetch('https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
