@@ -160,8 +160,14 @@ export default function SubmissionsManager({ userId, userRole = 'manager' }: Sub
 
       <Tabs defaultValue="submissions" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-          <TabsTrigger value="submissions">🎵 Прослушивания</TabsTrigger>
-          <TabsTrigger value="pitchings">🎯 Питчинги</TabsTrigger>
+          <TabsTrigger value="submissions" className="flex items-center gap-2">
+            <Icon name="Headphones" className="w-4 h-4 text-purple-500 animate-pulse" />
+            Прослушивания
+          </TabsTrigger>
+          <TabsTrigger value="pitchings" className="flex items-center gap-2">
+            <Icon name="Target" className="w-4 h-4 text-red-500 animate-pulse" />
+            Питчинги
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="submissions" className="space-y-4 md:space-y-6 mt-4 md:mt-6">

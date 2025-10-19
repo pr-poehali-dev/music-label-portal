@@ -153,33 +153,36 @@ export default function DirectorTabs({
       <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
         <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">📊 Аналитика</span>
-            <span className="md:hidden">📊</span>
+            <Icon name="BarChart3" className="w-4 h-4 md:w-5 md:h-5 text-primary animate-pulse" />
+            <span className="hidden md:inline ml-2">Аналитика</span>
           </TabsTrigger>
           <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">🎫 Тикеты<Badge count={unreadCounts.tickets} /></span>
-            <span className="md:hidden">🎫<Badge count={unreadCounts.tickets} /></span>
+            <Icon name="Ticket" className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 animate-pulse" />
+            <span className="hidden md:inline ml-2">Тикеты</span>
+            <Badge count={unreadCounts.tickets} />
           </TabsTrigger>
           <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">✅ Задачи<Badge count={unreadCounts.tasks} /></span>
-            <span className="md:hidden">✅<Badge count={unreadCounts.tasks} /></span>
+            <Icon name="CheckSquare" className="w-4 h-4 md:w-5 md:h-5 text-green-500 animate-pulse" />
+            <span className="hidden md:inline ml-2">Задачи</span>
+            <Badge count={unreadCounts.tasks} />
           </TabsTrigger>
           <TabsTrigger value="releases" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">🎵 Релизы</span>
-            <span className="md:hidden">🎵</span>
+            <Icon name="Music" className="w-4 h-4 md:w-5 md:h-5 text-purple-500 animate-pulse" />
+            <span className="hidden md:inline ml-2">Релизы</span>
           </TabsTrigger>
           <TabsTrigger value="submissions" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">📋 Заявки<Badge count={unreadCounts.submissions} /></span>
-            <span className="md:hidden">📋<Badge count={unreadCounts.submissions} /></span>
+            <Icon name="ClipboardList" className="w-4 h-4 md:w-5 md:h-5 text-blue-500 animate-pulse" />
+            <span className="hidden md:inline ml-2">Заявки</span>
+            <Badge count={unreadCounts.submissions} />
           </TabsTrigger>
 
           <TabsTrigger value="reports" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">📁 Отчёты</span>
-            <span className="md:hidden">📁</span>
+            <Icon name="FolderOpen" className="w-4 h-4 md:w-5 md:h-5 text-orange-500 animate-pulse" />
+            <span className="hidden md:inline ml-2">Отчёты</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-            <span className="hidden md:inline">⚙️ Настройки</span>
-            <span className="md:hidden">⚙️</span>
+            <Icon name="Settings" className="w-4 h-4 md:w-5 md:h-5 text-gray-500 animate-spin-slow" />
+            <span className="hidden md:inline ml-2">Настройки</span>
           </TabsTrigger>
         </TabsList>
       </div>
@@ -224,8 +227,14 @@ export default function DirectorTabs({
       <TabsContent value="reports" className="animate-fadeIn">
         <Tabs defaultValue="weekly" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-            <TabsTrigger value="weekly" className="transition-all duration-200 hover:scale-105">Еженедельный отчёт</TabsTrigger>
-            <TabsTrigger value="upload" className="transition-all duration-200 hover:scale-105">Загрузить отчёт</TabsTrigger>
+            <TabsTrigger value="weekly" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+              <Icon name="Calendar" className="w-4 h-4 text-primary" />
+              Еженедельный отчёт
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+              <Icon name="Upload" className="w-4 h-4 text-green-500" />
+              Загрузить отчёт
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="weekly" className="animate-fadeIn">
             <WeeklyReport />
@@ -239,17 +248,35 @@ export default function DirectorTabs({
       <TabsContent value="settings" className="animate-fadeIn">
         <Tabs defaultValue="team" className="w-full">
           <TabsList className="mb-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-            <TabsTrigger value="team" className="transition-all duration-200 hover:scale-105">Команда</TabsTrigger>
-            <TabsTrigger value="reminders" className="transition-all duration-200 hover:scale-105">Напоминания</TabsTrigger>
-            <TabsTrigger value="telegram" className="transition-all duration-200 hover:scale-105">Telegram бот</TabsTrigger>
+            <TabsTrigger value="team" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+              <Icon name="Users" className="w-4 h-4 text-primary" />
+              Команда
+            </TabsTrigger>
+            <TabsTrigger value="reminders" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+              <Icon name="Bell" className="w-4 h-4 text-yellow-500 animate-pulse" />
+              Напоминания
+            </TabsTrigger>
+            <TabsTrigger value="telegram" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+              <Icon name="MessageCircle" className="w-4 h-4 text-blue-500" />
+              Telegram бот
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="team" className="animate-fadeIn">
             <Tabs defaultValue="users" className="w-full">
               <TabsList className="mb-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-                <TabsTrigger value="users" className="transition-all duration-200 hover:scale-105">Пользователи</TabsTrigger>
-                <TabsTrigger value="activity" className="transition-all duration-200 hover:scale-105">Статистика активности</TabsTrigger>
-                <TabsTrigger value="monitoring" className="transition-all duration-200 hover:scale-105">Мониторинг активности</TabsTrigger>
+                <TabsTrigger value="users" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+                  <Icon name="UserCircle" className="w-4 h-4 text-green-500" />
+                  Пользователи
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+                  <Icon name="TrendingUp" className="w-4 h-4 text-blue-500" />
+                  Статистика активности
+                </TabsTrigger>
+                <TabsTrigger value="monitoring" className="transition-all duration-200 hover:scale-105 flex items-center gap-2">
+                  <Icon name="Activity" className="w-4 h-4 text-orange-500 animate-pulse" />
+                  Мониторинг активности
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="users" className="animate-fadeIn">
