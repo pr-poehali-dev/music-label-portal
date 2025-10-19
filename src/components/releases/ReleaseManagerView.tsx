@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 import ReleaseForm from './ReleaseForm';
 import ReleasesList from './ReleasesList';
 import ReleaseStatusTabs from './ReleaseStatusTabs';
-import { Release } from './types';
+import { Release, Pitching } from './types';
 
 interface ReleaseManagerViewProps {
   releases: Release[];
@@ -18,6 +18,7 @@ interface ReleaseManagerViewProps {
   onTabChange: (tab: 'all' | 'approved' | 'pending' | 'rejected') => void;
   onCancelForm: () => void;
   onEdit: (release: Release) => void;
+  onPitching?: (data: Pitching) => Promise<void>;
   setNewRelease: (release: any) => void;
   handleCoverChange: (file: File | null) => void;
   addTrack: () => void;
@@ -55,6 +56,7 @@ export default function ReleaseManagerView({
   onTabChange,
   onCancelForm,
   onEdit,
+  onPitching,
   setNewRelease,
   handleCoverChange,
   addTrack,
@@ -111,6 +113,7 @@ export default function ReleaseManagerView({
           releases={filteredReleases} 
           getStatusBadge={getStatusBadge}
           onEdit={onEdit}
+          onPitching={onPitching}
         />
       )}
     </div>

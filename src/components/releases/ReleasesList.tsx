@@ -3,17 +3,20 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { Release } from './types';
+import { Release, Pitching } from './types';
 import ReleasePlayer from './ReleasePlayer';
+import PitchingForm from './PitchingForm';
 
 interface ReleasesListProps {
   releases: Release[];
   getStatusBadge: (status: string) => JSX.Element;
   onEdit?: (release: Release) => void;
+  onPitching?: (data: Pitching) => Promise<void>;
 }
 
-export default function ReleasesList({ releases, getStatusBadge, onEdit }: ReleasesListProps) {
+export default function ReleasesList({ releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
   const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
+  const [pitchingRelease, setPitchingRelease] = useState<Release | null>(null);
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
@@ -60,6 +63,17 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit }: Relea
                     >
                       <Icon name="Edit" size={14} />
                       Редактировать
+                    </Button>
+                  )}
+                  {release.status === 'approved' && onPitching && (
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={() => setPitchingRelease(release)}
+                      className="gap-1"
+                    >
+                      <Icon name="Send" size={14} />
+                      Питчинг
                     </Button>
                   )}
                 </div>
@@ -148,6 +162,15 @@ export default function ReleasesList({ releases, getStatusBadge, onEdit }: Relea
           </div>
           <p className="text-muted-foreground text-lg">Релизов пока нет</p>
         </div>
+      )}
+
+      {pitchingRelease && onPitching && (
+        <PitchingForm
+          release={pitchingRelease}
+          isOpen={true}
+          onClose={() => setPitchingRelease(null)}
+          onSubmit={onPitching}
+        />
       )}
     </div>
   );

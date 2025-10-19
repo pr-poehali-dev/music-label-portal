@@ -1,7 +1,7 @@
 {
+  "pitching": "https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480",
   "create-notification": "https://functions.poehali.dev/c93b4bbd-7c4a-4d8f-9f8b-c6c0a9984216",
   "release-analytics": "https://functions.poehali.dev/5f67ae5e-fa40-4b8a-ba1e-d66a28d27c18",
-  "vk-auth": "https://functions.poehali.dev/70e60d29-836e-455c-8052-691174ca7a7a",
   "notifications": "https://functions.poehali.dev/7d3a4ec8-d714-47b2-b4b8-186a84744b78",
   "releases": "https://functions.poehali.dev/05d2ddf9-772f-40cb-bcef-0d70fa96e059",
   "unread-counts": "https://functions.poehali.dev/87d13cda-05ed-4e45-9232-344fe2c026d7",
@@ -12,8 +12,6 @@
   "task-comments": "https://functions.poehali.dev/69a1dd48-3422-45a6-ba2f-44bdcdb3cb20",
   "upload-file": "https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa",
   "submissions": "https://functions.poehali.dev/40a44285-32b8-4e3e-8f8f-b77f16293727",
-  "export-artist-report": "https://functions.poehali.dev/4c11f3e5-93f5-42fb-862e-9fbcd9ce7825",
-  "export-pdf": "https://functions.poehali.dev/033ebc6b-dfd1-4e6e-9307-00440b3e19b1",
   "upload-reports": "https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264",
   "deadline-reminder": "https://functions.poehali.dev/7b917e9b-349b-4e00-91f6-933aaff43d85",
   "telegram-bot": "https://functions.poehali.dev/ae7c32d8-5b08-4870-9606-e750de3c31a9",

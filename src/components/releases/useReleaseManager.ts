@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Track, Release, API_URL, UPLOAD_URL } from './types';
+import { Track, Release, Pitching, API_URL, UPLOAD_URL } from './types';
 import { createNotification } from '@/hooks/useNotifications';
+
+const PITCHING_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
 
 export const useReleaseManager = (userId: number) => {
   const [releases, setReleases] = useState<Release[]>([]);
@@ -358,6 +360,45 @@ export const useReleaseManager = (userId: number) => {
     setShowForm(true);
   };
 
+  const handlePitching = async (data: Pitching) => {
+    try {
+      const response = await fetch(PITCHING_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId.toString()
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) throw new Error('Failed to submit pitching');
+
+      toast({
+        title: 'Успешно',
+        description: 'Релиз отправлен на питчинг'
+      });
+
+      try {
+        await createNotification({
+          title: '🎯 Новая заявка на питчинг',
+          message: `Артист отправил релиз "${data.release_name}" на питчинг`,
+          type: 'pitching_submitted',
+          related_entity_type: 'pitching',
+          related_entity_id: userId
+        });
+      } catch (notifError) {
+        console.error('Failed to create notification:', notifError);
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить на питчинг',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  };
+
   return {
     releases,
     loading,
@@ -381,6 +422,7 @@ export const useReleaseManager = (userId: number) => {
     handleSubmit,
     loadTracks,
     handleReview,
-    handleEdit
+    handleEdit,
+    handlePitching
   };
 };

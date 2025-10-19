@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Create pitching",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "release_id": 1,
+        "artist_name": "Test Artist",
+        "release_name": "Test Release",
+        "release_date": "2025-12-01",
+        "genre": "Pop",
+        "artist_description": "Test artist bio",
+        "release_description": "Test release description",
+        "playlist_fit": "Pop hits, New music",
+        "current_reach": "10k on VK",
+        "preview_link": "https://soundcloud.com/test",
+        "artist_photos": ["https://example.com/photo1.jpg"]
+      },
+      "expectedStatus": 201
+    },
+    {
+      "name": "Get all pitchings",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
