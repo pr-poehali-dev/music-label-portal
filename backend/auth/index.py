@@ -87,11 +87,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user = cur.fetchone()
             conn.commit()
     else:
+        import bcrypt
+        
         cur.execute(
-            "SELECT id, username, role, full_name, vk_photo FROM t_p35759334_music_label_portal.users WHERE username = %s AND password_hash = %s",
-            (username, '$2a$10$N9qo8uLOickgx2ZMRZoMye1w8lQvN3s6W/KdDmrJmLZMDr1FzU7B2')
+            "SELECT id, username, role, full_name, vk_photo, password_hash FROM t_p35759334_music_label_portal.users WHERE username = %s",
+            (username,)
         )
-        user = cur.fetchone()
+        user_row = cur.fetchone()
+        
+        if not user_row:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Invalid credentials'})
+            }
+        
+        stored_hash = user_row[5]
+        
+        if not bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Invalid credentials'})
+            }
+        
+        user = user_row[:5]
     
     cur.close()
     conn.close()
