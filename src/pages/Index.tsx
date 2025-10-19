@@ -37,6 +37,7 @@ export default function Index() {
   };
 
   const handleUpdateProfile = async (updates: Partial<User>) => {
+    console.log('handleUpdateProfile called with:', updates);
     if (user) {
       const success = await updateUser(user.id, updates);
       if (success) {
