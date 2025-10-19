@@ -392,36 +392,58 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-6 border-b border-border/50">
         <button
           onClick={() => setActiveTab('create')}
-          className={`px-4 py-2 font-medium transition-colors ${
+          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
             activeTab === 'create'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'text-primary'
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          Создать задачу
+          <Icon name="Plus" size={18} />
+          <span>Создать задачу</span>
+          {activeTab === 'create' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+          )}
         </button>
         <button
           onClick={() => setActiveTab('in_progress')}
-          className={`px-4 py-2 font-medium transition-colors ${
+          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
             activeTab === 'in_progress'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'text-primary'
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          В работе ({pendingTasks.length + inProgressTasks.length})
+          <Icon name="Clock" size={18} />
+          <span>В работе</span>
+          {(pendingTasks.length + inProgressTasks.length) > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
+              {pendingTasks.length + inProgressTasks.length}
+            </span>
+          )}
+          {activeTab === 'in_progress' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+          )}
         </button>
         <button
           onClick={() => setActiveTab('completed')}
-          className={`px-4 py-2 font-medium transition-colors ${
+          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
             activeTab === 'completed'
-              ? 'border-b-2 border-primary text-primary'
+              ? 'text-primary'
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          Выполненные ({completedTasks.length})
+          <Icon name="CheckCircle" size={18} />
+          <span>Выполненные</span>
+          {completedTasks.length > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+              {completedTasks.length}
+            </span>
+          )}
+          {activeTab === 'completed' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+          )}
         </button>
       </div>
 
