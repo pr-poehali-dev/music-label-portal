@@ -90,11 +90,16 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     
     console.log('Saving profile:', { fullName, email, avatarUrl, lengths: { fullName: fullName.length, email: email.length, avatar: avatarUrl?.length } });
     
-    onUpdateProfile({
+    const updates: Partial<User> = {
       fullName,
-      email,
-      avatar: avatarUrl || undefined
-    });
+      email
+    };
+    
+    if (avatarUrl && !avatarUrl.startsWith('data:')) {
+      updates.avatar = avatarUrl;
+    }
+    
+    onUpdateProfile(updates);
     setIsEditing(false);
     setAvatarFile(null);
   }, [fullName, email, avatarPreview, avatarFile, onUpdateProfile]);
