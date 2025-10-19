@@ -273,12 +273,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 update_fields.append(f"role = '{role}'")
         
         if 'email' in body_data:
-            safe_email = body_data['email'].replace("'", "''")
-            update_fields.append(f"vk_email = '{safe_email}'")
+            email_val = body_data['email']
+            if email_val:
+                safe_email = email_val.replace("'", "''")
+                update_fields.append(f"vk_email = '{safe_email}'")
+            else:
+                update_fields.append("vk_email = NULL")
         
         if 'avatar' in body_data:
-            safe_avatar = body_data['avatar'].replace("'", "''") if body_data['avatar'] else ''
-            update_fields.append(f"vk_photo = '{safe_avatar}'")
+            avatar_val = body_data['avatar']
+            if avatar_val:
+                safe_avatar = avatar_val.replace("'", "''")
+                update_fields.append(f"vk_photo = '{safe_avatar}'")
+            else:
+                update_fields.append("vk_photo = NULL")
         
         if 'revenue_share_percent' in body_data:
             update_fields.append(f"revenue_share_percent = {body_data['revenue_share_percent']}")
