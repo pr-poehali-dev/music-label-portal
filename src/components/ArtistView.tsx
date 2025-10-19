@@ -4,10 +4,8 @@ import Icon from '@/components/ui/icon';
 import ReleaseManager from '@/components/ReleaseManager';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
-import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
-import MobileNav from '@/components/MobileNav';
 import { User, Ticket, NewTicket } from '@/types';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
@@ -68,14 +66,10 @@ export default function ArtistView({
     );
   };
 
-  const mobileNavItems = [
-    { value: 'tracks', icon: 'Music', label: 'Релизы', badge: 0 },
-    { value: 'support', icon: 'MessageSquare', label: 'Заявки', badge: unreadCounts.tickets },
-    { value: 'reports', icon: 'FileText', label: 'Отчёты', badge: 0 }
-  ];
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-16 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto px-0 md:p-4 animate-fadeIn">
         <div className="sticky top-0 z-30 mb-2 md:mb-0 px-2 md:px-0">
           <AppHeader 
@@ -94,21 +88,21 @@ export default function ArtistView({
             setActiveTab(value);
             localStorage.setItem('artist_active_tab', value);
           }}
-          className="w-full mt-1 md:mt-0">
-          <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
-            <TabsList className="grid w-full grid-cols-3 md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-              <TabsTrigger value="tracks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="Music" className="w-4 h-4 md:w-5 md:h-5 text-purple-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Релизы</span>
+          className="w-full mt-2 md:mt-4">
+          <div className="w-full px-2 md:px-0">
+            <TabsList className="grid w-full grid-cols-3 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-0.5 md:p-1">
+              <TabsTrigger value="tracks" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 md:hover:scale-105 gap-1 md:gap-2">
+                <Icon name="Music" className="w-3.5 h-3.5 md:w-5 md:h-5 text-purple-500 shrink-0" />
+                <span className="truncate">Релизы</span>
               </TabsTrigger>
-              <TabsTrigger value="support" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="MessageSquare" className="w-4 h-4 md:w-5 md:h-5 text-blue-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Обратиться</span>
+              <TabsTrigger value="support" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 md:hover:scale-105 gap-1 md:gap-2">
+                <Icon name="MessageSquare" className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-500 shrink-0" />
+                <span className="truncate">Заявки</span>
                 <Badge count={unreadCounts.tickets} />
               </TabsTrigger>
-              <TabsTrigger value="reports" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="FileText" className="w-4 h-4 md:w-5 md:h-5 text-orange-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Отчёты</span>
+              <TabsTrigger value="reports" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 md:hover:scale-105 gap-1 md:gap-2">
+                <Icon name="FileText" className="w-3.5 h-3.5 md:w-5 md:h-5 text-orange-500 shrink-0" />
+                <span className="truncate">Отчёты</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -185,15 +179,7 @@ export default function ArtistView({
         )}
       </div>
 
-      <MobileNav 
-        items={mobileNavItems}
-        activeTab={activeTab}
-        onTabChange={(value) => {
-          console.log('Artist tab change:', value);
-          setActiveTab(value);
-          localStorage.setItem('artist_active_tab', value);
-        }}
-      />
+
     </div>
   );
 }
