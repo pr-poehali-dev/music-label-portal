@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import os
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -34,8 +35,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     offset = int(params.get('offset', '0'))
     
     domain = 'fourtwentyru'
+    service_key = os.environ.get('VK_SERVICE_KEY', '')
     
-    url = f'https://api.vk.com/method/wall.get?domain={domain}&count={count}&offset={offset}&v=5.199'
+    url = f'https://api.vk.com/method/wall.get?domain={domain}&count={count}&offset={offset}&access_token={service_key}&v=5.199'
     
     try:
         with urllib.request.urlopen(url) as response:

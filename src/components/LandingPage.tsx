@@ -1,27 +1,11 @@
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import VKPosts from '@/components/VKPosts';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://vk.com/js/api/openapi.js?169';
-    script.async = true;
-    script.onload = () => {
-      if (window.VK) {
-        window.VK.Widgets.Group('vk_groups', { mode: 4, width: 'auto', height: '600' }, 214160827);
-      }
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black">
@@ -111,13 +95,7 @@ export default function LandingPage() {
 
         <section className="mb-16">
           <h3 className="text-3xl font-bold text-primary mb-8 text-center">Последние новости</h3>
-          <div className="max-w-4xl mx-auto">
-            <Card className="bg-card/80 border-primary/20 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div id="vk_groups"></div>
-              </CardContent>
-            </Card>
-          </div>
+          <VKPosts />
         </section>
 
         <footer className="text-center text-gray-500 py-8 border-t border-gray-800">
