@@ -23,11 +23,11 @@ interface CreateTicketFormProps {
 export default function CreateTicketForm({ newTicket, onTicketChange, onCreateTicket, selectedFile, onFileChange, uploading }: CreateTicketFormProps) {
   return (
     <Card className="border-primary/20 bg-card/95">
-      <CardHeader>
-        <CardTitle className="text-primary">Создать новый тикет</CardTitle>
-        <CardDescription>Опишите вашу проблему или запрос</CardDescription>
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-primary text-lg md:text-2xl">Создать новый тикет</CardTitle>
+        <CardDescription className="text-xs md:text-sm">Опишите вашу проблему или запрос</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">
         <div className="space-y-2">
           <Label htmlFor="title">Тема</Label>
           <Input

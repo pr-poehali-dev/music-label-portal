@@ -174,13 +174,13 @@ const UserManagement = React.memo(function UserManagement({
             Все пользователи ({allUsers.length})
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+        <CardContent className="p-3 md:p-6">
+          <div className="space-y-2 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
             {allUsers.map((u) => (
-              <div key={u.id} className={`p-2.5 rounded-lg border transition-all ${u.is_blocked ? 'bg-red-500/10 border-red-500/30' : u.is_frozen ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-muted/30 border-border/50 hover:bg-muted/50'}`}>
-                <div className="flex items-start justify-between gap-3">
+              <div key={u.id} className={`p-2 md:p-2.5 rounded-lg border transition-all ${u.is_blocked ? 'bg-red-500/10 border-red-500/30' : u.is_frozen ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-muted/30 border-border/50 hover:bg-muted/50'}`}>
+                <div className="flex items-start justify-between gap-2 md:gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-1">
                       {isUserOnline && (
                         <OnlineStatusBadge 
                           isOnline={isUserOnline(u.id)} 
@@ -188,13 +188,13 @@ const UserManagement = React.memo(function UserManagement({
                           size="sm"
                         />
                       )}
-                      <p className="font-semibold text-sm truncate">{u.full_name}</p>
-                      <Badge variant="outline" className="border-primary/50 text-[10px] px-1.5 py-0">
+                      <p className="font-semibold text-xs md:text-sm truncate">{u.full_name}</p>
+                      <Badge variant="outline" className="border-primary/50 text-[9px] md:text-[10px] px-1 md:px-1.5 py-0 flex-shrink-0">
                         {u.role === 'director' ? '👑' : u.role === 'manager' ? '🎯' : '🎤'}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-xs text-muted-foreground">@{u.username}</p>
+                    <div className="flex items-center gap-1 md:gap-1.5 flex-wrap">
+                      <p className="text-[10px] md:text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">@{u.username}</p>
                       {u.telegram_id && (
                         <Badge variant="outline" className="border-blue-500/50 bg-blue-500/10 text-[10px] px-1.5 py-0">
                           <Icon name="Send" size={8} className="mr-0.5" />

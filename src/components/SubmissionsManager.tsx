@@ -151,10 +151,11 @@ export default function SubmissionsManager({ userId, userRole = 'manager' }: Sub
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Icon name="Music" size={32} className="text-primary" />
-        <h1 className="text-3xl font-bold">Заявки</h1>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+        <Icon name="Music" size={24} className="text-primary md:hidden" />
+        <Icon name="Music" size={32} className="text-primary hidden md:block" />
+        <h1 className="text-xl md:text-3xl font-bold">Заявки</h1>
       </div>
 
       <Tabs defaultValue="submissions" className="w-full">
@@ -163,11 +164,11 @@ export default function SubmissionsManager({ userId, userRole = 'manager' }: Sub
           <TabsTrigger value="pitchings">🎯 Питчинги</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="submissions" className="space-y-6 mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Заявки на прослушивание</h2>
+        <TabsContent value="submissions" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <h2 className="text-lg md:text-xl font-semibold">Заявки на прослушивание</h2>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full md:w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

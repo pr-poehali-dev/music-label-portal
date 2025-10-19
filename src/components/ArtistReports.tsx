@@ -193,9 +193,9 @@ export default function ArtistReports({ userId, userName }: ArtistReportsProps) 
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4">
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-48 bg-white/5 border-white/10">
+              <SelectTrigger className="w-full md:w-48 bg-white/5 border-white/10">
                 <SelectValue placeholder="Период" />
               </SelectTrigger>
               <SelectContent>
@@ -209,7 +209,7 @@ export default function ArtistReports({ userId, userName }: ArtistReportsProps) 
             </Select>
 
             <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-              <SelectTrigger className="w-48 bg-white/5 border-white/10">
+              <SelectTrigger className="w-full md:w-48 bg-white/5 border-white/10">
                 <SelectValue placeholder="Площадка" />
               </SelectTrigger>
               <SelectContent>

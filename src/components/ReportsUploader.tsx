@@ -99,21 +99,22 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Icon name="Upload" size={32} className="text-primary" />
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <div className="flex items-center gap-2 md:gap-3">
+        <Icon name="Upload" size={24} className="text-primary md:hidden" />
+        <Icon name="Upload" size={32} className="text-primary hidden md:block" />
         <div>
-          <h1 className="text-3xl font-bold">Загрузка отчётов артистов</h1>
-          <p className="text-muted-foreground">Загрузите CSV или Excel файл с данными по стримингу</p>
+          <h1 className="text-lg md:text-3xl font-bold">Загрузка отчётов артистов</h1>
+          <p className="text-xs md:text-base text-muted-foreground">Загрузите CSV или Excel файл с данными по стримингу</p>
         </div>
       </div>
       <Card>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="text-xs md:text-sm font-medium">
               Выберите CSV или XLSX файл
             </Label>
-            <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row gap-2">
               <Input
                 type="file"
                 accept=".csv,.xlsx,.xls"

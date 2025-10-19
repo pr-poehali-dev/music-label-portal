@@ -119,25 +119,26 @@ export default function WeeklyReport() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Icon name="Calendar" size={32} className="text-primary" />
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-2 md:gap-3">
+          <Icon name="Calendar" size={24} className="text-primary md:hidden" />
+          <Icon name="Calendar" size={32} className="text-primary hidden md:block" />
           <div>
-            <h1 className="text-3xl font-bold">Еженедельный отчёт</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-xl md:text-3xl font-bold">Еженедельный отчёт</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               {formatDate(report.period.start)} - {formatDate(report.period.end)}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={loadReport} variant="outline">
-            <Icon name="RefreshCw" size={18} className="mr-2" />
-            Обновить
+          <Button onClick={loadReport} variant="outline" size="sm" className="md:size-default">
+            <Icon name="RefreshCw" size={16} className="md:mr-2" />
+            <span className="hidden md:inline">Обновить</span>
           </Button>
-          <Button onClick={sendToTelegram} disabled={sending}>
-            <Icon name={sending ? "Loader2" : "Send"} size={18} className={`mr-2 ${sending ? 'animate-spin' : ''}`} />
-            Отправить в Telegram
+          <Button onClick={sendToTelegram} disabled={sending} size="sm" className="md:size-default">
+            <Icon name={sending ? "Loader2" : "Send"} size={16} className={`md:mr-2 ${sending ? 'animate-spin' : ''}`} />
+            <span className="hidden md:inline">Отправить в Telegram</span>
           </Button>
         </div>
       </div>

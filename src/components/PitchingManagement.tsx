@@ -89,24 +89,24 @@ export default function PitchingManagement({ userId, userRole = 'manager' }: Pit
   const pendingPitchings = pitchings.filter((p) => p.status === 'pending');
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Питчинги релизов</h2>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <h2 className="text-xl md:text-2xl font-bold">Питчинги релизов</h2>
 
       {pendingPitchings.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 text-blue-600">На рассмотрении ({pendingPitchings.length})</h3>
-          <div className="grid gap-4">
+          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 text-blue-600">На рассмотрении ({pendingPitchings.length})</h3>
+          <div className="grid gap-3 md:gap-4">
             {pendingPitchings.map((pitching) => (
               <Card 
                 key={pitching.id} 
                 className="border-blue-600/50 cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => setSelectedPitching(pitching)}
               >
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-lg mb-1">{pitching.release_name}</h4>
-                      <p className="text-sm text-muted-foreground mb-1">
+                <CardContent className="p-4 md:pt-6">
+                  <div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm md:text-lg mb-1 truncate">{pitching.release_name}</h4>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1 truncate">
                         Артист: {userRole === 'director' && pitching.user_id ? (
                           <a href={`/user/${pitching.user_id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
                             {pitching.artist_name}

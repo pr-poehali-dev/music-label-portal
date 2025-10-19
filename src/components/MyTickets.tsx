@@ -69,14 +69,14 @@ const MyTickets = React.memo(function MyTickets({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Мои тикеты</CardTitle>
-        <CardDescription>Тикеты, которые вы создали</CardDescription>
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-2xl">Мои тикеты</CardTitle>
+        <CardDescription className="text-xs md:text-sm">Тикеты, которые вы создали</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         <div className="mb-4">
           <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

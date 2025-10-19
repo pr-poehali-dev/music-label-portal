@@ -207,46 +207,46 @@ export default function TaskAnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6 p-3 md:p-6">
-      <div className="flex items-center gap-3 mb-2">
-        <Icon name="BarChart3" size={24} className="text-yellow-400 md:w-8 md:h-8" />
-        <h1 className="text-xl md:text-3xl font-bold">Аналитика задач</h1>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex items-center gap-2 md:gap-3 mb-2">
+        <Icon name="BarChart3" size={20} className="text-yellow-400 md:size-8" />
+        <h1 className="text-lg md:text-3xl font-bold">Аналитика задач</h1>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Всего задач</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 md:p-6 pt-0">
             <div className="text-xl md:text-2xl font-bold">{totalTasks}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Завершено</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 md:p-6 pt-0">
             <div className="text-xl md:text-2xl font-bold text-green-500">{completedTasks}</div>
             <p className="text-xs text-muted-foreground mt-1">{completionRate}%</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">В работе</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 md:p-6 pt-0">
             <div className="text-xl md:text-2xl font-bold text-blue-500">{inProgressTasks}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Просрочено</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 md:p-6 pt-0">
             <div className="text-xl md:text-2xl font-bold text-red-500">{overdueTasks}</div>
           </CardContent>
         </Card>

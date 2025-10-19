@@ -75,9 +75,9 @@ const TicketCard = React.memo(function TicketCard({
 
   return (
     <Card className={`border-primary/20 bg-card/95 hover:shadow-lg transition-all ${isOverdue ? 'border-red-500/50' : ''}`}>
-      <CardHeader className="pb-2 space-y-2">
+      <CardHeader className="pb-2 space-y-2 p-3 md:p-6">
         <div className="flex items-start justify-between gap-2">
-          <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-xs px-2 py-0.5 shrink-0`}>
+          <Badge variant="outline" className={`${getPriorityColor(ticket.priority)} text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 shrink-0`}>
             {ticket.priority === 'urgent' ? '🔥' : 
              ticket.priority === 'high' ? '⚠️' :
              ticket.priority === 'medium' ? '📌' : '📋'}
@@ -87,17 +87,17 @@ const TicketCard = React.memo(function TicketCard({
               variant="ghost"
               size="icon"
               onClick={() => onDelete(ticket.id)}
-              className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-500/10 shrink-0"
+              className="h-6 w-6 md:h-8 md:w-8 text-red-500 hover:text-red-700 hover:bg-red-500/10 shrink-0"
             >
-              <Icon name="Trash2" size={14} />
+              <Icon name="Trash2" size={12} className="md:size-4" />
             </Button>
           )}
         </div>
-        <CardTitle className="text-primary text-sm font-semibold line-clamp-2 leading-tight">{ticket.title}</CardTitle>
-        <CardDescription className="text-foreground/60 text-xs line-clamp-2 leading-snug">{ticket.description}</CardDescription>
+        <CardTitle className="text-primary text-xs md:text-sm font-semibold line-clamp-2 leading-tight">{ticket.title}</CardTitle>
+        <CardDescription className="text-foreground/60 text-[10px] md:text-xs line-clamp-2 leading-snug">{ticket.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 pt-0 pb-3">
-        <div className="space-y-1.5 text-xs text-muted-foreground">
+      <CardContent className="space-y-2 pt-0 pb-3 px-3 md:px-6">
+        <div className="space-y-1.5 text-[10px] md:text-xs text-muted-foreground">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 truncate">
               <Icon name="User" size={11} />

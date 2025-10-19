@@ -78,30 +78,30 @@ export default function ArtistDashboard({ userId }: Props) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-white">Твоя статистика</h2>
-          <p className="text-gray-400">Обновляется каждый день в 00:00</p>
+          <h2 className="text-xl md:text-2xl font-bold text-white">Твоя статистика</h2>
+          <p className="text-xs md:text-sm text-gray-400">Обновляется каждый день в 00:00</p>
         </div>
-        <Badge className="bg-white/10 text-white">
+        <Badge className="bg-white/10 text-white text-xs md:text-sm">
           {new Date(stats.date).toLocaleDateString('ru-RU')}
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30 backdrop-blur-sm hover:border-blue-500/50 transition-all">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <Icon name="Users" size={20} className="text-blue-400" />
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="flex items-center gap-2 text-white text-base md:text-lg">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <Icon name="Users" size={16} className="text-blue-400 md:size-5" />
               </div>
               ВКонтакте
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6">
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-white">
+              <div className="text-2xl md:text-4xl font-bold text-white">
                 {stats.vk_subscribers.toLocaleString('ru-RU')}
               </div>
               <div className={`flex items-center gap-1 ${getChangeColor(stats.vk_subscribers_change)}`}>

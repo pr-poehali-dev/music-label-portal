@@ -86,14 +86,15 @@ const TicketManagement = React.memo(function TicketManagement({
   }), [tickets, sortByDate]);
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center gap-3">
-        <Icon name="Ticket" size={32} className="text-primary" />
-        <h1 className="text-3xl font-bold">Заявки</h1>
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex items-center gap-2 md:gap-3">
+        <Icon name="Ticket" size={24} className="text-primary md:hidden" />
+        <Icon name="Ticket" size={32} className="text-primary hidden md:block" />
+        <h1 className="text-xl md:text-3xl font-bold">Заявки</h1>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-2 border-b overflow-x-auto scrollbar-hide">
         <button
           onClick={() => setActiveTab('open')}
           className={`px-4 py-2 font-medium transition-colors ${

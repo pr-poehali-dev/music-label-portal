@@ -100,32 +100,32 @@ export default function VKPosts() {
   }
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 p-3 md:p-0">
       {posts.map((post, index) => (
         <div
           key={post.id}
-          className="group relative bg-gradient-to-br from-card/30 to-black/30 border border-primary/10 backdrop-blur-xl hover:border-primary/30 transition-all duration-500 rounded-2xl overflow-hidden hover:scale-105 hover:-translate-y-2"
+          className="group relative bg-gradient-to-br from-card/30 to-black/30 border border-primary/10 backdrop-blur-xl hover:border-primary/30 transition-all duration-500 rounded-xl md:rounded-2xl overflow-hidden md:hover:scale-105 md:hover:-translate-y-2"
           style={{ animationDelay: `${index * 0.1}s` }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           {post.attachments.length > 0 && post.attachments[0].type === 'photo' && (
-            <div className="relative h-64 overflow-hidden">
+            <div className="relative h-48 md:h-64 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
               <img 
                 src={post.attachments[0].url} 
                 alt="Post" 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
-              <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-primary border border-primary/30">
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 bg-black/60 backdrop-blur-sm px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs text-primary border border-primary/30">
                 {formatDate(post.date)}
               </div>
             </div>
           )}
           
-          <div className="p-6 relative z-10">
+          <div className="p-4 md:p-6 relative z-10">
             {(!post.attachments.length || post.attachments[0].type !== 'photo') && (
-              <p className="text-xs text-primary/60 mb-3 uppercase tracking-wider">{formatDate(post.date)}</p>
+              <p className="text-[10px] md:text-xs text-primary/60 mb-2 md:mb-3 uppercase tracking-wider">{formatDate(post.date)}</p>
             )}
             
             {post.text && (

@@ -55,32 +55,32 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
   }), [tasks]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Мои задачи</h2>
-        <div className="flex gap-2">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <h2 className="text-xl md:text-2xl font-bold">Мои задачи</h2>
+        <div className="flex gap-2 flex-wrap">
           <Badge variant="secondary">{activeTasks.length} активных</Badge>
           <Badge variant="outline">{completedTasks.length} выполнено</Badge>
         </div>
       </div>
 
       {activeTasks.length === 0 && completedTasks.length === 0 ? (
-        <Card className="p-8 text-center text-muted-foreground">
-          <Icon name="ListTodo" size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg">У вас пока нет задач</p>
+        <Card className="p-6 md:p-8 text-center text-muted-foreground">
+          <Icon name="ListTodo" size={36} className="mx-auto mb-4 opacity-50 md:size-12" />
+          <p className="text-base md:text-lg">У вас пока нет задач</p>
         </Card>
       ) : (
         <>
           {activeTasks.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Активные задачи</h3>
-              <div className="grid gap-4">
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-base md:text-lg font-semibold">Активные задачи</h3>
+              <div className="grid gap-3 md:gap-4">
                 {activeTasks.map(task => (
-                  <Card key={task.id} className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h3 className="text-lg font-semibold">#{task.id} {task.title}</h3>
+                  <Card key={task.id} className="p-4 md:p-6">
+                    <div className="flex items-start justify-between gap-3 md:gap-4">
+                      <div className="flex-1 space-y-2 md:space-y-3 min-w-0">
+                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                          <h3 className="text-sm md:text-lg font-semibold truncate">#{task.id} {task.title}</h3>
                           <Badge variant={getPriorityColor(task.priority)}>
                             <Icon name={getPriorityIcon(task.priority)} size={12} className="mr-1" />
                             {task.priority}
