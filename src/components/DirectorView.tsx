@@ -83,7 +83,7 @@ export default function DirectorView({
           userRole="boss"
         />
 
-        <div className="sticky top-0 z-30 -mx-2 md:-mx-4 px-2 md:px-4 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-yellow-500/20">
+        <div className="sticky top-0 z-30 bg-gradient-to-br from-black/98 via-yellow-950/40 to-black/98 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-yellow-500/20 rounded-b-xl">
           <AppHeader 
             onMessagesClick={() => onMessagesOpenChange(true)}
             onProfileClick={() => setShowProfile(true)}
