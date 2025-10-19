@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ArtistReports from '@/components/ArtistReports';
 import ReleaseManager from '@/components/ReleaseManager';
 import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
@@ -48,7 +47,7 @@ export default function ArtistView({
   onLogout
 }: ArtistViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('artist_active_tab') || 'reports';
+    return localStorage.getItem('artist_active_tab') || 'tracks';
   });
   const [showProfile, setShowProfile] = useState(false);
 
@@ -92,16 +91,12 @@ export default function ArtistView({
           className="w-full">
           <div className="w-full overflow-x-auto pb-2">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
               <TabsTrigger value="tracks">🎵 Релизы</TabsTrigger>
               <TabsTrigger value="create">✉️ Создать тикет</TabsTrigger>
               <TabsTrigger value="my-tickets">🎫 Мои тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
+              <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
             </TabsList>
           </div>
-
-          <TabsContent value="reports">
-            <ArtistReports userId={user.id} userName={user.full_name} />
-          </TabsContent>
 
           <TabsContent value="tracks">
             <ReleaseManager userId={user.id} userRole="artist" />
@@ -126,6 +121,16 @@ export default function ArtistView({
               onStatusFilterChange={onStatusFilterChange}
               onLoadTickets={onLoadTickets}
             />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center space-y-4">
+                <div className="text-6xl">📊</div>
+                <h2 className="text-2xl font-bold text-yellow-500">Скоро будет доступно</h2>
+                <p className="text-gray-400">Работаем над этим разделом</p>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
 
