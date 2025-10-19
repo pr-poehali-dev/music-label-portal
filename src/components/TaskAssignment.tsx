@@ -53,7 +53,7 @@ interface TaskAssignmentProps {
 export default function TaskAssignment({ managers }: TaskAssignmentProps) {
   const directorId = 1; // Hardcoded for now
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [activeTab, setActiveTab] = useState<'create' | 'in_progress' | 'completed'>('create');
+  const [activeTab, setActiveTab] = useState<'in_progress' | 'completed'>('in_progress');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -385,177 +385,161 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center gap-3">
-        <Icon name="ListChecks" size={32} className="text-primary" />
-        <h1 className="text-3xl font-bold">Задачи</h1>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-border/50">
-        <button
-          onClick={() => setActiveTab('create')}
-          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
-            activeTab === 'create'
-              ? 'text-primary'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Icon name="Plus" size={18} />
-          <span>Создать задачу</span>
-          {activeTab === 'create' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('in_progress')}
-          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
-            activeTab === 'in_progress'
-              ? 'text-primary'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Icon name="Clock" size={18} />
-          <span>В работе</span>
-          {(pendingTasks.length + inProgressTasks.length) > 0 && (
-            <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
-              {pendingTasks.length + inProgressTasks.length}
-            </span>
-          )}
-          {activeTab === 'in_progress' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('completed')}
-          className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
-            activeTab === 'completed'
-              ? 'text-primary'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Icon name="CheckCircle" size={18} />
-          <span>Выполненные</span>
-          {completedTasks.length > 0 && (
-            <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
-              {completedTasks.length}
-            </span>
-          )}
-          {activeTab === 'completed' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-          )}
-        </button>
-      </div>
-
-      {/* Create Task Tab */}
-      {activeTab === 'create' && (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Create Task Form - Left Column */}
+      <div className="lg:col-span-1">
         <TaskForm
-        newTask={newTask}
-        managers={managers}
-        selectedFile={selectedFile}
-        uploading={uploading}
-        onTaskChange={setNewTask}
-        onFileChange={setSelectedFile}
-        onSubmit={createTask}
-        onToggleManager={(managerId) => toggleManager(managerId, false)}
-        getManagerTaskCount={getManagerTaskCount}
-        onShowInfo={(message) => toast({ description: message })}
-      />
-      )}
+          newTask={newTask}
+          managers={managers}
+          selectedFile={selectedFile}
+          uploading={uploading}
+          onTaskChange={setNewTask}
+          onFileChange={setSelectedFile}
+          onSubmit={createTask}
+          onToggleManager={(managerId) => toggleManager(managerId, false)}
+          getManagerTaskCount={getManagerTaskCount}
+          onShowInfo={(message) => toast({ description: message })}
+        />
+      </div>
 
-      {/* In Progress Tab */}
-      {activeTab === 'in_progress' && (
-        <div className="space-y-4 md:space-y-6 p-3 md:p-0">
-          {pendingTasks.length > 0 && (
-            <div>
-              <div className="mb-3 md:mb-4 flex items-center gap-2">
-                <Icon name="Clock" size={20} className="text-yellow-500" />
-                <span className="text-base md:text-lg font-semibold text-foreground">Ожидают</span>
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-sm font-medium">
-                  {pendingTasks.length}
-                </span>
-              </div>
-              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {pendingTasks.map((task) => (
-                  <TaskList
-                    key={task.id}
-                    tasks={[task]}
-                    onUpdateStatus={updateTaskStatus}
-                    onComplete={openCompletionDialog}
-                    onEdit={openEditDialog}
-                    onDelete={deleteTask}
-                    getPriorityColor={getPriorityColor}
-                    getPriorityText={getPriorityText}
-                    getStatusColor={getStatusColor}
-                    getStatusText={getStatusText}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {inProgressTasks.length > 0 && (
-            <div>
-              <div className="mb-3 md:mb-4 flex items-center gap-2">
-                <Icon name="Play" size={20} className="text-primary" />
-                <span className="text-base md:text-lg font-semibold text-foreground">В процессе</span>
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
-                  {inProgressTasks.length}
-                </span>
-              </div>
-              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {inProgressTasks.map((task) => (
-                  <TaskList
-                    key={task.id}
-                    tasks={[task]}
-                    onUpdateStatus={updateTaskStatus}
-                    onComplete={openCompletionDialog}
-                    onEdit={openEditDialog}
-                    onDelete={deleteTask}
-                    getPriorityColor={getPriorityColor}
-                    getPriorityText={getPriorityText}
-                    getStatusColor={getStatusColor}
-                    getStatusText={getStatusText}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+      {/* Tasks List - Right Column */}
+      <div className="lg:col-span-2 space-y-4">
+        {/* Tabs */}
+        <div className="flex gap-4 border-b border-border/50">
+          <button
+            onClick={() => setActiveTab('in_progress')}
+            className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
+              activeTab === 'in_progress'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon name="Clock" size={18} />
+            <span>В работе</span>
+            {(pendingTasks.length + inProgressTasks.length) > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
+                {pendingTasks.length + inProgressTasks.length}
+              </span>
+            )}
+            {activeTab === 'in_progress' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('completed')}
+            className={`px-2 py-3 font-medium transition-colors flex items-center gap-2 relative ${
+              activeTab === 'completed'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon name="CheckCircle" size={18} />
+            <span>Выполненные</span>
+            {completedTasks.length > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+                {completedTasks.length}
+              </span>
+            )}
+            {activeTab === 'completed' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
         </div>
-      )}
 
-      {/* Completed Tab */}
-      {activeTab === 'completed' && (
-        <div className="space-y-4 md:space-y-6 p-3 md:p-0">
-          {completedTasks.length > 0 && (
-            <div>
-              <div className="mb-3 md:mb-4 flex items-center gap-2">
-                <Icon name="CheckCircle" size={20} className="text-green-500" />
-                <span className="text-base md:text-lg font-semibold text-foreground">Выполненные задачи</span>
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                  {completedTasks.length}
-                </span>
+        {/* In Progress Tab */}
+        {activeTab === 'in_progress' && (
+          <div className="space-y-4 md:space-y-6">
+            {pendingTasks.length > 0 && (
+              <div>
+                <div className="mb-3 md:mb-4 flex items-center gap-2">
+                  <Icon name="Clock" size={20} className="text-yellow-500" />
+                  <span className="text-base md:text-lg font-semibold text-foreground">Ожидают</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-sm font-medium">
+                    {pendingTasks.length}
+                  </span>
+                </div>
+                <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+                  {pendingTasks.map((task) => (
+                    <TaskList
+                      key={task.id}
+                      tasks={[task]}
+                      onUpdateStatus={updateTaskStatus}
+                      onComplete={openCompletionDialog}
+                      onEdit={openEditDialog}
+                      onDelete={deleteTask}
+                      getPriorityColor={getPriorityColor}
+                      getPriorityText={getPriorityText}
+                      getStatusColor={getStatusColor}
+                      getStatusText={getStatusText}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {completedTasks.map((task) => (
-                  <TaskList
-                    key={task.id}
-                    tasks={[task]}
-                    onUpdateStatus={updateTaskStatus}
-                    onComplete={openCompletionDialog}
-                    onEdit={openEditDialog}
-                    onDelete={deleteTask}
-                    getPriorityColor={getPriorityColor}
-                    getPriorityText={getPriorityText}
-                    getStatusColor={getStatusColor}
-                    getStatusText={getStatusText}
-                  />
-                ))}
+            )}
+
+            {inProgressTasks.length > 0 && (
+              <div>
+                <div className="mb-3 md:mb-4 flex items-center gap-2">
+                  <Icon name="Play" size={20} className="text-primary" />
+                  <span className="text-base md:text-lg font-semibold text-foreground">В процессе</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-sm font-medium">
+                    {inProgressTasks.length}
+                  </span>
+                </div>
+                <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+                  {inProgressTasks.map((task) => (
+                    <TaskList
+                      key={task.id}
+                      tasks={[task]}
+                      onUpdateStatus={updateTaskStatus}
+                      onComplete={openCompletionDialog}
+                      onEdit={openEditDialog}
+                      onDelete={deleteTask}
+                      getPriorityColor={getPriorityColor}
+                      getPriorityText={getPriorityText}
+                      getStatusColor={getStatusColor}
+                      getStatusText={getStatusText}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+
+        {/* Completed Tab */}
+        {activeTab === 'completed' && (
+          <div className="space-y-4 md:space-y-6">
+            {completedTasks.length > 0 && (
+              <div>
+                <div className="mb-3 md:mb-4 flex items-center gap-2">
+                  <Icon name="CheckCircle" size={20} className="text-green-500" />
+                  <span className="text-base md:text-lg font-semibold text-foreground">Выполненные задачи</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
+                    {completedTasks.length}
+                  </span>
+                </div>
+                <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+                  {completedTasks.map((task) => (
+                    <TaskList
+                      key={task.id}
+                      tasks={[task]}
+                      onUpdateStatus={updateTaskStatus}
+                      onComplete={openCompletionDialog}
+                      onEdit={openEditDialog}
+                      onDelete={deleteTask}
+                      getPriorityColor={getPriorityColor}
+                      getPriorityText={getPriorityText}
+                      getStatusColor={getStatusColor}
+                      getStatusText={getStatusText}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <TaskEditDialog
         isOpen={isEditDialogOpen}
