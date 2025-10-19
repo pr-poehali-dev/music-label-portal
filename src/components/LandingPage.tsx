@@ -132,8 +132,8 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap justify-center gap-4 md:gap-8 animate-slideIn px-4" style={{ animationDelay: '0.4s' }}>
               <div className="text-center">
-                <div className="text-3xl md:text-5xl font-black text-primary mb-1 md:mb-2">10+</div>
-                <div className="text-gray-500 uppercase text-xs md:text-sm tracking-wider">Лет в индустрии</div>
+                <div className="text-3xl md:text-5xl font-black text-primary mb-1 md:mb-2">10 лет</div>
+                <div className="text-gray-500 uppercase text-xs md:text-sm tracking-wider">В индустрии</div>
               </div>
               <div className="w-px bg-gradient-to-b from-transparent via-primary/50 to-transparent" />
               <div className="text-center">
