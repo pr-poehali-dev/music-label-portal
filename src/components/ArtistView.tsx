@@ -90,10 +90,9 @@ export default function ArtistView({
           }}
           className="w-full">
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="tracks">🎵 Релизы</TabsTrigger>
-              <TabsTrigger value="create">✉️ Создать тикет</TabsTrigger>
-              <TabsTrigger value="my-tickets">🎫 Мои тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
+              <TabsTrigger value="support">✉️ Обратиться<Badge count={unreadCounts.tickets} /></TabsTrigger>
               <TabsTrigger value="reports">📁 Отчёты</TabsTrigger>
             </TabsList>
           </div>
@@ -102,25 +101,34 @@ export default function ArtistView({
             <ReleaseManager userId={user.id} userRole="artist" />
           </TabsContent>
 
-          <TabsContent value="create">
-            <CreateTicketForm
-              newTicket={newTicket}
-              onTicketChange={onTicketChange}
-              onCreateTicket={onCreateTicket}
-              selectedFile={selectedTicketFile}
-              onFileChange={onFileChange}
-              uploading={uploadingTicket}
-            />
-          </TabsContent>
+          <TabsContent value="support">
+            <Tabs defaultValue="create" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="create">✏️ Создать тикет</TabsTrigger>
+                <TabsTrigger value="my-tickets">📋 Мои тикеты<Badge count={unreadCounts.tickets} /></TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="my-tickets">
-            <MyTickets
-              user={user}
-              tickets={tickets}
-              statusFilter={statusFilter}
-              onStatusFilterChange={onStatusFilterChange}
-              onLoadTickets={onLoadTickets}
-            />
+              <TabsContent value="create">
+                <CreateTicketForm
+                  newTicket={newTicket}
+                  onTicketChange={onTicketChange}
+                  onCreateTicket={onCreateTicket}
+                  selectedFile={selectedTicketFile}
+                  onFileChange={onFileChange}
+                  uploading={uploadingTicket}
+                />
+              </TabsContent>
+
+              <TabsContent value="my-tickets">
+                <MyTickets
+                  user={user}
+                  tickets={tickets}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={onStatusFilterChange}
+                  onLoadTickets={onLoadTickets}
+                />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="reports">
