@@ -200,7 +200,7 @@ export default function LandingPage() {
               <p className="text-gray-500 mb-8 text-lg">© 2024 Все права защищены</p>
               <div className="flex justify-center gap-8">
                 <a 
-                  href="https://vk.com/fourtwentyru" 
+                  href="https://vk.com/smm420" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="group flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 hover:border-primary/50 hover:bg-primary/20 transition-all duration-300 hover:scale-105"
@@ -209,7 +209,7 @@ export default function LandingPage() {
                   <span className="text-gray-400 group-hover:text-primary transition-colors font-medium">ВКонтакте</span>
                 </a>
                 <a 
-                  href="https://t.me/fourtwentyru" 
+                  href="https://t.me/labl420" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="group flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-secondary/10 to-transparent border border-secondary/20 hover:border-secondary/50 hover:bg-secondary/20 transition-all duration-300 hover:scale-105"
