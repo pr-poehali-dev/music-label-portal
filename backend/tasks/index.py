@@ -343,11 +343,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'DELETE':
-            if user_role != 'director':
+            if user_role not in ['director', 'head']:
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Only directors can delete tasks'}),
+                    'body': json.dumps({'error': 'Only directors and heads can delete tasks'}),
                     'isBase64Encoded': False
                 }
             
