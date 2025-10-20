@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Release } from './types';
+
+const ReleasePlayer = lazy(() => import('./ReleasePlayer'));
 
 interface ReleaseViewDialogProps {
   release: Release | null;
@@ -129,44 +130,19 @@ export default function ReleaseViewDialog({
             )}
           </div>
 
-          {loadingTracks ? (
-            <div className="flex justify-center py-8">
-              <Icon name="Loader2" size={24} className="animate-spin text-primary" />
-            </div>
-          ) : tracks.length > 0 && (
+          {tracks.length > 0 && (
             <div>
               <h4 className="font-semibold mb-3 text-sm md:text-base flex items-center gap-2">
                 <Icon name="Music" size={16} />
                 Треки ({tracks.length})
               </h4>
-              <div className="space-y-2">
-                {tracks.map((track) => (
-                  <Card key={track.id} className="bg-muted/50">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm md:text-base truncate">
-                            #{track.track_number} - {track.title}
-                          </p>
-                          {track.composer && (
-                            <p className="text-xs text-muted-foreground truncate">
-                              Композитор: {track.composer}
-                            </p>
-                          )}
-                          {track.author_lyrics && (
-                            <p className="text-xs text-muted-foreground truncate">
-                              Автор текста: {track.author_lyrics}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <audio controls className="w-full mt-2 h-8 md:h-10">
-                        <source src={track.file_url} />
-                      </audio>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <Suspense fallback={
+                <div className="flex justify-center py-8">
+                  <Icon name="Loader2" size={24} className="animate-spin text-yellow-500" />
+                </div>
+              }>
+                <ReleasePlayer userId={userId} releaseId={release.id} />
+              </Suspense>
             </div>
           )}
 
