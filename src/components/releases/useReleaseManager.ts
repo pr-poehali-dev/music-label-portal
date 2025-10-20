@@ -68,7 +68,13 @@ export const useReleaseManager = (userId: number) => {
       }
       
       const data = await response.json();
-      setReleases(data);
+      
+      // Сортировка по дате создания (новые сверху)
+      const sorted = Array.isArray(data) 
+        ? data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        : data;
+      
+      setReleases(sorted);
     } catch (error: any) {
       console.error('Failed to load releases:', error);
       if (error.name !== 'AbortError') {
