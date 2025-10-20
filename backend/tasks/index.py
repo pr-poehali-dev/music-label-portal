@@ -158,8 +158,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LIMIT 100
                 """
             
+            print(f"[DEBUG] Executing query for user_id={user_id}, role={user_role}")
+            print(f"[DEBUG] Query: {query}")
             cur.execute(query)
             tasks = cur.fetchall()
+            print(f"[DEBUG] Found {len(tasks)} tasks")
             
             tasks_list = []
             for task in tasks:

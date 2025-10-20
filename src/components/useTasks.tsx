@@ -53,6 +53,8 @@ export const useTasks = (user: any, ticketId?: number) => {
       if (!response.ok) throw new Error('Ошибка загрузки задач');
 
       const data = await response.json();
+      console.log('useTasks received data:', data);
+      console.log('useTasks user:', { id: user.id, role: user.role });
       setTasks(data.tasks || []);
     } catch (error) {
       console.error('Error loading tasks:', error);
