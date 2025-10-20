@@ -75,10 +75,11 @@ export default function ReleaseManagerView({
   handleSubmit
 }: ReleaseManagerViewProps) {
   // Memoize filtered releases to avoid re-filtering on every render
-  const filteredReleases = useMemo(() => 
-    activeTab === 'all' ? releases : releases.filter(r => r.status === activeTab),
-    [activeTab, releases]
-  );
+  const filteredReleases = useMemo(() => {
+    const filtered = activeTab === 'all' ? releases : releases.filter(r => r.status === activeTab);
+    // Сортировка по дате создания (новые сверху)
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [activeTab, releases]);
 
   // Memoize callbacks
   const handleCreateClick = useCallback(() => {

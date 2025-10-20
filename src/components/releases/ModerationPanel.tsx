@@ -19,7 +19,9 @@ export default function ModerationPanel({ releases, userId, onReview, loadTracks
   const [reviewComment, setReviewComment] = useState('');
   const [reviewing, setReviewing] = useState(false);
 
-  const pendingReleases = releases.filter((r) => r.status === 'pending');
+  const pendingReleases = releases
+    .filter((r) => r.status === 'pending')
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const toggleExpand = async (releaseId: number) => {
     if (expandedRelease === releaseId) {
