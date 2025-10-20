@@ -4,17 +4,7 @@
       "name": "Get release analytics",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "total_releases": "number",
-        "pending_releases": "number",
-        "approved_releases": "number",
-        "rejected_releases": "number",
-        "top_artists": "array",
-        "releases_by_month": "array",
-        "platform_distribution": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

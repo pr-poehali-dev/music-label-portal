@@ -9,6 +9,7 @@ interface ReleaseStats {
   pending_releases: number;
   approved_releases: number;
   rejected_releases: number;
+  reviewed_releases: number;
   total_streams: number;
   avg_rating: number;
   top_artists: Array<{ artist_name: string; release_count: number }>;
@@ -44,6 +45,7 @@ export default function ReleaseAnalyticsDashboard() {
         pending_releases: 0,
         approved_releases: 0,
         rejected_releases: 0,
+        reviewed_releases: 0,
         total_streams: 0,
         avg_rating: 0,
         top_artists: [],
@@ -67,7 +69,7 @@ export default function ReleaseAnalyticsDashboard() {
 
   return (
     <div className="space-y-4 md:space-y-6 p-3 md:p-0">
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         <Card className="border-yellow-500/20 bg-black/40">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium">Всего релизов</CardTitle>
@@ -105,6 +107,16 @@ export default function ReleaseAnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-500">{stats.rejected_releases}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-500/20 bg-black/40">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Проверено</CardTitle>
+            <Icon name="CheckCheck" className="text-purple-500" size={16} />
+          </CardHeader>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold text-purple-500">{stats.reviewed_releases}</div>
           </CardContent>
         </Card>
       </div>

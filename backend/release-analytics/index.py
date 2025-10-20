@@ -50,7 +50,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             COUNT(*) as total_releases,
             SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_releases,
             SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_releases,
-            SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_releases
+            SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_releases,
+            SUM(CASE WHEN status IN ('approved', 'rejected') THEN 1 ELSE 0 END) as reviewed_releases
         FROM t_p35759334_music_label_portal.releases
     """)
     overall_stats = cur.fetchone()
@@ -120,6 +121,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'pending_releases': int(overall_stats[1]) if overall_stats[1] else 0,
         'approved_releases': int(overall_stats[2]) if overall_stats[2] else 0,
         'rejected_releases': int(overall_stats[3]) if overall_stats[3] else 0,
+        'reviewed_releases': int(overall_stats[4]) if overall_stats[4] else 0,
         'total_streams': 0,
         'avg_rating': 0,
         'top_artists': [{'artist_name': row[0], 'release_count': int(row[1])} for row in top_artists],
