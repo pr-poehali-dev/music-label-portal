@@ -390,12 +390,21 @@ export const useReleaseManager = (userId: number) => {
 
   const loadTracks = async (releaseId: number): Promise<Track[]> => {
     try {
-      const response = await fetch(`${API_URL}?releaseId=${releaseId}`, {
+      const response = await fetch(`${API_URL}?release_id=${releaseId}`, {
         headers: { 'X-User-Id': userId.toString() }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
-      return data;
+      console.log('[loadTracks] Response:', data);
+      
+      // Бэкенд возвращает {release_data, tracks: [...]}
+      return Array.isArray(data) ? data : (data.tracks || []);
     } catch (error) {
+      console.error('[loadTracks] Error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось загрузить треки',

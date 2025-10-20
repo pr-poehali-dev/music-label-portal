@@ -82,8 +82,12 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
       }
       
       const data = await response.json();
-      console.log('Loaded data:', data);
-      setTracks(Array.isArray(data) ? data : (data.tracks || []));
+      console.log('[ReleasePlayer] Loaded data:', data);
+      
+      const tracksArray = Array.isArray(data) ? data : (data.tracks || []);
+      console.log('[ReleasePlayer] Extracted tracks:', tracksArray, 'count:', tracksArray.length);
+      
+      setTracks(tracksArray);
     } catch (error) {
       console.error('Failed to load tracks:', error);
       setTracks([]);
