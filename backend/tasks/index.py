@@ -232,7 +232,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'tasks': tasks_list}),
+                'body': json.dumps({'tasks': tasks_list}, default=str),
                 'isBase64Encoded': False
             }
         
