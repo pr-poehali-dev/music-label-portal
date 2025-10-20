@@ -4,6 +4,17 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
+def sql_escape(value):
+    '''Escape value for SQL simple query'''
+    if value is None:
+        return 'NULL'
+    if isinstance(value, bool):
+        return 'TRUE' if value else 'FALSE'
+    if isinstance(value, (int, float)):
+        return str(value)
+    # Escape single quotes
+    return f"'{str(value).replace(chr(39), chr(39)+chr(39))}'"
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Manage music releases - create, list, review releases and tracks
@@ -44,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        cur.execute(f"SELECT role FROM {schema}.users WHERE id = %s", (user_id,))
+        cur.execute(f"SELECT role FROM {schema}.users WHERE id = '{user_id}'")
         user = cur.fetchone()
         
         if not user:
@@ -152,54 +163,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if genre == '' or genre == '0':
                 genre = None
             
+            # Use simple query protocol
+            release_name = sql_escape(body_data.get('release_name', 'Untitled'))
+            cover_url = sql_escape(body_data.get('cover_url'))
+            release_date = sql_escape(body_data.get('release_date'))
+            preorder_date = sql_escape(body_data.get('preorder_date'))
+            sales_start = sql_escape(body_data.get('sales_start_date'))
+            genre_val = sql_escape(genre)
+            copyright_val = sql_escape(body_data.get('copyright'))
+            price_cat = sql_escape(body_data.get('price_category'))
+            title_lang = sql_escape(body_data.get('title_language'))
+            
             cur.execute(f"""
                 INSERT INTO {schema}.releases 
                 (artist_id, title, release_name, cover_url, release_date, preorder_date, 
                  sales_start_date, genre, copyright, price_category, title_language, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+                VALUES ({user_id}, {release_name}, {release_name}, {cover_url}, {release_date}, 
+                        {preorder_date}, {sales_start}, {genre_val}, {copyright_val}, {price_cat}, 
+                        {title_lang}, 'pending')
                 RETURNING id, created_at
-            """, (
-                user_id,
-                body_data.get('release_name', 'Untitled'),
-                body_data.get('release_name'),
-                body_data.get('cover_url'),
-                body_data.get('release_date'),
-                body_data.get('preorder_date'),
-                body_data.get('sales_start_date'),
-                genre,
-                body_data.get('copyright'),
-                body_data.get('price_category'),
-                body_data.get('title_language')
-            ))
+            """)
             
             release = cur.fetchone()
             release_id = release['id']
             
             tracks = body_data.get('tracks', [])
             for track in tracks:
+                track_num = sql_escape(track.get('track_number'))
+                title = sql_escape(track.get('title'))
+                file_url = sql_escape(track.get('file_url'))
+                file_name = sql_escape(track.get('file_name'))
+                file_size = sql_escape(track.get('file_size'))
+                composer = sql_escape(track.get('composer'))
+                author_lyrics = sql_escape(track.get('author_lyrics'))
+                lang_audio = sql_escape(track.get('language_audio'))
+                explicit = sql_escape(track.get('explicit_content', False))
+                lyrics = sql_escape(track.get('lyrics_text'))
+                tiktok_start = sql_escape(track.get('tiktok_preview_start'))
+                track_genre = sql_escape(track.get('genre'))
+                description = sql_escape(track.get('description'))
+                
                 cur.execute(f"""
                     INSERT INTO {schema}.release_tracks
                     (release_id, artist_id, track_number, title, file_url, file_name, file_size,
                      composer, author_lyrics, language_audio, explicit_content, lyrics_text, 
                      tiktok_preview_start, genre, description)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (
-                    release_id,
-                    user_id,
-                    track.get('track_number'),
-                    track.get('title'),
-                    track.get('file_url'),
-                    track.get('file_name'),
-                    track.get('file_size'),
-                    track.get('composer'),
-                    track.get('author_lyrics'),
-                    track.get('language_audio'),
-                    track.get('explicit_content', False),
-                    track.get('lyrics_text'),
-                    track.get('tiktok_preview_start'),
-                    track.get('genre'),
-                    track.get('description')
-                ))
+                    VALUES ({release_id}, {user_id}, {track_num}, {title}, {file_url}, {file_name}, 
+                            {file_size}, {composer}, {author_lyrics}, {lang_audio}, {explicit}, 
+                            {lyrics}, {tiktok_start}, {track_genre}, {description})
+                """)
             
             return {
                 'statusCode': 201,
