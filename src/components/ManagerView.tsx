@@ -9,6 +9,7 @@ import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
+import NewsView from '@/components/NewsView';
 import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -53,7 +54,7 @@ export default function ManagerView({
   onRefreshData
 }: ManagerViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('manager_active_tab') || 'tasks';
+    return localStorage.getItem('manager_active_tab') || 'news';
   });
   const [showProfile, setShowProfile] = useState(false);
 
@@ -100,6 +101,10 @@ export default function ManagerView({
           className="w-full mt-4">
           <div className="w-full overflow-x-auto scrollbar-hide">
             <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
+              <TabsTrigger value="news" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="Newspaper" className="w-4 h-4 text-yellow-500" />
+                <span>Новости</span>
+              </TabsTrigger>
               <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="CheckSquare" className="w-4 h-4 text-green-500" />
                 <span>Задачи</span>
@@ -124,6 +129,10 @@ export default function ManagerView({
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="news">
+            <NewsView userRole="manager" userId={user.id} />
+          </TabsContent>
 
           <TabsContent value="tasks">
             <ManagerTasksView 

@@ -17,6 +17,7 @@ import TaskAssignment from '@/components/TaskAssignment';
 import AnalyticsView from '@/components/AnalyticsView';
 import WeeklyReport from '@/components/WeeklyReport';
 import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
+import NewsView from '@/components/NewsView';
 import { Task } from '@/components/useTasks';
 import TasksTab from '@/components/TasksTab';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -108,7 +109,7 @@ export default function DirectorTabs({
   onTabChange: propOnTabChange
 }: DirectorTabsProps) {
   const [internalActiveTab, setInternalActiveTab] = useState(() => {
-    return localStorage.getItem('director_active_tab') || 'analytics';
+    return localStorage.getItem('director_active_tab') || 'news';
   });
   
   const activeTab = propActiveTab !== undefined ? propActiveTab : internalActiveTab;
@@ -153,6 +154,10 @@ export default function DirectorTabs({
       className="w-full">
       <div className="w-full overflow-x-auto scrollbar-hide mt-4">
         <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
+          <TabsTrigger value="news" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+            <Icon name="Newspaper" className="w-4 h-4 text-yellow-500" />
+            <span>Новости</span>
+          </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
             <Icon name="BarChart3" className="w-4 h-4 text-primary" />
             <span>Аналитика</span>
@@ -187,6 +192,10 @@ export default function DirectorTabs({
           </TabsTrigger>
         </TabsList>
       </div>
+
+      <TabsContent value="news" className="animate-fadeIn">
+        <NewsView userRole="director" userId={user.id} />
+      </TabsContent>
 
       <TabsContent value="tickets" className="space-y-4 animate-fadeIn">
         <TicketManagement

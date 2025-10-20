@@ -3,6 +3,7 @@ import DirectorTabs, { DirectorMobileNav } from '@/components/DirectorTabs';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
+import NewsView from '@/components/NewsView';
 import { User, Ticket, NewTicket, NewUser } from '@/types';
 import { Task } from '@/components/useTasks';
 
@@ -65,7 +66,7 @@ export default function DirectorView({
 }: DirectorViewProps) {
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('director_active_tab') || 'analytics';
+    return localStorage.getItem('director_active_tab') || 'news';
   });
 
   const handleTabChange = (value: string) => {

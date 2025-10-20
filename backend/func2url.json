@@ -1,8 +1,8 @@
 {
+  "news": "https://functions.poehali.dev/02b8e089-cfba-4460-9cad-479b3d0c5c80",
   "upload-direct": "https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9",
   "ticket-comments": "https://functions.poehali.dev/b636dc56-7328-4fb7-933d-5d6d32e9ee96",
   "change-password": "https://functions.poehali.dev/fc19a64b-eb76-4cdf-bf49-f7ed121edba7",
-  "gen-hash": "https://functions.poehali.dev/71f1c7e3-66b2-4a82-a094-0df8341c1316",
   "migrate-db": "https://functions.poehali.dev/05c06730-31f5-43a6-a240-50721bb848c6",
   "vk-posts": "https://functions.poehali.dev/2a44eeac-eb38-454b-a031-3713ae83a3d2",
   "telegram-auth": "https://functions.poehali.dev/e15fe44b-1976-42f1-aa0d-ff37aca2fd10",

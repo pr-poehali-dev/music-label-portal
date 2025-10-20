@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get all active news",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get FAQ news only",
+      "method": "GET",
+      "path": "/?type=faq",
+      "expectedStatus": 200
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import CreateTicketForm from '@/components/CreateTicketForm';
 import MyTickets from '@/components/MyTickets';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
+import NewsView from '@/components/NewsView';
 import { User, Ticket, NewTicket } from '@/types';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
@@ -49,7 +50,7 @@ export default function ArtistView({
   onRefreshData
 }: ArtistViewProps) {
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('artist_active_tab') || 'tracks';
+    return localStorage.getItem('artist_active_tab') || 'news';
   });
   const [showProfile, setShowProfile] = useState(false);
 
@@ -90,7 +91,11 @@ export default function ArtistView({
           }}
           className="w-full mt-2 md:mt-4">
           <div className="w-full px-2 md:px-0">
-            <TabsList className="grid w-full grid-cols-3 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-0.5 md:p-1">
+            <TabsList className="grid w-full grid-cols-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-0.5 md:p-1">
+              <TabsTrigger value="news" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 md:hover:scale-105 gap-1 md:gap-2">
+                <Icon name="Newspaper" className="w-3.5 h-3.5 md:w-5 md:h-5 text-yellow-500 shrink-0" />
+                <span className="truncate">Новости</span>
+              </TabsTrigger>
               <TabsTrigger value="tracks" className="text-[11px] md:text-sm px-1.5 md:px-4 transition-all duration-200 md:hover:scale-105 gap-1 md:gap-2">
                 <Icon name="Music" className="w-3.5 h-3.5 md:w-5 md:h-5 text-purple-500 shrink-0" />
                 <span className="truncate">Релизы</span>
@@ -106,6 +111,10 @@ export default function ArtistView({
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="news" className="mt-2 md:mt-6">
+            <NewsView userRole="artist" userId={user.id} />
+          </TabsContent>
 
           <TabsContent value="tracks" className="mt-2 md:mt-6">
             <ReleaseManager userId={user.id} userRole="artist" />
