@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface News {
   id: number;
@@ -30,6 +31,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [selectedType, setSelectedType] = useState<string>('all');
   const { toast } = useToast();
   
   const [editingNews, setEditingNews] = useState<News | null>(null);
@@ -61,10 +63,10 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
 
   const calculateCountdown = () => {
     const reportDates = [
-      new Date(new Date().getFullYear(), 3, 30), // 30 апреля
-      new Date(new Date().getFullYear(), 5, 30), // 30 июня
-      new Date(new Date().getFullYear(), 9, 30), // 30 октября
-      new Date(new Date().getFullYear() + 1, 1, 28) // 28 февраля следующего года
+      new Date(new Date().getFullYear(), 3, 30),
+      new Date(new Date().getFullYear(), 5, 30),
+      new Date(new Date().getFullYear(), 9, 30),
+      new Date(new Date().getFullYear() + 1, 1, 28)
     ];
     
     const now = new Date();
@@ -158,21 +160,16 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     });
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeConfig = (type: string) => {
     switch (type) {
-      case 'update': return 'Megaphone';
-      case 'faq': return 'HelpCircle';
-      case 'job': return 'Briefcase';
-      default: return 'Info';
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'update': return 'Обновление';
-      case 'faq': return 'FAQ';
-      case 'job': return 'Вакансия';
-      default: return type;
+      case 'update': 
+        return { icon: 'Zap', label: 'Обновление', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' };
+      case 'faq': 
+        return { icon: 'HelpCircle', label: 'FAQ', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' };
+      case 'job': 
+        return { icon: 'Briefcase', label: 'Вакансия', color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/30' };
+      default: 
+        return { icon: 'Info', label: type, color: 'text-gray-400', bg: 'bg-gray-500/10', border: 'border-gray-500/30' };
     }
   };
 
@@ -184,140 +181,192 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     );
   }
 
+  const filteredNews = selectedType === 'all' ? news : news.filter(n => n.type === selectedType);
+  const stats = {
+    all: news.length,
+    update: news.filter(n => n.type === 'update').length,
+    faq: news.filter(n => n.type === 'faq').length,
+    job: news.filter(n => n.type === 'job').length
+  };
+
   return (
-    <div className="space-y-6 px-2 md:px-0">
-      {/* Счетчик до отчета */}
-      <Card className="p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <Icon name="Clock" className="w-6 h-6 text-purple-400" />
-            <h2 className="text-2xl font-bold text-white">До следующего отчета</h2>
+    <div className="max-w-5xl mx-auto space-y-4 px-2 md:px-0">
+      {/* Компактный счетчик */}
+      <Card className="overflow-hidden border-purple-500/30 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-transparent backdrop-blur-sm">
+        <div className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-purple-500/20">
+              <Icon name="CalendarClock" className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Следующий отчет</h3>
+              <p className="text-lg font-bold text-white">30 октября 2025</p>
+            </div>
           </div>
-          <div className="grid grid-cols-4 gap-4 max-w-md mx-auto">
+          <div className="flex gap-2 md:gap-4">
             {[
-              { label: 'Дней', value: countdown.days },
-              { label: 'Часов', value: countdown.hours },
-              { label: 'Минут', value: countdown.minutes },
-              { label: 'Секунд', value: countdown.seconds }
+              { label: 'дн', value: countdown.days },
+              { label: 'ч', value: countdown.hours },
+              { label: 'мин', value: countdown.minutes },
+              { label: 'сек', value: countdown.seconds }
             ].map(({ label, value }) => (
-              <div key={label} className="bg-black/30 rounded-lg p-4">
-                <div className="text-3xl font-bold text-purple-400">{value}</div>
-                <div className="text-sm text-muted-foreground">{label}</div>
+              <div key={label} className="flex flex-col items-center min-w-[60px] md:min-w-[70px]">
+                <div className="text-2xl md:text-3xl font-bold text-purple-400 tabular-nums">{String(value).padStart(2, '0')}</div>
+                <div className="text-xs text-muted-foreground uppercase">{label}</div>
               </div>
             ))}
           </div>
         </div>
       </Card>
 
-      {userRole === 'director' && (
-        <Card className="p-4 bg-card/60 backdrop-blur-sm border-border">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Icon name="Settings" className="w-5 h-5 text-primary" />
-              Управление новостями
-            </h3>
-            <Button onClick={() => {
+      {/* Фильтры */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { key: 'all', label: 'Все', icon: 'LayoutGrid', count: stats.all },
+          { key: 'update', label: 'Обновления', icon: 'Zap', count: stats.update },
+          { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq },
+          { key: 'job', label: 'Вакансии', icon: 'Briefcase', count: stats.job }
+        ].map(({ key, label, icon, count }) => (
+          <Button
+            key={key}
+            variant={selectedType === key ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedType(key)}
+            className="gap-2"
+          >
+            <Icon name={icon} className="w-4 h-4" />
+            {label}
+            <Badge variant="secondary" className="ml-1">{count}</Badge>
+          </Button>
+        ))}
+        
+        {userRole === 'director' && (
+          <Button
+            size="sm"
+            onClick={() => {
               setIsCreating(true);
               setEditingNews(null);
               setFormData({ title: '', content: '', type: 'update', priority: 0, is_active: true });
-            }}>
-              <Icon name="Plus" className="w-4 h-4 mr-2" />
-              Создать новость
-            </Button>
-          </div>
+            }}
+            className="ml-auto gap-2"
+          >
+            <Icon name="Plus" className="w-4 h-4" />
+            Создать
+          </Button>
+        )}
+      </div>
 
-          {(isCreating || editingNews) && (
-            <div className="space-y-4 p-4 bg-black/20 rounded-lg">
-              <Input
-                placeholder="Заголовок"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-              <Textarea
-                placeholder="Содержание"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows={5}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="update">Обновление</SelectItem>
-                    <SelectItem value="faq">FAQ</SelectItem>
-                    <SelectItem value="job">Вакансия</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="number"
-                  placeholder="Приоритет"
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-                />
+      {/* Список новостей - компактный grid */}
+      <div className="grid gap-3">
+        {filteredNews.map((item) => {
+          const config = getTypeConfig(item.type);
+          return (
+            <Card 
+              key={item.id} 
+              className={`p-4 border ${config.border} ${config.bg} backdrop-blur-sm hover:scale-[1.01] transition-transform cursor-pointer group`}
+              onClick={() => userRole === 'director' ? startEdit(item) : null}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${config.bg} shrink-0`}>
+                  <Icon name={config.icon} className={`w-5 h-5 ${config.color}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="font-semibold text-white text-base leading-tight">{item.title}</h3>
+                    <Badge variant="outline" className={`${config.color} shrink-0 text-xs`}>
+                      {config.label}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.content}</p>
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Icon name="Clock" className="w-3 h-3" />
+                      {new Date(item.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                    </span>
+                    {userRole === 'director' && (
+                      <span className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Icon name="Edit" className="w-3 h-3" />
+                        Редактировать
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-                <span className="text-sm">Активна</span>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={editingNews ? handleUpdateNews : handleCreateNews}>
-                  <Icon name="Save" className="w-4 h-4 mr-2" />
-                  {editingNews ? 'Сохранить' : 'Создать'}
-                </Button>
-                <Button variant="outline" onClick={() => {
-                  setIsCreating(false);
-                  setEditingNews(null);
-                }}>
-                  Отмена
-                </Button>
-              </div>
-            </div>
-          )}
+            </Card>
+          );
+        })}
+      </div>
+
+      {filteredNews.length === 0 && (
+        <Card className="p-8 text-center">
+          <Icon name="Inbox" className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">Новостей пока нет</p>
         </Card>
       )}
 
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-card/60 backdrop-blur-sm">
-          <TabsTrigger value="all">Все</TabsTrigger>
-          <TabsTrigger value="update">Обновления</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
-          <TabsTrigger value="job">Вакансии</TabsTrigger>
-        </TabsList>
-
-        {['all', 'update', 'faq', 'job'].map((tab) => (
-          <TabsContent key={tab} value={tab} className="space-y-4">
-            {news
-              .filter(item => tab === 'all' || item.type === tab)
-              .map((item) => (
-                <Card key={item.id} className="p-6 bg-card/60 backdrop-blur-sm border-border hover:border-primary/50 transition-all">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <Icon name={getTypeIcon(item.type)} className="w-6 h-6 text-primary" />
-                      <div>
-                        <h3 className="text-xl font-semibold">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{getTypeLabel(item.type)}</p>
-                      </div>
-                    </div>
-                    {userRole === 'director' && (
-                      <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
-                        <Icon name="Edit" className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground whitespace-pre-wrap">{item.content}</p>
-                  <div className="mt-4 text-xs text-muted-foreground">
-                    Обновлено: {new Date(item.updated_at).toLocaleDateString('ru-RU')}
-                  </div>
-                </Card>
-              ))}
-          </TabsContent>
-        ))}
-      </Tabs>
+      {/* Модальное окно редактирования */}
+      <Dialog open={isCreating || !!editingNews} onOpenChange={(open) => {
+        if (!open) {
+          setIsCreating(false);
+          setEditingNews(null);
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingNews ? 'Редактировать новость' : 'Создать новость'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Заголовок"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            />
+            <Textarea
+              placeholder="Содержание"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              rows={6}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="update">Обновление</SelectItem>
+                  <SelectItem value="faq">FAQ</SelectItem>
+                  <SelectItem value="job">Вакансия</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                placeholder="Приоритет (0-100)"
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={formData.is_active}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+              />
+              <span className="text-sm">Активна</span>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={editingNews ? handleUpdateNews : handleCreateNews} className="flex-1">
+                <Icon name="Save" className="w-4 h-4 mr-2" />
+                {editingNews ? 'Сохранить' : 'Создать'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setIsCreating(false);
+                setEditingNews(null);
+              }}>
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
