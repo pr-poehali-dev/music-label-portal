@@ -166,6 +166,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             tasks_list = []
             for task in tasks:
+                # Safe datetime conversion
+                def safe_isoformat(dt):
+                    if not dt:
+                        return None
+                    try:
+                        return dt.isoformat()
+                    except (ValueError, OverflowError):
+                        return None
+                
                 task_dict = {
                     'id': task[0],
                     'title': task[1],
@@ -174,10 +183,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'status': task[4],
                     'created_by': task[5],
                     'assigned_to': task[6],
-                    'deadline': task[7].isoformat() if task[7] else None,
+                    'deadline': safe_isoformat(task[7]),
                     'ticket_id': task[8],
-                    'created_at': task[9].isoformat() if task[9] else None,
-                    'completed_at': task[10].isoformat() if task[10] else None,
+                    'created_at': safe_isoformat(task[9]),
+                    'completed_at': safe_isoformat(task[10]),
                 }
                 
                 # Add additional fields based on query structure
@@ -185,7 +194,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     # Director query: archived_at, creator_name, assignee_name, ticket_title
                     if len(task) > 14:
                         archived_val = task[11]
-                        task_dict['archived_at'] = archived_val if isinstance(archived_val, str) else (archived_val.isoformat() if archived_val else None)
+                        task_dict['archived_at'] = archived_val if isinstance(archived_val, str) else safe_isoformat(archived_val)
                         task_dict['creator_name'] = task[12]
                         task_dict['assignee_name'] = task[13]
                         task_dict['ticket_title'] = task[14]
