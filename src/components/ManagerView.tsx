@@ -27,7 +27,7 @@ interface ManagerViewProps {
   onAssignTicket: (ticketId: number, managerId: number | null, deadline?: string) => void;
   onLoadTickets: () => void;
   onDeleteTicket: (ticketId: number) => void;
-  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string, completionReport?: string, completionFile?: File) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;

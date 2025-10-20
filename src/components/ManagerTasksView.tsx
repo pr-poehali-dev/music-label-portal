@@ -6,15 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Task } from '@/components/useTasks';
 import TaskDetailDialog from '@/components/TaskDetailDialog';
+import CompleteTaskDialog from '@/components/CompleteTaskDialog';
 
 interface ManagerTasksViewProps {
   tasks: Task[];
-  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string, completionReport?: string, completionFile?: File) => Promise<boolean>;
 }
 
 const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
 
   const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
@@ -144,7 +147,8 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                 className="h-7 text-xs flex-1"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUpdateTaskStatus(task.id, 'completed');
+                  setTaskToComplete(task);
+                  setCompleteDialogOpen(true);
                 }}
               >
                 <Icon name="Check" size={12} className="mr-1" />
@@ -157,6 +161,10 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
     );
   };
 
+  const handleCompleteTask = async (taskId: number, report: string, file?: File) => {
+    return await onUpdateTaskStatus(taskId, 'completed', report, file);
+  };
+
   return (
     <>
       <TaskDetailDialog
@@ -165,6 +173,14 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
         onOpenChange={setDialogOpen}
         onUpdateStatus={onUpdateTaskStatus}
         userRole="manager"
+      />
+
+      <CompleteTaskDialog
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        taskId={taskToComplete?.id || 0}
+        taskTitle={taskToComplete?.title || ''}
+        onComplete={handleCompleteTask}
       />
       
       <div className="space-y-4 md:space-y-6 p-3 md:p-6">

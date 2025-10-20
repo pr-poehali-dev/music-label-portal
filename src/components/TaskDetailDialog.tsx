@@ -88,6 +88,12 @@ const getTimeRemaining = (deadline: string | null) => {
 };
 
 export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateStatus, onDeleteTask, userRole }: TaskDetailDialogProps) {
+  const handleUpdateStatus = async (taskId: number, status: string) => {
+    if (onUpdateStatus) {
+      return await onUpdateStatus(taskId, status);
+    }
+    return false;
+  };
   const [timeRemaining, setTimeRemaining] = useState<{ text: string; isOverdue: boolean } | null>(null);
 
   useEffect(() => {
@@ -258,25 +264,13 @@ export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateSta
                 {task.status === 'open' && (
                   <Button
                     onClick={() => {
-                      onUpdateStatus(task.id, 'in_progress');
+                      handleUpdateStatus(task.id, 'in_progress');
                       onOpenChange(false);
                     }}
                     className="flex-1"
                   >
                     <Icon name="Play" size={16} className="mr-2" />
                     Начать работу
-                  </Button>
-                )}
-                {task.status === 'in_progress' && (
-                  <Button
-                    onClick={() => {
-                      onUpdateStatus(task.id, 'completed');
-                      onOpenChange(false);
-                    }}
-                    className="flex-1"
-                  >
-                    <Icon name="Check" size={16} className="mr-2" />
-                    Завершить
                   </Button>
                 )}
               </>

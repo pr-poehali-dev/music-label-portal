@@ -15,7 +15,7 @@ interface TasksTabProps {
   tickets: any[];
   managers: any[];
   onCreateTask: (task: any) => Promise<boolean>;
-  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string, completionReport?: string, completionFile?: File) => Promise<boolean>;
   onDeleteTask: (taskId: number) => Promise<boolean>;
   showDeleted?: boolean;
   onToggleDeleted?: () => void;

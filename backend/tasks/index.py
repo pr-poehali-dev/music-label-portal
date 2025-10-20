@@ -121,7 +121,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                            t.ticket_id,
                            t.created_at, t.completed_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
-                           tk.title as ticket_title
+                           tk.title as ticket_title,
+                           t.completion_report, t.completion_attachment_url,
+                           t.completion_attachment_name, t.completion_attachment_size
                     FROM tasks t
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
@@ -137,7 +139,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                            t.ticket_id,
                            t.created_at, t.completed_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
-                           tk.title as ticket_title
+                           tk.title as ticket_title,
+                           t.completion_report, t.completion_attachment_url,
+                           t.completion_attachment_name, t.completion_attachment_size
                     FROM tasks t
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
@@ -155,7 +159,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                            t.ticket_id,
                            t.created_at, t.completed_at, t.archived_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
-                           tk.title as ticket_title
+                           tk.title as ticket_title,
+                           t.completion_report, t.completion_attachment_url,
+                           t.completion_attachment_name, t.completion_attachment_size
                     FROM tasks t
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
@@ -197,19 +203,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Add additional fields based on query structure
                 if len(task) > 11:
-                    # Director query: archived_at, creator_name, assignee_name, ticket_title
-                    if len(task) > 14:
+                    # Director query: archived_at, creator_name, assignee_name, ticket_title, completion_*
+                    if user_role == 'director':
                         archived_val = task[11]
                         task_dict['archived_at'] = archived_val if isinstance(archived_val, str) else safe_isoformat(archived_val)
                         task_dict['creator_name'] = task[12]
                         task_dict['assignee_name'] = task[13]
                         task_dict['ticket_title'] = task[14]
-                    # Manager/ticket query: creator_name, assignee_name, ticket_title
+                        if len(task) > 15:
+                            task_dict['completion_report'] = task[15]
+                            task_dict['completion_attachment_url'] = task[16]
+                            task_dict['completion_attachment_name'] = task[17]
+                            task_dict['completion_attachment_size'] = task[18]
+                    # Manager/ticket query: creator_name, assignee_name, ticket_title, completion_*
                     else:
                         task_dict['archived_at'] = None
                         task_dict['creator_name'] = task[11]
                         task_dict['assignee_name'] = task[12]
-                        task_dict['ticket_title'] = task[13] if len(task) > 13 else None
+                        task_dict['ticket_title'] = task[13]
+                        if len(task) > 14:
+                            task_dict['completion_report'] = task[14]
+                            task_dict['completion_attachment_url'] = task[15]
+                            task_dict['completion_attachment_name'] = task[16]
+                            task_dict['completion_attachment_size'] = task[17]
                 
                 tasks_list.append(task_dict)
             
@@ -293,11 +309,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            completion_report = body_data.get('completion_report')
+            completion_attachment_url = body_data.get('completion_attachment_url')
+            completion_attachment_name = body_data.get('completion_attachment_name')
+            completion_attachment_size = body_data.get('completion_attachment_size')
+            
+            # Validate required report for completion
+            if status == 'completed' and not completion_report:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Completion report is required'}),
+                    'isBase64Encoded': False
+                }
+            
             completed_at = "NOW()" if status == 'completed' else "NULL"
+            
+            # Build update query
+            update_parts = [f"status = '{escape_sql(status)}'", f"completed_at = {completed_at}"]
+            
+            if completion_report:
+                update_parts.append(f"completion_report = '{escape_sql(completion_report)}'")
+            
+            if completion_attachment_url:
+                update_parts.append(f"completion_attachment_url = '{escape_sql(completion_attachment_url)}'")
+                update_parts.append(f"completion_attachment_name = '{escape_sql(completion_attachment_name)}'")
+                update_parts.append(f"completion_attachment_size = {completion_attachment_size if completion_attachment_size else 'NULL'}")
             
             query = f"""
                 UPDATE tasks 
-                SET status = '{status}', completed_at = {completed_at}
+                SET {', '.join(update_parts)}
                 WHERE id = {task_id}
             """
             cur.execute(query)

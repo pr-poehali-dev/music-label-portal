@@ -147,10 +147,41 @@ export const useTasks = (user: any, ticketId?: number) => {
     }
   }, [user, loadTasks]);
 
-  const updateTaskStatus = useCallback(async (taskId: number, status: string) => {
+  const updateTaskStatus = useCallback(async (
+    taskId: number, 
+    status: string, 
+    completionReport?: string,
+    completionFile?: File
+  ) => {
     if (!user?.id) return false;
 
     try {
+      let completionAttachmentUrl;
+      let completionAttachmentName;
+      let completionAttachmentSize;
+
+      // Upload file if provided
+      if (completionFile) {
+        const formData = new FormData();
+        formData.append('file', completionFile);
+        formData.append('type', 'task_completion');
+
+        const uploadResponse = await fetch(`${API_URL}/c10e6a49-c959-4f4c-862c-f0e4e1f3c9f6`, {
+          method: 'POST',
+          headers: {
+            'X-User-Id': user.id.toString(),
+          },
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) throw new Error('Ошибка загрузки файла');
+
+        const uploadData = await uploadResponse.json();
+        completionAttachmentUrl = uploadData.url;
+        completionAttachmentName = completionFile.name;
+        completionAttachmentSize = completionFile.size;
+      }
+
       const response = await fetch(`${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`, {
         method: 'PUT',
         headers: {
@@ -160,17 +191,24 @@ export const useTasks = (user: any, ticketId?: number) => {
         body: JSON.stringify({
           task_id: taskId,
           status,
+          completion_report: completionReport,
+          completion_attachment_url: completionAttachmentUrl,
+          completion_attachment_name: completionAttachmentName,
+          completion_attachment_size: completionAttachmentSize,
         }),
       });
 
-      if (!response.ok) throw new Error('Ошибка обновления статуса');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка обновления статуса');
+      }
 
       toast.success('Статус задачи обновлен');
       await loadTasks();
       return true;
     } catch (error) {
       console.error('Error updating task status:', error);
-      toast.error('Не удалось обновить статус');
+      toast.error(error instanceof Error ? error.message : 'Не удалось обновить статус');
       return false;
     }
   }, [user, loadTasks]);

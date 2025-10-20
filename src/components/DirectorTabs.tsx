@@ -64,7 +64,7 @@ interface DirectorTabsProps {
   newUser: { username: string; full_name: string; role: string };
   tasks: Task[];
   onCreateTask: (task: any) => Promise<boolean>;
-  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string, completionReport?: string, completionFile?: File) => Promise<boolean>;
   onDeleteTask: (taskId: number) => Promise<boolean>;
   onStatusFilterChange: (status: string) => void;
   onNewTicketChange: (ticket: { title: string; description: string; priority: string }) => void;

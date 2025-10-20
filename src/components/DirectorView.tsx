@@ -28,7 +28,7 @@ interface DirectorViewProps {
   onDeleteTicket: (ticketId: number) => void;
   onUpdateUser: (userId: number, userData: Partial<User>) => void;
   onCreateTask: (task: any) => Promise<boolean>;
-  onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onUpdateTaskStatus: (taskId: number, status: string, completionReport?: string, completionFile?: File) => Promise<boolean>;
   onDeleteTask: (taskId: number) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onLogout: () => void;
