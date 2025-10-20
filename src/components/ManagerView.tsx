@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import TicketManagement from '@/components/TicketManagement';
 import SubmissionsManager from '@/components/SubmissionsManager';
-import ManagerTasks from '@/components/ManagerTasks';
 import ManagerStats from '@/components/ManagerStats';
 import ManagerTasksView from '@/components/ManagerTasksView';
 import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
@@ -103,12 +102,8 @@ export default function ManagerView({
             <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
               <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="CheckSquare" className="w-4 h-4 text-green-500" />
-                <span>Мои задачи</span>
+                <span>Задачи</span>
                 {unreadCounts.tasks > 0 && <Badge count={unreadCounts.tasks} />}
-              </TabsTrigger>
-              <TabsTrigger value="old-tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
-                <Icon name="Archive" className="w-4 h-4 text-gray-500" />
-                <span>Архив задач</span>
               </TabsTrigger>
               <TabsTrigger value="releases" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="Music" className="w-4 h-4 text-purple-500" />
@@ -133,10 +128,6 @@ export default function ManagerView({
               tasks={tasks}
               onUpdateTaskStatus={onUpdateTaskStatus}
             />
-          </TabsContent>
-
-          <TabsContent value="old-tasks">
-            <ManagerTasks userId={user.id} />
           </TabsContent>
 
           <TabsContent value="releases">
