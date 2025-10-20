@@ -10,7 +10,7 @@ export interface UploadFileResult {
 }
 
 async function uploadLargeFile(file: File): Promise<UploadFileResult> {
-  const chunkSize = 2 * 1024 * 1024; // 2MB chunks (will be ~2.7MB as base64)
+  const chunkSize = 4 * 1024 * 1024; // 4MB chunks - быстрее загрузка, меньше запросов
   const chunks: Blob[] = [];
   let offset = 0;
   
@@ -93,13 +93,13 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
 }
 
 export async function uploadFile(file: File): Promise<UploadFileResult> {
-  const maxSize = 100 * 1024 * 1024;
+  const maxSize = 150 * 1024 * 1024; // Увеличили до 150MB
   const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
   
   console.log(`[Upload] File: ${file.name}, Size: ${fileSizeMB}MB`);
   
   if (file.size > maxSize) {
-    throw new Error('Размер файла превышает 100MB');
+    throw new Error('Размер файла превышает 150MB');
   }
   
   // Для файлов больше 4MB используем chunked upload

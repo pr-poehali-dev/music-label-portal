@@ -219,6 +219,13 @@ export const useReleaseManager = (userId: number) => {
     setUploading(true);
     setUploadProgress(0);
 
+    // Блокируем HMR (hot module reload) на время загрузки
+    if (import.meta.hot) {
+      import.meta.hot.dispose(() => {
+        console.log('[Upload] HMR blocked during upload');
+      });
+    }
+
     try {
       setCurrentUploadFile('Обложка');
       const coverData = await uploadFile(coverFile);
@@ -240,10 +247,10 @@ export const useReleaseManager = (userId: number) => {
         }
         
         const fileSizeMB = track.file.size / 1024 / 1024;
-        if (fileSizeMB > 100) {
+        if (fileSizeMB > 150) {
           toast({
             title: `❌ Файл слишком большой`,
-            description: `Трек "${track.title || track.file.name}" (${fileSizeMB.toFixed(2)}МБ) превышает лимит 100МБ`,
+            description: `Трек "${track.title || track.file.name}" (${fileSizeMB.toFixed(2)}МБ) превышает лимит 150МБ`,
             variant: 'destructive'
           });
           throw new Error(`Трек ${track.track_number}: превышен лимит размера`);
