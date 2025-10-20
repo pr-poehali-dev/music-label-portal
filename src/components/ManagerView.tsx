@@ -92,16 +92,14 @@ export default function ManagerView({
           userRole="manager"
         />
 
-        <ManagerStats userId={user.id} />
-
         <Tabs 
           value={activeTab}
           onValueChange={(value) => {
             setActiveTab(value);
             localStorage.setItem('manager_active_tab', value);
           }}
-          className="w-full">
-          <div className="w-full overflow-x-auto scrollbar-hide mt-4">
+          className="w-full mt-4">
+          <div className="w-full overflow-x-auto scrollbar-hide mb-4">
             <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
               <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="CheckSquare" className="w-4 h-4 text-green-500" />
@@ -127,6 +125,8 @@ export default function ManagerView({
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <ManagerStats userId={user.id} />
 
           <TabsContent value="tasks">
             <ManagerTasksView 
