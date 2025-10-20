@@ -16,8 +16,10 @@ interface ActivityData {
 interface Stats {
   completed_tasks: number;
   answered_tickets: number;
+  pitching_tracks: number;
   tasks_activity: ActivityData[];
   tickets_activity: ActivityData[];
+  pitching_activity: ActivityData[];
 }
 
 const API_URL = API_ENDPOINTS.TICKETS;
@@ -26,8 +28,10 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
   const [stats, setStats] = useState<Stats>({ 
     completed_tasks: 0, 
     answered_tickets: 0,
+    pitching_tracks: 0,
     tasks_activity: [],
-    tickets_activity: []
+    tickets_activity: [],
+    pitching_activity: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -51,18 +55,24 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
   };
 
   const mergeActivityData = () => {
-    const dateMap = new Map<string, { tasks: number; tickets: number }>();
+    const dateMap = new Map<string, { tasks: number; tickets: number; pitching: number }>();
     
     stats.tasks_activity.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-      const existing = dateMap.get(date) || { tasks: 0, tickets: 0 };
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tasks: item.count });
     });
     
     stats.tickets_activity.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-      const existing = dateMap.get(date) || { tasks: 0, tickets: 0 };
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tickets: item.count });
+    });
+    
+    stats.pitching_activity.forEach(item => {
+      const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
+      dateMap.set(date, { ...existing, pitching: item.count });
     });
     
     return Array.from(dateMap.entries())
@@ -79,7 +89,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
 
   return (
     <div className="space-y-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Выполнено задач</CardTitle>
@@ -118,6 +128,28 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
               <div className="text-3xl font-bold text-blue-600">{stats.answered_tickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Закрытых тикетов за всё время
+              </p>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Треков на питчинг</CardTitle>
+          <Icon name="Send" size={20} className="text-purple-600" />
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <Icon name="Loader2" size={20} className="animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Загрузка...</span>
+            </div>
+          ) : (
+            <>
+              <div className="text-3xl font-bold text-purple-600">{stats.pitching_tracks}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Отправлено треков за всё время
               </p>
             </>
           )}
@@ -167,6 +199,14 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
                   strokeWidth={2}
                   name="Тикеты"
                   dot={{ fill: '#2563eb', r: 4 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="pitching" 
+                  stroke="#9333ea" 
+                  strokeWidth={2}
+                  name="Питчинг"
+                  dot={{ fill: '#9333ea', r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
