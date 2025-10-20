@@ -141,7 +141,7 @@ export default function ReleaseViewDialog({
                   <Icon name="Loader2" size={24} className="animate-spin text-yellow-500" />
                 </div>
               }>
-                <ReleasePlayer userId={userId} releaseId={release.id} />
+                <ReleasePlayer key={`player-${release.id}`} userId={userId} releaseId={release.id} />
               </Suspense>
             </div>
           )}
