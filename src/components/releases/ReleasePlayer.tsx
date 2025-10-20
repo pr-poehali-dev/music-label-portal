@@ -148,87 +148,78 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
   }
 
   return (
-    <div className="bg-muted/30 rounded-lg border p-3 sm:p-4 space-y-3 sm:space-y-4">
+    <div className="bg-muted/20 rounded border p-2 space-y-2">
       <audio ref={audioRef} />
       
-      {/* Current Track Info */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <Icon name="Music" size={18} className="sm:w-6 sm:h-6 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium truncate text-sm sm:text-base">{currentTrackInfo?.title}</p>
-          <p className="text-xs sm:text-sm text-muted-foreground truncate">{currentTrackInfo?.composer}</p>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="space-y-1.5 sm:space-y-2">
-        <Slider
-          value={[currentTime]}
-          max={duration || 100}
-          step={0.1}
-          onValueChange={handleSeek}
-          className="cursor-pointer touch-none"
-        />
-        <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3">
+      {/* Compact Controls */}
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
           onClick={handlePrevTrack}
           disabled={currentTrack === 0}
-          className="h-10 w-10 sm:h-auto sm:w-auto"
+          className="h-7 w-7"
         >
-          <Icon name="SkipBack" size={18} className="sm:w-5 sm:h-5" />
+          <Icon name="SkipBack" size={14} />
         </Button>
         <Button
           variant="default"
           size="icon"
-          className="h-12 w-12 sm:h-14 sm:w-14"
+          className="h-8 w-8"
           onClick={togglePlay}
         >
-          <Icon name={isPlaying ? 'Pause' : 'Play'} size={20} className="sm:w-6 sm:h-6" />
+          <Icon name={isPlaying ? 'Pause' : 'Play'} size={16} />
         </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleNextTrack}
           disabled={currentTrack === tracks.length - 1}
-          className="h-10 w-10 sm:h-auto sm:w-auto"
+          className="h-7 w-7"
         >
-          <Icon name="SkipForward" size={18} className="sm:w-5 sm:h-5" />
+          <Icon name="SkipForward" size={14} />
         </Button>
+        
+        <div className="flex-1 min-w-0">
+          <Slider
+            value={[currentTime]}
+            max={duration || 100}
+            step={0.1}
+            onValueChange={handleSeek}
+            className="cursor-pointer"
+          />
+        </div>
+        
+        <span className="text-[10px] text-muted-foreground tabular-nums">
+          {formatTime(currentTime)} / {formatTime(duration)}
+        </span>
       </div>
 
       {/* Track List */}
-      <div className="border-t pt-2 sm:pt-3 space-y-1 max-h-40 sm:max-h-48 overflow-y-auto">
+      <div className="space-y-0.5">
         {tracks.map((track, index) => (
           <button
             key={track.track_number}
             onClick={() => playTrack(index)}
-            className={`w-full flex items-center gap-2 sm:gap-3 p-2 rounded md:hover:bg-muted/50 active:bg-muted/50 transition-colors text-left min-h-[44px] sm:min-h-0 ${
-              currentTrack === index ? 'bg-muted' : ''
+            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/50 transition-colors text-left ${
+              currentTrack === index ? 'bg-muted/70' : ''
             }`}
           >
-            <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+            <div className="w-4 flex items-center justify-center flex-shrink-0">
               {currentTrack === index && isPlaying ? (
-                <Icon name="Volume2" size={14} className="sm:w-4 sm:h-4 text-primary" />
+                <Icon name="Volume2" size={12} className="text-primary" />
               ) : (
-                <span className="text-xs text-muted-foreground">{track.track_number}</span>
+                <span className="text-[10px] text-muted-foreground">{track.track_number}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-xs sm:text-sm truncate ${currentTrack === index ? 'font-medium' : ''}`}>
+              <p className={`text-xs truncate ${currentTrack === index ? 'font-medium' : ''}`}>
                 {track.title}
               </p>
             </div>
+            <p className="text-[10px] text-muted-foreground truncate max-w-[100px]">
+              {track.composer}
+            </p>
           </button>
         ))}
       </div>
