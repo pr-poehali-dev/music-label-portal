@@ -1,17 +1,19 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Task } from '@/components/useTasks';
+import TaskDetailDialog from '@/components/TaskDetailDialog';
 
 interface ManagerTasksViewProps {
   tasks: Task[];
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
-  onDeleteTask: (taskId: number) => Promise<boolean>;
 }
 
-const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus, onDeleteTask }: ManagerTasksViewProps) {
+const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case 'urgent': return 'destructive';
@@ -58,7 +60,57 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
     };
   }, [tasks]);
 
+  const getTimeRemaining = useCallback((deadline: string | null) => {
+    if (!deadline) return null;
+    
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const diff = deadlineDate.getTime() - now.getTime();
+    
+    if (diff < 0) {
+      return { text: 'Просрочено', isOverdue: true };
+    }
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) return { text: `${days} дн.`, isOverdue: false };
+    if (hours > 0) return { text: `${hours} ч.`, isOverdue: false };
+    return { text: '<1 ч.', isOverdue: false };
+  }, []);
+
+  const TimeRemainingBadge = ({ deadline }: { deadline: string | null }) => {
+    const [timeRemaining, setTimeRemaining] = useState(getTimeRemaining(deadline));
+
+    useEffect(() => {
+      if (!deadline) return;
+      
+      const interval = setInterval(() => {
+        setTimeRemaining(getTimeRemaining(deadline));
+      }, 60000);
+      
+      return () => clearInterval(interval);
+    }, [deadline]);
+
+    if (!timeRemaining) return null;
+
+    return (
+      <Badge variant={timeRemaining.isOverdue ? 'destructive' : 'secondary'} className="whitespace-nowrap">
+        <Icon name={timeRemaining.isOverdue ? 'AlertTriangle' : 'Timer'} size={12} className="mr-1" />
+        {timeRemaining.text}
+      </Badge>
+    );
+  };
+
   return (
+    <>
+      <TaskDetailDialog
+        task={selectedTask}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onUpdateStatus={onUpdateTaskStatus}
+        userRole="manager"
+      />
     <div className="space-y-4 md:space-y-6 p-3 md:p-0">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <h2 className="text-xl md:text-2xl font-bold">Мои задачи ({tasks.length} всего)</h2>
@@ -93,6 +145,7 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                             <Icon name={getStatusIcon(task.status)} size={12} className="mr-1" />
                             {task.status}
                           </Badge>
+                          <TimeRemainingBadge deadline={task.deadline} />
                         </div>
 
                         {task.description && (
@@ -127,7 +180,18 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-col sm:flex-row">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Icon name="Eye" size={14} className="sm:mr-1" />
+                          <span className="hidden sm:inline">Подробнее</span>
+                        </Button>
                         {task.status === 'open' && (
                           <Button
                             size="sm"
@@ -197,10 +261,13 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => onDeleteTask(task.id)}
-                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setDialogOpen(true);
+                        }}
                       >
-                        <Icon name="Trash2" size={14} />
+                        <Icon name="Eye" size={14} className="mr-1" />
+                        Подробнее
                       </Button>
                     </div>
                   </Card>
@@ -211,6 +278,7 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
         </>
       )}
     </div>
+    </>
   );
 });
 

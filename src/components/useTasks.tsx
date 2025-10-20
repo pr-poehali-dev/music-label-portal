@@ -19,6 +19,13 @@ export interface Task {
   assignee_name?: string;
   creator_name?: string;
   ticket_title?: string;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_size?: number;
+  completion_report?: string;
+  completion_attachment_url?: string;
+  completion_attachment_name?: string;
+  completion_attachment_size?: number;
 }
 
 export interface CreateTaskData {
