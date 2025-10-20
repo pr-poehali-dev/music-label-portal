@@ -151,7 +151,7 @@ export default function DirectorTabs({
         localStorage.setItem('director_active_tab', value);
       }} 
       className="w-full">
-      <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
+      <div className="hidden sm:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
         <TabsList className="grid w-full grid-cols-8 md:grid-cols-8 min-w-[800px] md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger value="analytics" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
             <Icon name="BarChart3" className="w-4 h-4 md:w-5 md:h-5 text-primary animate-pulse" />
