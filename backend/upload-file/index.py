@@ -8,6 +8,81 @@ from datetime import datetime
 import cgi
 from io import BytesIO
 
+def merge_chunks(body_data: Dict[str, Any]) -> Dict[str, Any]:
+    '''Merge uploaded chunks into single file'''
+    try:
+        chunks = body_data.get('chunks', [])
+        file_name = body_data.get('fileName')
+        file_size = body_data.get('fileSize', 0)
+        
+        access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
+        secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
+        bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
+        
+        s3_client = boto3.client(
+            's3',
+            endpoint_url='https://storage.yandexcloud.net',
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+            region_name='ru-central1'
+        )
+        
+        # Download and merge chunks
+        merged_data = b''
+        today_prefix = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/"
+        
+        for chunk_short_key in chunks:
+            if not chunk_short_key.startswith('uploads/'):
+                chunk_key = today_prefix + chunk_short_key
+            else:
+                chunk_key = chunk_short_key
+            
+            print(f"Downloading chunk: {chunk_key}")
+            obj = s3_client.get_object(Bucket=bucket_name, Key=chunk_key)
+            merged_data += obj['Body'].read()
+            s3_client.delete_object(Bucket=bucket_name, Key=chunk_key)
+        
+        # Upload merged file
+        file_ext = file_name.split('.')[-1] if '.' in file_name else ''
+        unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
+        s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
+        
+        content_type = 'audio/wav' if file_ext.lower() == 'wav' else 'application/octet-stream'
+        
+        s3_client.put_object(
+            Bucket=bucket_name,
+            Key=s3_key,
+            Body=merged_data,
+            ContentType=content_type
+        )
+        
+        file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
+        
+        print(f"Merged file uploaded: {file_url}")
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({
+                'url': file_url,
+                's3Key': s3_key,
+                'fileName': file_name,
+                'fileSize': file_size
+            })
+        }
+        
+    except Exception as e:
+        print(f"Merge error: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': f'Merge failed: {str(e)}'})
+        }
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Upload files to S3 storage (images, audio, documents)
@@ -77,8 +152,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             file_size = len(file_data)
             
         else:
-            # Старый способ: JSON с base64
+            # JSON запрос (merge или base64)
             body_data = json.loads(event.get('body', '{}'))
+            
+            # Проверяем, это merge request?
+            if body_data.get('action') == 'merge':
+                return merge_chunks(body_data)
             
             file_b64 = body_data.get('file', '')
             if not file_b64:
