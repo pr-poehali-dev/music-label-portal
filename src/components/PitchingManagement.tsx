@@ -155,13 +155,7 @@ ${selectedPitching.playlist_fit}
                   <div className="space-y-2 text-sm mb-3">
                     <p className="flex items-center gap-1.5 text-muted-foreground">
                       <Icon name="Mic2" size={14} className="text-secondary flex-shrink-0" />
-                      {userRole === 'director' && pitching.user_id ? (
-                        <a href={`/user/${pitching.user_id}`} className="text-secondary hover:underline font-medium truncate" onClick={(e) => e.stopPropagation()}>
-                          {pitching.artist_name}
-                        </a>
-                      ) : (
-                        <span className="font-medium text-foreground truncate">{pitching.artist_name}</span>
-                      )}
+                      <span className="font-medium text-foreground truncate">{pitching.artist_name}</span>
                     </p>
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className="flex items-center gap-1 bg-card/50 px-2 py-0.5 rounded-full border border-border">

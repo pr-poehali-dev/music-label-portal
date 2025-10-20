@@ -65,17 +65,7 @@ export default function ReleaseCard({
         <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm flex-1">
           <p className="flex items-center gap-1 md:gap-1.5 text-muted-foreground">
             <Icon name="Mic2" size={12} className="md:size-3.5 text-secondary flex-shrink-0" />
-            {userRole === 'director' && release.user_id ? (
-              <a 
-                href={`/user/${release.user_id}`} 
-                className="text-secondary hover:underline font-medium truncate" 
-                onClick={(e) => e.stopPropagation()}
-              >
-                {release.artist_name}
-              </a>
-            ) : (
-              <span className="font-medium text-foreground truncate">{release.artist_name}</span>
-            )}
+            <span className="font-medium text-foreground truncate">{release.artist_name}</span>
           </p>
 
           {release.genre && release.genre !== '0' && (
@@ -93,19 +83,7 @@ export default function ReleaseCard({
           {release.reviewer_name && (
             <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate">
               <Icon name="User" size={12} className="text-primary" />
-              {userRole === 'director' && release.reviewer_id ? (
-                <span>
-                  Проверил: <a 
-                    href={`/user/${release.reviewer_id}`} 
-                    className="text-secondary hover:underline" 
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {release.reviewer_name}
-                  </a>
-                </span>
-              ) : (
-                <span>Проверил: {release.reviewer_name}</span>
-              )}
+              <span>Проверил: <span className="text-foreground font-medium">{release.reviewer_name}</span></span>
             </p>
           )}
         </div>

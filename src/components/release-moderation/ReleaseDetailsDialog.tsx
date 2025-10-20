@@ -106,11 +106,7 @@ export default function ReleaseDetailsDialog({
           <div>
             <h3 className="font-semibold text-base md:text-lg">{release.release_name}</h3>
             <p className="text-sm text-muted-foreground">
-              Артист: {userRole === 'director' && release.user_id ? (
-                <a href={`/user/${release.user_id}`} className="text-primary hover:underline">
-                  {release.artist_name}
-                </a>
-              ) : release.artist_name}
+              Артист: <span className="text-foreground font-medium">{release.artist_name}</span>
             </p>
             {release.genre && <p className="text-sm text-muted-foreground">Жанр: {release.genre}</p>}
             {release.copyright && <p className="text-sm text-muted-foreground">Копирайт: {release.copyright}</p>}

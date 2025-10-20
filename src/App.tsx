@@ -8,6 +8,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+import NotFoundCustom from "./pages/NotFoundCustom";
 import AdminFix from "./pages/AdminFix";
 
 const queryClient = new QueryClient({
@@ -33,7 +34,7 @@ const App = () => (
             <Route path="/app" element={<Index />} />
             <Route path="/admin-fix-passwords" element={<AdminFix />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundCustom />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
