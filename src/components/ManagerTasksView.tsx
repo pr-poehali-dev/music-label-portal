@@ -231,7 +231,7 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                     className="p-6 opacity-60 cursor-pointer hover:opacity-100 hover:bg-accent/50 transition-all"
                     onClick={() => {
                       setSelectedTask(task);
-                      setIsDetailDialogOpen(true);
+                      setDialogOpen(true);
                     }}
                   >
                     <div className="flex items-start justify-between gap-4">
