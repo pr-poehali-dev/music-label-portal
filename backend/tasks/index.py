@@ -180,14 +180,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'completed_at': task[10].isoformat() if task[10] else None,
                 }
                 
-                # Add archived_at if present (director query)
+                # Add additional fields based on query structure
                 if len(task) > 11:
-                    if len(task) > 13:
-                        task_dict['archived_at'] = task[11].isoformat() if task[11] else None
+                    # Director query: archived_at, creator_name, assignee_name, ticket_title
+                    if len(task) > 14:
+                        archived_val = task[11]
+                        task_dict['archived_at'] = archived_val if isinstance(archived_val, str) else (archived_val.isoformat() if archived_val else None)
                         task_dict['creator_name'] = task[12]
                         task_dict['assignee_name'] = task[13]
-                        task_dict['ticket_title'] = task[14] if len(task) > 14 else None
+                        task_dict['ticket_title'] = task[14]
+                    # Manager/ticket query: creator_name, assignee_name, ticket_title
                     else:
+                        task_dict['archived_at'] = None
                         task_dict['creator_name'] = task[11]
                         task_dict['assignee_name'] = task[12]
                         task_dict['ticket_title'] = task[13] if len(task) > 13 else None
