@@ -97,7 +97,7 @@ export default function ReleaseForm({
           <div className="grid md:grid-cols-[200px_1fr] gap-4 items-start">
             <div className="space-y-2">
               <label className="text-sm font-medium block">Обложка *</label>
-              <div className="relative group">
+              <label className="relative group block cursor-pointer">
                 <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all">
                   {coverPreview ? (
                     <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
@@ -112,9 +112,9 @@ export default function ReleaseForm({
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleCoverChange(e.target.files?.[0] || null)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-              </div>
+              </label>
             </div>
 
             <div className="space-y-3">
