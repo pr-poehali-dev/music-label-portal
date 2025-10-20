@@ -69,9 +69,10 @@ export default function ReleasePlayer({ releaseId }: ReleasePlayerProps) {
     try {
       const response = await fetch(`${API_URL}?releaseId=${releaseId}`);
       const data = await response.json();
-      setTracks(data);
+      setTracks(Array.isArray(data) ? data : (data.tracks || []));
     } catch (error) {
       console.error('Failed to load tracks:', error);
+      setTracks([]);
     } finally {
       setLoading(false);
     }
