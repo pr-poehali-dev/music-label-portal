@@ -110,12 +110,6 @@ const TicketManagement = React.memo(function TicketManagement({
         onReload={onLoadTickets}
       />
     <div className="space-y-4 md:space-y-6 p-3 md:p-6">
-      <div className="flex items-center gap-2 md:gap-3">
-        <Icon name="Ticket" size={24} className="text-primary md:hidden" />
-        <Icon name="Ticket" size={32} className="text-primary hidden md:block" />
-        <h1 className="text-xl md:text-3xl font-bold">Заявки</h1>
-      </div>
-
       <Tabs defaultValue="open" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger value="open" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
