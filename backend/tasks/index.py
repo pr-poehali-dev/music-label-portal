@@ -124,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
-                    WHERE t.ticket_id = {ticket_id} AND t.status != 'deleted'
+                    WHERE t.ticket_id = {ticket_id} AND t.archived_at IS NULL
                     ORDER BY t.created_at DESC
                 """
             elif user_role == 'manager':
@@ -138,13 +138,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
-                    WHERE t.assigned_to = {user_id} AND t.status != 'deleted'
+                    WHERE t.assigned_to = {user_id} AND t.archived_at IS NULL
                     ORDER BY 
                         CASE WHEN t.status = 'completed' THEN 2 ELSE 1 END,
                         t.deadline ASC NULLS LAST
                 """
             else:
-                status_filter = "t.status = 'deleted'" if show_deleted else "t.status != 'deleted'"
+                status_filter = "t.archived_at IS NOT NULL" if show_deleted else "t.archived_at IS NULL"
                 query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
                            t.created_by, t.assigned_to, t.deadline, t.ticket_id,
@@ -298,7 +298,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(f"UPDATE tasks SET status = 'deleted' WHERE id = {task_id}")
+            query = f"UPDATE tasks SET archived_at = NOW() WHERE id = {task_id}"
+            print(f"[DEBUG] Archiving task {task_id}")
+            cur.execute(query)
             conn.commit()
             
             return {

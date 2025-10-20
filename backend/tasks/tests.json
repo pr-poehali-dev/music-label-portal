@@ -11,6 +11,18 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 401
+    },
+    {
+      "name": "DELETE with auth and task_id",
+      "method": "DELETE",
+      "path": "/?task_id=1",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      }
     }
   ]
 }
