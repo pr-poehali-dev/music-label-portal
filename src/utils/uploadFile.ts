@@ -40,44 +40,66 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
       return result;
     }
     
-    // Большие файлы (>3MB) через presigned S3 URL
-    console.log('[Upload] 📦 Large file detected, using presigned URL method');
+    // Большие файлы (>3MB) - разбиваем на chunks по 2MB
+    console.log('[Upload] 📦 Large file detected, using chunked upload');
+    
+    const chunkSize = 2 * 1024 * 1024; // 2MB chunks
+    const totalChunks = Math.ceil(file.size / chunkSize);
+    console.log(`[Upload] Splitting into ${totalChunks} chunks of ~2MB each`);
     
     const contentType = file.type || 'application/octet-stream';
-    const getPresignedUrl = `https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(contentType)}`;
+    let s3Key = '';
+    let finalUrl = '';
     
-    console.log('[Upload] 🔑 Step 1/3: Requesting presigned URL from:', getPresignedUrl);
-    
-    const presignedResponse = await fetch(getPresignedUrl, { method: 'GET' });
-    
-    if (!presignedResponse.ok) {
-      const errorText = await presignedResponse.text().catch(() => 'No response');
-      console.error('[Upload] ❌ Presigned URL request failed:', presignedResponse.status, errorText);
-      throw new Error(`Не удалось получить presigned URL: ${presignedResponse.status}`);
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * chunkSize;
+      const end = Math.min(start + chunkSize, file.size);
+      const chunk = file.slice(start, end);
+      
+      console.log(`[Upload] 📤 Chunk ${i + 1}/${totalChunks}: ${(chunk.size / 1024 / 1024).toFixed(2)}MB`);
+      
+      // Convert chunk to base64
+      const reader = new FileReader();
+      const chunkBase64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(chunk);
+      });
+      
+      // Send chunk to backend
+      const response = await fetch('https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file: chunkBase64,
+          fileName: file.name,
+          contentType,
+          chunkIndex: i,
+          totalChunks,
+          s3Key: i > 0 ? s3Key : undefined
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Chunk ${i + 1} upload failed: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (i === 0) {
+        s3Key = result.s3Key;
+        finalUrl = result.url;
+      }
+      
+      if (i === totalChunks - 1) {
+        console.log('[Upload] ✅ All chunks uploaded successfully:', finalUrl);
+      }
     }
-    
-    const { presignedUrl, url, s3Key, fileName } = await presignedResponse.json();
-    console.log('[Upload] ✅ Presigned URL received, S3 key:', s3Key);
-    
-    console.log('[Upload] 📤 Step 2/3: Uploading directly to S3...');
-    const uploadResponse = await fetch(presignedUrl, {
-      method: 'PUT',
-      body: file,
-      headers: { 'Content-Type': contentType }
-    });
-    
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text().catch(() => 'No response');
-      console.error('[Upload] ❌ S3 upload failed:', uploadResponse.status, errorText);
-      throw new Error(`S3 upload failed: ${uploadResponse.status}`);
-    }
-    
-    console.log('[Upload] ✅ Step 3/3: File uploaded successfully to:', url);
     
     return {
-      url,
+      url: finalUrl,
       s3Key,
-      fileName,
+      fileName: file.name,
       fileSize: file.size
     };
     

@@ -129,7 +129,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             file_name = form.getvalue('fileName', file_item.filename)
             
         else:
-            # JSON with base64
+            # JSON with base64 (supports chunked upload)
             body_data = json.loads(event.get('body', '{}'))
             file_b64 = body_data.get('file', '')
             
@@ -141,13 +141,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             file_name = body_data.get('fileName', 'unnamed')
+            chunk_index = body_data.get('chunkIndex')
+            total_chunks = body_data.get('totalChunks')
+            existing_s3_key = body_data.get('s3Key')
+            upload_content_type = body_data.get('contentType', 'application/octet-stream')
             
             if ',' in file_b64:
                 file_b64 = file_b64.split(',', 1)[1]
             
             file_data = base64.b64decode(file_b64)
         
-        # Upload to S3
+        # S3 setup
         access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
         secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
         bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
@@ -160,22 +164,90 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             region_name='ru-central1'
         )
         
-        # Generate S3 key
+        # Handle chunked upload
+        if chunk_index is not None and total_chunks is not None:
+            # First chunk: create S3 key
+            if chunk_index == 0:
+                file_ext = file_name.split('.')[-1] if '.' in file_name else ''
+                unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
+                s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
+            else:
+                s3_key = existing_s3_key
+            
+            # Store chunk in temp location
+            temp_key = f"temp-chunks/{s3_key}/chunk_{chunk_index}"
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=temp_key,
+                Body=file_data
+            )
+            
+            print(f"Chunk {chunk_index + 1}/{total_chunks} stored: {len(file_data)} bytes")
+            
+            # Last chunk: assemble file
+            if chunk_index == total_chunks - 1:
+                print(f"Assembling {total_chunks} chunks into {s3_key}")
+                
+                assembled_data = bytearray()
+                for i in range(total_chunks):
+                    chunk_key = f"temp-chunks/{s3_key}/chunk_{i}"
+                    chunk_obj = s3_client.get_object(Bucket=bucket_name, Key=chunk_key)
+                    assembled_data.extend(chunk_obj['Body'].read())
+                
+                # Upload final file
+                s3_client.put_object(
+                    Bucket=bucket_name,
+                    Key=s3_key,
+                    Body=bytes(assembled_data),
+                    ContentType=upload_content_type
+                )
+                
+                # Cleanup temp chunks
+                for i in range(total_chunks):
+                    s3_client.delete_object(Bucket=bucket_name, Key=f"temp-chunks/{s3_key}/chunk_{i}")
+                
+                file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
+                print(f"Chunked upload complete: {file_url}, size: {len(assembled_data)} bytes")
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'url': file_url,
+                        's3Key': s3_key,
+                        'fileName': file_name,
+                        'fileSize': len(assembled_data)
+                    })
+                }
+            else:
+                # Return partial response
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        's3Key': s3_key,
+                        'chunkIndex': chunk_index,
+                        'status': 'partial'
+                    })
+                }
+        
+        # Single file upload (no chunking)
         file_ext = file_name.split('.')[-1] if '.' in file_name else ''
         unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
         s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
         
-        # Detect content type
-        if file_ext.lower() in ['jpg', 'jpeg']:
-            upload_content_type = 'image/jpeg'
-        elif file_ext.lower() == 'png':
-            upload_content_type = 'image/png'
-        elif file_ext.lower() == 'wav':
-            upload_content_type = 'audio/wav'
-        elif file_ext.lower() == 'mp3':
-            upload_content_type = 'audio/mpeg'
-        else:
-            upload_content_type = 'application/octet-stream'
+        # Detect content type if not provided
+        if not 'upload_content_type' in locals():
+            if file_ext.lower() in ['jpg', 'jpeg']:
+                upload_content_type = 'image/jpeg'
+            elif file_ext.lower() == 'png':
+                upload_content_type = 'image/png'
+            elif file_ext.lower() == 'wav':
+                upload_content_type = 'audio/wav'
+            elif file_ext.lower() == 'mp3':
+                upload_content_type = 'audio/mpeg'
+            else:
+                upload_content_type = 'application/octet-stream'
         
         print(f"Uploading to S3: {s3_key}, size={len(file_data)} bytes, type={upload_content_type}")
         
