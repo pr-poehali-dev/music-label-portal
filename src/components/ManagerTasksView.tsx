@@ -132,7 +132,14 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
               <h3 className="text-base md:text-lg font-semibold">Активные задачи</h3>
               <div className="grid gap-3 md:gap-4">
                 {activeTasks.map(task => (
-                  <Card key={task.id} className="p-4 md:p-6">
+                  <Card 
+                    key={task.id} 
+                    className="p-4 md:p-6 cursor-pointer hover:bg-accent/50 transition-colors"
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setIsDetailDialogOpen(true);
+                    }}
+                  >
                     <div className="flex items-start justify-between gap-3 md:gap-4">
                       <div className="flex-1 space-y-2 md:space-y-3 min-w-0">
                         <div className="flex items-center gap-2 md:gap-3 flex-wrap">
@@ -180,23 +187,15 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                         </div>
                       </div>
 
-                      <div className="flex gap-2 flex-col sm:flex-row">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setSelectedTask(task);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Icon name="Eye" size={14} className="sm:mr-1" />
-                          <span className="hidden sm:inline">Подробнее</span>
-                        </Button>
+                      <div className="flex gap-2 flex-col sm:flex-row" onClick={(e) => e.stopPropagation()}>
                         {task.status === 'open' && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => onUpdateTaskStatus(task.id, 'in_progress')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUpdateTaskStatus(task.id, 'in_progress');
+                            }}
                           >
                             <Icon name="Play" size={14} className="mr-1" />
                             Начать
@@ -205,7 +204,10 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                         {task.status === 'in_progress' && (
                           <Button
                             size="sm"
-                            onClick={() => onUpdateTaskStatus(task.id, 'completed')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUpdateTaskStatus(task.id, 'completed');
+                            }}
                           >
                             <Icon name="Check" size={14} className="mr-1" />
                             Завершить
@@ -224,7 +226,14 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
               <h3 className="text-lg font-semibold text-muted-foreground">Выполненные задачи</h3>
               <div className="grid gap-4">
                 {completedTasks.map(task => (
-                  <Card key={task.id} className="p-6 opacity-60">
+                  <Card 
+                    key={task.id} 
+                    className="p-6 opacity-60 cursor-pointer hover:opacity-100 hover:bg-accent/50 transition-all"
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setIsDetailDialogOpen(true);
+                    }}
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center gap-3 flex-wrap">

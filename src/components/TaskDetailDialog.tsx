@@ -10,6 +10,7 @@ interface TaskDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdateStatus?: (taskId: number, status: string) => Promise<boolean>;
+  onDeleteTask?: (taskId: number) => Promise<boolean>;
   userRole: 'manager' | 'director';
 }
 
@@ -67,7 +68,7 @@ const getTimeRemaining = (deadline: string | null) => {
   return { text: `Осталось ${minutes} мин.`, isOverdue: false };
 };
 
-export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateStatus, userRole }: TaskDetailDialogProps) {
+export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateStatus, onDeleteTask, userRole }: TaskDetailDialogProps) {
   const [timeRemaining, setTimeRemaining] = useState<{ text: string; isOverdue: boolean } | null>(null);
 
   useEffect(() => {
@@ -233,34 +234,53 @@ export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateSta
             </div>
           )}
 
-          {onUpdateStatus && task.status !== 'completed' && (
-            <div className="flex gap-2 pt-4 border-t">
-              {task.status === 'open' && (
-                <Button
-                  onClick={() => {
-                    onUpdateStatus(task.id, 'in_progress');
-                    onOpenChange(false);
-                  }}
-                  className="flex-1"
-                >
-                  <Icon name="Play" size={16} className="mr-2" />
-                  Начать работу
-                </Button>
-              )}
-              {task.status === 'in_progress' && (
-                <Button
-                  onClick={() => {
-                    onUpdateStatus(task.id, 'completed');
-                    onOpenChange(false);
-                  }}
-                  className="flex-1"
-                >
-                  <Icon name="Check" size={16} className="mr-2" />
-                  Завершить
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="flex gap-2 pt-4 border-t">
+            {onUpdateStatus && task.status !== 'completed' && (
+              <>
+                {task.status === 'open' && (
+                  <Button
+                    onClick={() => {
+                      onUpdateStatus(task.id, 'in_progress');
+                      onOpenChange(false);
+                    }}
+                    className="flex-1"
+                  >
+                    <Icon name="Play" size={16} className="mr-2" />
+                    Начать работу
+                  </Button>
+                )}
+                {task.status === 'in_progress' && (
+                  <Button
+                    onClick={() => {
+                      onUpdateStatus(task.id, 'completed');
+                      onOpenChange(false);
+                    }}
+                    className="flex-1"
+                  >
+                    <Icon name="Check" size={16} className="mr-2" />
+                    Завершить
+                  </Button>
+                )}
+              </>
+            )}
+            
+            {userRole === 'director' && onDeleteTask && (
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  await onDeleteTask(task.id);
+                  onOpenChange(false);
+                }}
+              >
+                <Icon name="Trash2" size={16} className="mr-2" />
+                Удалить
+              </Button>
+            )}
+            
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Закрыть
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

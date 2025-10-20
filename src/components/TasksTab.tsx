@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Task } from '@/components/useTasks';
+import TaskDetailDialog from '@/components/TaskDetailDialog';
 
 interface TasksTabProps {
   tasks: Task[];
@@ -27,6 +28,8 @@ const TasksTab = React.memo(function TasksTab({
   onDeleteTask
 }: TasksTabProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -215,7 +218,14 @@ const TasksTab = React.memo(function TasksTab({
           </Card>
         ) : (
           tasks.map(task => (
-            <Card key={task.id} className="p-6">
+            <Card 
+              key={task.id} 
+              className="p-6 cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => {
+                setSelectedTask(task);
+                setIsDetailDialogOpen(true);
+              }}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-3 flex-wrap">
@@ -256,12 +266,15 @@ const TasksTab = React.memo(function TasksTab({
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   {task.status !== 'completed' && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => onUpdateTaskStatus(task.id, 'completed')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateTaskStatus(task.id, 'completed');
+                      }}
                     >
                       <Icon name="Check" size={14} className="mr-1" />
                       Завершить
@@ -270,7 +283,10 @@ const TasksTab = React.memo(function TasksTab({
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => onDeleteTask(task.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteTask(task.id);
+                    }}
                   >
                     <Icon name="Trash2" size={14} />
                   </Button>
@@ -280,6 +296,15 @@ const TasksTab = React.memo(function TasksTab({
           ))
         )}
       </div>
+
+      <TaskDetailDialog
+        task={selectedTask}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+        onUpdateStatus={onUpdateTaskStatus}
+        onDeleteTask={onDeleteTask}
+        userRole="director"
+      />
     </div>
   );
 });
