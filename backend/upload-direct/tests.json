@@ -5,6 +5,19 @@
       "method": "OPTIONS",
       "path": "/",
       "expectedStatus": 200
+    },
+    {
+      "name": "GET presigned URL for large file",
+      "method": "GET",
+      "path": "/?fileName=track.wav&contentType=audio/wav",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "presignedUrl": "string",
+        "url": "string",
+        "s3Key": "string",
+        "fileName": "track.wav"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }

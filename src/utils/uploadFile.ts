@@ -41,21 +41,25 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
     }
     
     // Большие файлы (>3MB) через presigned S3 URL
-    console.log('[Upload] Getting presigned URL...');
+    console.log('[Upload] 📦 Large file detected, using presigned URL method');
     
     const contentType = file.type || 'application/octet-stream';
-    const presignedResponse = await fetch(
-      `https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(contentType)}`,
-      { method: 'GET' }
-    );
+    const getPresignedUrl = `https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(contentType)}`;
+    
+    console.log('[Upload] 🔑 Step 1/3: Requesting presigned URL from:', getPresignedUrl);
+    
+    const presignedResponse = await fetch(getPresignedUrl, { method: 'GET' });
     
     if (!presignedResponse.ok) {
+      const errorText = await presignedResponse.text().catch(() => 'No response');
+      console.error('[Upload] ❌ Presigned URL request failed:', presignedResponse.status, errorText);
       throw new Error(`Не удалось получить presigned URL: ${presignedResponse.status}`);
     }
     
     const { presignedUrl, url, s3Key, fileName } = await presignedResponse.json();
+    console.log('[Upload] ✅ Presigned URL received, S3 key:', s3Key);
     
-    console.log('[Upload] Uploading directly to S3...');
+    console.log('[Upload] 📤 Step 2/3: Uploading directly to S3...');
     const uploadResponse = await fetch(presignedUrl, {
       method: 'PUT',
       body: file,
@@ -63,10 +67,12 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
     });
     
     if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text().catch(() => 'No response');
+      console.error('[Upload] ❌ S3 upload failed:', uploadResponse.status, errorText);
       throw new Error(`S3 upload failed: ${uploadResponse.status}`);
     }
     
-    console.log(`[Upload] Success! File uploaded to: ${url}`);
+    console.log('[Upload] ✅ Step 3/3: File uploaded successfully to:', url);
     
     return {
       url,
