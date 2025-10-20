@@ -21,18 +21,23 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
   try {
     // Маленькие файлы (<3MB) через FormData
     if (file.size < 3 * 1024 * 1024) {
+      console.log('[Upload] Using FormData for small file');
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileName', file.name);
       
+      console.log('[Upload] Sending FormData request...');
       const response = await fetch('https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9', {
         method: 'POST',
         body: formData
       });
       
+      console.log('[Upload] Response received:', response.status);
+      
       if (!response.ok) {
-        console.error('HTTP', response.status, ':', 'https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9');
-        throw new Error(`Ошибка загрузки: ${response.status}`);
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('[Upload] HTTP Error', response.status, ':', errorText);
+        throw new Error(`Ошибка загрузки: ${response.status} - ${errorText}`);
       }
       
       const result = await response.json();
