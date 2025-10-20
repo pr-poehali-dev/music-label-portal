@@ -242,8 +242,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
         s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
         
-        # Detect content type if not provided
-        if not 'upload_content_type' in locals():
+        # Detect content type if not provided (for multipart uploads)
+        if upload_content_type is None:
             if file_ext.lower() in ['jpg', 'jpeg']:
                 upload_content_type = 'image/jpeg'
             elif file_ext.lower() == 'png':
