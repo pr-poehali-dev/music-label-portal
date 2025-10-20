@@ -146,54 +146,54 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <Card className="absolute right-0 top-12 w-96 max-h-[500px] overflow-hidden z-50 shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="font-semibold">Уведомления</h3>
+          <Card className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-96 max-h-[70vh] sm:max-h-[500px] overflow-hidden z-50 shadow-xl">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b">
+              <h3 className="font-semibold text-sm sm:text-base">Уведомления</h3>
               {unreadCount > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => markAsRead()}
                   disabled={loading}
-                  className="text-xs"
+                  className="text-xs h-8 px-2 sm:px-3"
                 >
                   Прочитать все
                 </Button>
               )}
             </div>
 
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="max-h-[calc(70vh-60px)] sm:max-h-[400px] overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <Icon name="Bell" size={48} className="mb-2 opacity-50" />
-                  <p>Нет уведомлений</p>
+                <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-muted-foreground">
+                  <Icon name="Bell" size={40} className="mb-2 opacity-50" />
+                  <p className="text-sm">Нет уведомлений</p>
                 </div>
               ) : (
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                    className={`p-3 sm:p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
                       !notification.read ? 'bg-primary/5' : ''
                     }`}
                     onClick={() => !notification.read && markAsRead(notification.id)}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 sm:gap-3">
                       <Icon
                         name={getTypeIcon(notification.type)}
-                        size={20}
+                        size={18}
                         className={`flex-shrink-0 mt-0.5 ${getTypeColor(notification.type)}`}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className="font-medium text-sm">{notification.title}</p>
+                          <p className="font-medium text-xs sm:text-sm leading-tight">{notification.title}</p>
                           {!notification.read && (
                             <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
                           {formatDate(notification.created_at)}
                         </p>
                       </div>
