@@ -320,7 +320,7 @@ export default function ReleaseForm({
 
           <div className="border-t pt-4 space-y-3">
             {uploading && (
-              <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
+              <div className="space-y-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
                 <div className="flex items-center gap-2">
                   <Icon name="Loader2" size={14} className="animate-spin text-primary flex-shrink-0" />
                   <span className="text-xs font-medium truncate">{currentUploadFile || 'Загрузка...'}</span>
@@ -336,6 +336,9 @@ export default function ReleaseForm({
                     <p className="text-[10px] text-muted-foreground text-right">{uploadProgress}%</p>
                   </>
                 )}
+                <p className="text-[10px] text-muted-foreground italic">
+                  ⚠️ Не закрывайте страницу во время загрузки
+                </p>
               </div>
             )}
             

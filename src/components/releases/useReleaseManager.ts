@@ -37,19 +37,46 @@ export const useReleaseManager = (userId: number) => {
     loadReleases();
   }, [userId]);
 
+  // Защита от случайного закрытия страницы во время загрузки
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (uploading) {
+        e.preventDefault();
+        e.returnValue = 'Идёт загрузка релиза. Вы уверены что хотите закрыть страницу?';
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [uploading]);
+
   const loadReleases = useCallback(async () => {
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      
       const response = await fetch(API_URL, {
-        headers: { 'X-User-Id': userId.toString() }
+        headers: { 'X-User-Id': userId.toString() },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeout);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
       setReleases(data);
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить релизы',
-        variant: 'destructive'
-      });
+    } catch (error: any) {
+      console.error('Failed to load releases:', error);
+      if (error.name !== 'AbortError') {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить релизы. Проверьте подключение к интернету.',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -227,8 +254,13 @@ export const useReleaseManager = (userId: number) => {
 
     try {
       setCurrentUploadFile('Обложка');
-      const coverData = await uploadFile(coverFile);
-      if (!coverData) throw new Error('Не удалось загрузить обложку');
+      let coverData;
+      try {
+        coverData = await uploadFile(coverFile);
+        if (!coverData) throw new Error('Не удалось загрузить обложку');
+      } catch (coverError: any) {
+        throw new Error(`Ошибка загрузки обложки: ${coverError.message || 'неизвестная ошибка'}`);
+      }
       setUploadProgress(0);
 
       const uploadedTracks = [];
@@ -280,20 +312,37 @@ export const useReleaseManager = (userId: number) => {
         }
       }
 
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': userId.toString()
-        },
-        body: JSON.stringify({
-          ...newRelease,
-          cover_url: coverData.url,
-          tracks: uploadedTracks
-        })
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      
+      let response;
+      try {
+        response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': userId.toString()
+          },
+          body: JSON.stringify({
+            ...newRelease,
+            cover_url: coverData.url,
+            tracks: uploadedTracks
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+      } catch (fetchError: any) {
+        clearTimeout(timeout);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Превышено время ожидания ответа от сервера. Попробуйте ещё раз.');
+        }
+        throw new Error(`Ошибка сети: ${fetchError.message}`);
+      }
 
-      if (!response.ok) throw new Error('Failed to create release');
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Неизвестная ошибка');
+        throw new Error(`Ошибка сервера (${response.status}): ${errorText}`);
+      }
 
       toast({
         title: 'Успешно',
@@ -322,7 +371,7 @@ export const useReleaseManager = (userId: number) => {
         preorder_date: '',
         sales_start_date: '',
         genre: '',
-        copyright: '',
+        copyright: '420smm',
         price_category: '0.99',
         title_language: 'Русский'
       });

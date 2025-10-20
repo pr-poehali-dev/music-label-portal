@@ -48,11 +48,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     dsn = os.environ.get('DATABASE_URL')
+    if not dsn:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': 'Database configuration error'})
+        }
+    
     schema = 't_p35759334_music_label_portal'
     
-    conn = psycopg2.connect(dsn)
-    conn.set_session(autocommit=True)
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        conn = psycopg2.connect(dsn)
+        conn.set_session(autocommit=True)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+    except psycopg2.Error as db_error:
+        print(f"[ERROR] Database connection failed: {db_error}")
+        return {
+            'statusCode': 503,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': 'Database unavailable. Please try again later.'})
+        }
     
     try:
         cur.execute(f"SELECT role FROM {schema}.users WHERE id = '{user_id}'")
