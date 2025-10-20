@@ -10,9 +10,6 @@ export interface UploadFileResult {
 }
 
 async function uploadLargeFile(file: File): Promise<UploadFileResult> {
-  console.log(`Uploading large file: ${file.name}, size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-  
-  // Разбиваем файл на части по 5MB
   const chunkSize = 5 * 1024 * 1024;
   const chunks: Blob[] = [];
   let offset = 0;
@@ -21,8 +18,6 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
     chunks.push(file.slice(offset, offset + chunkSize));
     offset += chunkSize;
   }
-  
-  console.log(`File split into ${chunks.length} chunks`);
   
   // Загружаем каждую часть
   const uploadedChunks: string[] = [];
@@ -35,8 +30,6 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
       reader.onerror = reject;
       reader.readAsDataURL(chunk);
     });
-    
-    console.log(`Uploading chunk ${i + 1}/${chunks.length}`);
     
     const response = await fetch(UPLOAD_URL, {
       method: 'POST',
@@ -81,7 +74,6 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
   }
   
   const result = await mergeResponse.json();
-  console.log(`Successfully uploaded: ${file.name}`);
   return result;
 }
 
@@ -104,8 +96,6 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
       try {
         const base64Data = reader.result as string;
         
-        console.log(`Uploading file: ${file.name}, size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-        
         const response = await fetch(UPLOAD_URL, {
           method: 'POST',
           headers: {
@@ -120,7 +110,6 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
         
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Upload failed for ${file.name}:`, response.status, errorText);
           
           if (response.status === 413) {
             throw new Error(`Файл слишком большой. Максимальный размер: 100MB`);
@@ -130,16 +119,13 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
         }
         
         const data = await response.json();
-        console.log(`Successfully uploaded: ${file.name}`);
         resolve(data);
       } catch (error) {
-        console.error(`Error uploading ${file.name}:`, error);
         reject(error);
       }
     };
     
     reader.onerror = () => {
-      console.error(`Failed to read file: ${file.name}`);
       reject(new Error('Не удалось прочитать файл'));
     };
     

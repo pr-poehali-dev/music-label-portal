@@ -56,6 +56,15 @@ export const useReleaseManager = (userId: number) => {
   }, [userId, toast]);
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
+    if (!file) {
+      toast({
+        title: 'Ошибка',
+        description: 'Файл не выбран',
+        variant: 'destructive'
+      });
+      return null;
+    }
+
     setCurrentUploadFile(file.name);
     setUploadProgress(10);
     
@@ -70,10 +79,9 @@ export const useReleaseManager = (userId: number) => {
         fileSize: result.fileSize
       };
     } catch (error) {
-      console.error('Upload error:', error);
       toast({
-        title: 'Ошибка загрузки',
-        description: error instanceof Error ? error.message : `Не удалось загрузить ${file.name}`,
+        title: `❌ ${file.name}`,
+        description: error instanceof Error ? error.message : 'Не удалось загрузить файл',
         variant: 'destructive'
       });
       return null;
@@ -180,13 +188,6 @@ export const useReleaseManager = (userId: number) => {
   };
 
   const handleSubmit = useCallback(async () => {
-    console.log('=== SUBMIT STARTED ===');
-    console.log('Cover file:', coverFile);
-    console.log('Tracks count:', tracks.length);
-    tracks.forEach((t, i) => {
-      console.log(`Track ${i + 1}: ${t.title}, has file:`, !!t.file, t.file);
-    });
-    
     if (!newRelease.release_name || !coverFile || !newRelease.release_date) {
       toast({
         title: 'Ошибка',
@@ -219,33 +220,40 @@ export const useReleaseManager = (userId: number) => {
     setUploadProgress(0);
 
     try {
-      console.log('Starting cover upload...');
+      setCurrentUploadFile('Обложка');
       const coverData = await uploadFile(coverFile);
       if (!coverData) throw new Error('Не удалось загрузить обложку');
-      console.log('Cover uploaded successfully:', coverData.url);
       setUploadProgress(0);
 
-      console.log(`Starting tracks upload (${tracks.length} tracks)...`);
-      const uploadedTracks = await Promise.all(
-        tracks.map(async (track, index) => {
-          if (!track.file) {
-            throw new Error(`Трек ${track.track_number}: файл отсутствует`);
-          }
-          console.log(`Uploading track ${index + 1}/${tracks.length}: ${track.file.name}`);
-          const trackData = await uploadFile(track.file);
-          if (!trackData) throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
-          console.log(`Track ${index + 1} uploaded successfully`);
-          
-          return {
-            ...track,
-            file_url: trackData.url,
-            file_name: trackData.fileName,
-            file_size: trackData.fileSize,
-            file: undefined
-          };
-        })
-      );
-      console.log('All tracks uploaded successfully');
+      const uploadedTracks = [];
+      
+      for (let index = 0; index < tracks.length; index++) {
+        const track = tracks[index];
+        
+        if (!track.file) {
+          toast({
+            title: `❌ Трек ${track.track_number}`,
+            description: `"${track.title || 'Без названия'}" - файл не выбран`,
+            variant: 'destructive'
+          });
+          throw new Error(`Трек ${track.track_number}: файл отсутствует`);
+        }
+        
+        setCurrentUploadFile(`Трек ${index + 1}/${tracks.length}: ${track.title || track.file.name}`);
+        const trackData = await uploadFile(track.file);
+        
+        if (!trackData) {
+          throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
+        }
+        
+        uploadedTracks.push({
+          ...track,
+          file_url: trackData.url,
+          file_name: trackData.fileName,
+          file_size: trackData.fileSize,
+          file: undefined
+        });
+      }
 
       const response = await fetch(API_URL, {
         method: 'POST',

@@ -318,18 +318,23 @@ export default function ReleaseForm({
           </div>
 
           <div className="border-t pt-4 space-y-3">
-            {uploading && uploadProgress > 0 && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span className="truncate max-w-[200px]">{currentUploadFile}</span>
-                  <span>{uploadProgress}%</span>
+            {uploading && (
+              <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
+                <div className="flex items-center gap-2">
+                  <Icon name="Loader2" size={14} className="animate-spin text-primary flex-shrink-0" />
+                  <span className="text-xs font-medium truncate">{currentUploadFile || 'Загрузка...'}</span>
                 </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary transition-all duration-300 ease-out"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
+                {uploadProgress > 0 && (
+                  <>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary transition-all duration-300 ease-out"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-right">{uploadProgress}%</p>
+                  </>
+                )}
               </div>
             )}
             
