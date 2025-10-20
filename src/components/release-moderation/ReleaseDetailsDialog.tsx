@@ -18,6 +18,55 @@ interface ReleaseDetailsDialogProps {
   onSubmitReview: () => void;
 }
 
+function RejectionTypeSelector({ 
+  rejectionType, 
+  onChange 
+}: { 
+  rejectionType: 'rejected_fixable' | 'rejected_final';
+  onChange: (type: 'rejected_fixable' | 'rejected_final') => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <label className="text-sm font-semibold flex items-center gap-2">
+        <Icon name="AlertCircle" size={16} className="text-destructive" />
+        Выберите тип отклонения:
+      </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onChange('rejected_fixable')}
+          className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
+            rejectionType === 'rejected_fixable'
+              ? 'border-orange-500 bg-orange-500/20 text-orange-300 shadow-lg shadow-orange-500/20'
+              : 'border-border bg-card text-muted-foreground hover:border-orange-500/50 hover:bg-orange-500/5'
+          }`}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <Icon name="Edit" size={20} />
+            <span className="font-semibold">Можно исправить</span>
+            <span className="text-xs opacity-70">Артист сможет подать повторно</span>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange('rejected_final')}
+          className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
+            rejectionType === 'rejected_final'
+              ? 'border-red-500 bg-red-500/20 text-red-300 shadow-lg shadow-red-500/20'
+              : 'border-border bg-card text-muted-foreground hover:border-red-500/50 hover:bg-red-500/5'
+          }`}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <Icon name="Ban" size={20} />
+            <span className="font-semibold">Окончательно</span>
+            <span className="text-xs opacity-70">Без возможности исправления</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ReleaseDetailsDialog({
   release,
   userRole,
@@ -30,6 +79,14 @@ export default function ReleaseDetailsDialog({
   onSubmitReview
 }: ReleaseDetailsDialogProps) {
   if (!release) return null;
+
+  const [rejectionType, setRejectionType] = React.useState<'rejected_fixable' | 'rejected_final'>('rejected_fixable');
+
+  React.useEffect(() => {
+    if (reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') {
+      setRejectionType(reviewAction);
+    }
+  }, [reviewAction]);
 
   return (
     <Dialog open={release !== null} onOpenChange={onClose}>
@@ -72,18 +129,29 @@ export default function ReleaseDetailsDialog({
           )}
 
           {reviewAction && (
-            <div className="border-t pt-4">
-              <label className="text-xs md:text-sm font-medium mb-2 block flex items-center gap-2">
-                <Icon name="MessageSquare" size={14} />
-                Комментарий {(reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && <span className="text-red-500">(обязательно)</span>}
-              </label>
-              <Textarea
-                placeholder="Ваш комментарий..."
-                value={reviewComment}
-                onChange={(e) => onReviewCommentChange(e.target.value)}
-                rows={3}
-                className="text-sm"
-              />
+            <div className="border-t pt-4 space-y-4">
+              {(reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && (
+                <RejectionTypeSelector 
+                  rejectionType={rejectionType} 
+                  onChange={(type) => {
+                    setRejectionType(type);
+                    onReviewActionChange(type);
+                  }} 
+                />
+              )}
+              <div>
+                <label className="text-xs md:text-sm font-medium mb-2 block flex items-center gap-2">
+                  <Icon name="MessageSquare" size={14} />
+                  Комментарий {(reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && <span className="text-red-500">(обязательно)</span>}
+                </label>
+                <Textarea
+                  placeholder="Ваш комментарий..."
+                  value={reviewComment}
+                  onChange={(e) => onReviewCommentChange(e.target.value)}
+                  rows={3}
+                  className="text-sm"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -112,7 +180,7 @@ export default function ReleaseDetailsDialog({
                   size={16} 
                   className={`mr-2 ${submitting ? 'animate-spin' : ''}`} 
                 />
-                {reviewAction === 'approved' ? 'Одобрить' : reviewAction === 'rejected_fixable' ? 'Отклонить (можно исправить)' : 'Отклонить окончательно'}
+                {reviewAction === 'approved' ? 'Одобрить' : 'Подтвердить отклонение'}
               </Button>
             </>
           ) : (

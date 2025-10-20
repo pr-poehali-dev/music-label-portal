@@ -137,6 +137,8 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
 
   const handleReject = (releaseId: number) => {
     loadReleaseDetails(releaseId);
+    // Открываем диалог, но пользователь должен увидеть кнопки выбора
+    // Используем rejected_fixable как начальное значение для переключателя
     setReviewAction('rejected_fixable');
   };
 
