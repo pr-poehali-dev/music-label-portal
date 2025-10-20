@@ -58,19 +58,25 @@ def merge_chunks(body_data: Dict[str, Any]) -> Dict[str, Any]:
         
         file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
         
-        print(f"Merged file uploaded: {file_url}")
+        result = {
+            'url': file_url,
+            's3Key': s3_key,
+            'fileName': file_name,
+            'fileSize': file_size
+        }
         
-        return {
+        print(f"Merged file uploaded: {file_url}")
+        print(f"Returning result: {result}")
+        
+        response = {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'isBase64Encoded': False,
-            'body': json.dumps({
-                'url': file_url,
-                's3Key': s3_key,
-                'fileName': file_name,
-                'fileSize': file_size
-            })
+            'body': json.dumps(result),
+            'isBase64Encoded': False
         }
+        
+        print(f"Response object: statusCode={response['statusCode']}, body_len={len(response['body'])}")
+        return response
         
     except Exception as e:
         print(f"Merge error: {e}")
