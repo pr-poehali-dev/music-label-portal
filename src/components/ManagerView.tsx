@@ -118,10 +118,12 @@ export default function ManagerView({
                 <Icon name="ClipboardList" className="w-4 h-4 text-blue-500" />
                 <span>Питчинг</span>
               </TabsTrigger>
+              <TabsTrigger value="kpi" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="BarChart3" className="w-4 h-4 text-orange-500" />
+                <span>КПД</span>
+              </TabsTrigger>
             </TabsList>
           </div>
-
-          <ManagerStats userId={user.id} />
 
           <TabsContent value="tasks">
             <ManagerTasksView 
@@ -150,6 +152,10 @@ export default function ManagerView({
 
           <TabsContent value="submissions">
             <SubmissionsManager userId={user.id} userRole="manager" />
+          </TabsContent>
+
+          <TabsContent value="kpi">
+            <ManagerStats userId={user.id} />
           </TabsContent>
         </Tabs>
 
