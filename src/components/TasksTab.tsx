@@ -222,6 +222,7 @@ const TasksTab = React.memo(function TasksTab({
               key={task.id} 
               className="p-6 cursor-pointer hover:bg-accent/50 transition-colors"
               onClick={() => {
+                console.log('Task card clicked:', task);
                 setSelectedTask(task);
                 setIsDetailDialogOpen(true);
               }}

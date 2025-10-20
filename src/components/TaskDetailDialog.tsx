@@ -268,6 +268,7 @@ export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateSta
               <Button
                 variant="destructive"
                 onClick={async () => {
+                  console.log('Delete button clicked for task:', task.id);
                   await onDeleteTask(task.id);
                   onOpenChange(false);
                 }}
