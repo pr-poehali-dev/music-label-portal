@@ -52,6 +52,7 @@ export default function ReleaseForm({
   onCancel
 }: ReleaseFormProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isDraggingCover, setIsDraggingCover] = useState(false);
 
   const handleDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
@@ -79,6 +80,37 @@ export default function ReleaseForm({
     setDraggedIndex(null);
   }, [draggedIndex, moveTrack]);
 
+  const handleCoverDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCover(true);
+  }, []);
+
+  const handleCoverDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCover(false);
+  }, []);
+
+  const handleCoverDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleCoverDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCover(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        handleCoverChange(file);
+      }
+    }
+  }, [handleCoverChange]);
+
   return (
     <div className="max-w-6xl mx-auto">
       <Card>
@@ -97,14 +129,25 @@ export default function ReleaseForm({
           <div className="grid md:grid-cols-[200px_1fr] gap-4 items-start">
             <div className="space-y-2">
               <label className="text-sm font-medium block">Обложка *</label>
-              <label className="relative group block cursor-pointer">
-                <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all">
+              <label 
+                className="relative group block cursor-pointer"
+                onDragEnter={handleCoverDragEnter}
+                onDragLeave={handleCoverDragLeave}
+                onDragOver={handleCoverDragOver}
+                onDrop={handleCoverDrop}
+              >
+                <div className={`w-full aspect-square rounded-lg overflow-hidden bg-muted border-2 border-dashed transition-all ${
+                  isDraggingCover 
+                    ? 'border-primary bg-primary/10 scale-105' 
+                    : 'border-muted-foreground/25 hover:border-primary/50'
+                }`}>
                   {coverPreview ? (
                     <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                      <Icon name="ImagePlus" size={32} className="mb-1" />
-                      <p className="text-xs">Загрузить</p>
+                      <Icon name={isDraggingCover ? "Download" : "ImagePlus"} size={32} className="mb-1" />
+                      <p className="text-xs">{isDraggingCover ? "Отпустите файл" : "Загрузить"}</p>
+                      <p className="text-[10px] mt-1 opacity-60">или перетащите сюда</p>
                     </div>
                   )}
                 </div>
