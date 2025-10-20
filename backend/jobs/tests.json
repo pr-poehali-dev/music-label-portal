@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Get all jobs",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "type"
+    },
+    {
+      "name": "Create job",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-User-Id": "1"
+      },
+      "body": {
+        "position": "Менеджер",
+        "schedule": "5/2",
+        "workplace": "Офис",
+        "duties": "Управление",
+        "salary": "50000₽",
+        "contact": "https://t.me/test",
+        "is_active": true
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

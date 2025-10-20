@@ -22,6 +22,20 @@ interface News {
   created_by: number | null;
 }
 
+interface Job {
+  id: number;
+  position: string;
+  schedule: string;
+  workplace: string;
+  duties: string;
+  salary: string;
+  contact: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: number | null;
+}
+
 interface NewsViewProps {
   userRole: 'artist' | 'manager' | 'director';
   userId: number;
@@ -43,6 +57,29 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     priority: 0,
     is_active: true
   });
+
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [isCreatingJob, setIsCreatingJob] = useState(false);
+  const [jobFormData, setJobFormData] = useState({
+    position: '',
+    schedule: '',
+    workplace: '',
+    duties: '',
+    salary: '',
+    contact: '',
+    is_active: true
+  });
+
+  const loadJobs = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/57ba52aa-ffc4-4822-b9ee-d1847947bc41');
+      const data = await response.json();
+      setJobs(data);
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+    }
+  };
 
   const loadNews = async () => {
     try {
@@ -83,6 +120,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
 
   useEffect(() => {
     loadNews();
+    loadJobs();
     calculateCountdown();
     const interval = setInterval(calculateCountdown, 1000);
     return () => clearInterval(interval);
@@ -188,6 +226,82 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     }
   };
 
+  const handleSaveJob = async () => {
+    try {
+      const url = editingJob 
+        ? `https://functions.poehali.dev/57ba52aa-ffc4-4822-b9ee-d1847947bc41?id=${editingJob.id}`
+        : 'https://functions.poehali.dev/57ba52aa-ffc4-4822-b9ee-d1847947bc41';
+      
+      const response = await fetch(url, {
+        method: editingJob ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId.toString()
+        },
+        body: JSON.stringify(jobFormData)
+      });
+
+      if (!response.ok) throw new Error('Failed to save job');
+
+      toast({
+        title: 'Успешно',
+        description: editingJob ? 'Вакансия обновлена' : 'Вакансия создана'
+      });
+
+      setEditingJob(null);
+      setIsCreatingJob(false);
+      setJobFormData({ position: '', schedule: '', workplace: '', duties: '', salary: '', contact: '', is_active: true });
+      loadJobs();
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сохранить вакансию',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDeleteJob = async (id: number) => {
+    if (!confirm('Вы уверены, что хотите удалить эту вакансию?')) return;
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/57ba52aa-ffc4-4822-b9ee-d1847947bc41?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Id': userId.toString()
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to delete job');
+
+      toast({
+        title: 'Успешно',
+        description: 'Вакансия удалена'
+      });
+
+      loadJobs();
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить вакансию',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const startEditJob = (job: Job) => {
+    setEditingJob(job);
+    setJobFormData({
+      position: job.position,
+      schedule: job.schedule,
+      workplace: job.workplace,
+      duties: job.duties,
+      salary: job.salary,
+      contact: job.contact,
+      is_active: job.is_active
+    });
+  };
+
   const getTypeConfig = (type: string) => {
     switch (type) {
       case 'update': 
@@ -211,13 +325,11 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
 
   const updateNews = news.filter(n => n.type === 'update');
   const faqNews = news.filter(n => n.type === 'faq');
-  const jobNews = news.filter(n => n.type === 'job');
   
   const filteredNews = selectedType === 'update' ? updateNews : faqNews;
   const stats = {
     update: updateNews.length,
-    faq: faqNews.length,
-    job: jobNews.length
+    faq: faqNews.length
   };
 
   return (
@@ -346,66 +458,113 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
       )}
 
       {/* Вакансии - отдельный блок */}
-      {jobNews.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center gap-2 mb-4">
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
             <Icon name="Briefcase" className="w-5 h-5 text-green-400" />
             <h2 className="text-xl font-bold text-white">Открытые вакансии</h2>
-            <Badge variant="secondary" className="ml-2">{jobNews.length}</Badge>
+            <Badge variant="secondary" className="ml-2">{jobs.length}</Badge>
           </div>
-          <div className="grid gap-3">
-            {jobNews.map((item) => {
-              const config = getTypeConfig(item.type);
-              return (
-                <Card 
-                  key={item.id} 
-                  className={`p-4 border ${config.border} ${config.bg} backdrop-blur-sm hover:scale-[1.01] transition-transform group`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${config.bg} shrink-0`}>
-                      <Icon name={config.icon} className={`w-5 h-5 ${config.color}`} />
-                    </div>
-                    <div className="flex-1 min-w-0" onClick={() => userRole === 'director' ? startEdit(item) : null} className={userRole === 'director' ? 'cursor-pointer' : ''}>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-white text-base leading-tight">{item.title}</h3>
-                        <Badge variant="outline" className={`${config.color} shrink-0 text-xs`}>
-                          {config.label}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.content}</p>
-                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Icon name="Clock" className="w-3 h-3" />
-                          {new Date(item.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
-                        </span>
-                        {userRole === 'director' && (
-                          <span className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Icon name="Edit" className="w-3 h-3" />
-                            Редактировать
-                          </span>
-                        )}
-                      </div>
-                    </div>
+          {userRole === 'director' && (
+            <Button
+              size="sm"
+              onClick={() => {
+                setIsCreatingJob(true);
+                setEditingJob(null);
+                setJobFormData({ position: '', schedule: '', workplace: '', duties: '', salary: '', contact: '', is_active: true });
+              }}
+              className="gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
+              variant="outline"
+            >
+              <Icon name="Plus" className="w-4 h-4" />
+              Добавить вакансию
+            </Button>
+          )}
+        </div>
+        <div className="grid gap-4">
+          {jobs.map((job) => (
+            <Card 
+              key={job.id} 
+              className="p-6 border-green-500/30 bg-gradient-to-br from-green-900/20 via-emerald-900/10 to-transparent backdrop-blur-sm hover:scale-[1.01] transition-transform group"
+            >
+              <div className="flex gap-4">
+                <div className="p-3 rounded-xl bg-green-500/20 shrink-0 h-fit">
+                  <Icon name="Briefcase" className="w-6 h-6 text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="text-xl font-bold text-white">{job.position}</h3>
                     {userRole === 'director' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteNews(item.id);
-                        }}
-                        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:text-red-400"
-                      >
-                        <Icon name="Trash2" className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEditJob(job)}
+                          className="hover:bg-green-500/20 hover:text-green-400"
+                        >
+                          <Icon name="Edit" className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteJob(job.id)}
+                          className="hover:bg-red-500/20 hover:text-red-400"
+                        >
+                          <Icon name="Trash2" className="w-4 h-4" />
+                        </Button>
+                      </div>
                     )}
                   </div>
-                </Card>
-              );
-            })}
-          </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="Calendar" className="w-4 h-4 text-green-400" />
+                      <span className="text-muted-foreground">График:</span>
+                      <span className="text-white font-medium">{job.schedule}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="MapPin" className="w-4 h-4 text-green-400" />
+                      <span className="text-muted-foreground">Место:</span>
+                      <span className="text-white font-medium">{job.workplace}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Обязанности:</p>
+                      <p className="text-white leading-relaxed">{job.duties}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-green-500/20">
+                    <div className="flex items-center gap-2">
+                      <Icon name="Wallet" className="w-4 h-4 text-green-400" />
+                      <span className="text-lg font-bold text-green-400">{job.salary}</span>
+                    </div>
+                    <a
+                      href={job.contact}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto"
+                    >
+                      <Button className="gap-2 bg-green-500 hover:bg-green-600">
+                        <Icon name="Send" className="w-4 h-4" />
+                        Откликнуться
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
-      )}
+        {jobs.length === 0 && (
+          <Card className="p-8 text-center border-green-500/30">
+            <Icon name="Briefcase" className="w-12 h-12 mx-auto text-green-400 mb-3 opacity-50" />
+            <p className="text-muted-foreground">Вакансий пока нет</p>
+          </Card>
+        )}
+      </div>
 
       {/* Модальное окно редактирования */}
       <Dialog open={isCreating || !!editingNews} onOpenChange={(open) => {
@@ -463,6 +622,74 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               <Button variant="outline" onClick={() => {
                 setIsCreating(false);
                 setEditingNews(null);
+              }}>
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно для вакансий */}
+      <Dialog open={isCreatingJob || !!editingJob} onOpenChange={(open) => {
+        if (!open) {
+          setIsCreatingJob(false);
+          setEditingJob(null);
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingJob ? 'Редактировать вакансию' : 'Создать вакансию'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Должность"
+              value={jobFormData.position}
+              onChange={(e) => setJobFormData({ ...jobFormData, position: e.target.value })}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                placeholder="График (например, 5/2)"
+                value={jobFormData.schedule}
+                onChange={(e) => setJobFormData({ ...jobFormData, schedule: e.target.value })}
+              />
+              <Input
+                placeholder="Место работы"
+                value={jobFormData.workplace}
+                onChange={(e) => setJobFormData({ ...jobFormData, workplace: e.target.value })}
+              />
+            </div>
+            <Textarea
+              placeholder="Обязанности"
+              value={jobFormData.duties}
+              onChange={(e) => setJobFormData({ ...jobFormData, duties: e.target.value })}
+              rows={4}
+            />
+            <Input
+              placeholder="Зарплата (например, 15000₽ в месяц)"
+              value={jobFormData.salary}
+              onChange={(e) => setJobFormData({ ...jobFormData, salary: e.target.value })}
+            />
+            <Input
+              placeholder="Контакт для отклика (например, https://t.me/username)"
+              value={jobFormData.contact}
+              onChange={(e) => setJobFormData({ ...jobFormData, contact: e.target.value })}
+            />
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={jobFormData.is_active}
+                onCheckedChange={(checked) => setJobFormData({ ...jobFormData, is_active: checked })}
+              />
+              <span className="text-sm">Активна</span>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleSaveJob} className="flex-1">
+                <Icon name="Save" className="w-4 h-4 mr-2" />
+                {editingJob ? 'Сохранить' : 'Создать'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setIsCreatingJob(false);
+                setEditingJob(null);
               }}>
                 Отмена
               </Button>

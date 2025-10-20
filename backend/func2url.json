@@ -1,4 +1,5 @@
 {
+  "jobs": "https://functions.poehali.dev/57ba52aa-ffc4-4822-b9ee-d1847947bc41",
   "news": "https://functions.poehali.dev/02b8e089-cfba-4460-9cad-479b3d0c5c80",
   "upload-direct": "https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9",
   "ticket-comments": "https://functions.poehali.dev/b636dc56-7328-4fb7-933d-5d6d32e9ee96",
@@ -16,7 +17,6 @@
   "tasks": "https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890",
   "messages": "https://functions.poehali.dev/7bcbbe5a-cae2-4cbe-94c1-ca6a0152ce3a",
   "ticket-analytics": "https://functions.poehali.dev/831a484a-c7b9-4607-b683-19d813dc77e5",
-  "task-comments": "https://functions.poehali.dev/69a1dd48-3422-45a6-ba2f-44bdcdb3cb20",
   "submissions": "https://functions.poehali.dev/40a44285-32b8-4e3e-8f8f-b77f16293727",
   "upload-reports": "https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264",
   "deadline-reminder": "https://functions.poehali.dev/7b917e9b-349b-4e00-91f6-933aaff43d85",
