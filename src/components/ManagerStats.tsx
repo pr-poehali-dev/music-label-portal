@@ -103,7 +103,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Выполнено задач</CardTitle>
-          <Icon name="CheckCircle2" size={20} className="text-green-600" />
+          <Icon name="CheckCircle2" size={20} className="text-green-500" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -113,7 +113,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
             </div>
           ) : (
             <>
-              <div className="text-3xl font-bold text-green-600">{stats.completed_tasks}</div>
+              <div className="text-3xl font-bold text-green-500">{stats.completed_tasks}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Завершённых задач за всё время
               </p>
@@ -125,7 +125,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Закрыто тикетов</CardTitle>
-          <Icon name="MessageSquare" size={20} className="text-blue-600" />
+          <Icon name="MessageSquare" size={20} className="text-yellow-500" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -135,7 +135,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
             </div>
           ) : (
             <>
-              <div className="text-3xl font-bold text-blue-600">{stats.answered_tickets}</div>
+              <div className="text-3xl font-bold text-yellow-500">{stats.answered_tickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Закрытых тикетов за всё время
               </p>
@@ -147,7 +147,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Проверено релизов</CardTitle>
-          <Icon name="Music" size={20} className="text-yellow-600" />
+          <Icon name="Music" size={20} className="text-purple-500" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -157,7 +157,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
             </div>
           ) : (
             <>
-              <div className="text-3xl font-bold text-yellow-600">{stats.reviewed_releases}</div>
+              <div className="text-3xl font-bold text-purple-500">{stats.reviewed_releases}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Проверенных релизов за всё время
               </p>
@@ -169,7 +169,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Треков на питчинг</CardTitle>
-          <Icon name="Send" size={20} className="text-purple-600" />
+          <Icon name="Send" size={20} className="text-blue-500" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -179,7 +179,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
             </div>
           ) : (
             <>
-              <div className="text-3xl font-bold text-purple-600">{stats.pitching_tracks}</div>
+              <div className="text-3xl font-bold text-blue-500">{stats.pitching_tracks}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Отправлено треков за всё время
               </p>
@@ -219,34 +219,34 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
                 <Line 
                   type="monotone" 
                   dataKey="tasks" 
-                  stroke="#16a34a" 
+                  stroke="#22c55e" 
                   strokeWidth={2}
                   name="Задачи"
-                  dot={{ fill: '#16a34a', r: 4 }}
+                  dot={{ fill: '#22c55e', r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="tickets" 
-                  stroke="#2563eb" 
+                  stroke="#eab308" 
                   strokeWidth={2}
                   name="Тикеты"
-                  dot={{ fill: '#2563eb', r: 4 }}
+                  dot={{ fill: '#eab308', r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="releases" 
-                  stroke="#ca8a04" 
+                  stroke="#a855f7" 
                   strokeWidth={2}
                   name="Релизы"
-                  dot={{ fill: '#ca8a04', r: 4 }}
+                  dot={{ fill: '#a855f7', r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="pitching" 
-                  stroke="#9333ea" 
+                  stroke="#3b82f6" 
                   strokeWidth={2}
                   name="Питчинг"
-                  dot={{ fill: '#9333ea', r: 4 }}
+                  dot={{ fill: '#3b82f6', r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
