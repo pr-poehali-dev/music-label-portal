@@ -184,7 +184,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
   const filteredReleases = releases.filter(filterByDate);
   const pendingReleases = filteredReleases.filter((r) => r.status === 'pending');
   const approvedReleases = filteredReleases.filter((r) => r.status === 'approved');
-  const rejectedReleases = filteredReleases.filter((r) => r.status === 'rejected');
+  const rejectedReleases = filteredReleases.filter((r) => r.status === 'rejected_fixable' || r.status === 'rejected_final');
 
   return (
     <div className="space-y-4 md:space-y-6 p-3 md:p-0">
