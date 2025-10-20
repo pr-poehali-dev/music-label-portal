@@ -39,18 +39,18 @@ interface ReleaseManagerViewProps {
 
 const getStatusBadge = (status: string) => {
   const variants: Record<string, { variant: any; text: string; icon: string }> = {
-    pending: { variant: 'secondary', text: 'На модерации', icon: 'Clock' },
-    approved: { variant: 'default', text: 'Одобрен', icon: 'CheckCircle' },
-    rejected_fixable: { variant: 'outline', text: 'Отклонён (можно исправить)', icon: 'Edit' },
-    rejected_final: { variant: 'destructive', text: 'Отклонён окончательно', icon: 'Ban' },
-    draft: { variant: 'secondary', text: 'Черновик', icon: 'FileEdit' }
+    pending: { variant: 'secondary', text: '⏳ На модерации', icon: 'Clock' },
+    approved: { variant: 'default', text: '✅ Одобрен', icon: 'CheckCircle' },
+    rejected_fixable: { variant: 'outline', text: '✏️ Отклонён (можно исправить)', icon: 'Edit' },
+    rejected_final: { variant: 'destructive', text: '🚫 Отклонён окончательно', icon: 'Ban' },
+    draft: { variant: 'secondary', text: '📝 Черновик', icon: 'FileEdit' }
   };
   const config = variants[status] || variants.pending;
   return (
     <Badge variant={config.variant} className="gap-0.5 text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">
       <Icon name={config.icon} size={10} className="flex-shrink-0 md:w-3 md:h-3" />
       <span className="truncate hidden md:inline">{config.text}</span>
-      <span className="md:hidden">{status === 'approved' ? '✓' : status.startsWith('rejected') ? '✗' : status === 'draft' ? '📝' : '⏳'}</span>
+      <span className="md:hidden">{status === 'approved' ? '✓' : status === 'rejected_fixable' ? '✏️' : status === 'rejected_final' ? '🚫' : status === 'draft' ? '📝' : '⏳'}</span>
     </Badge>
   );
 };

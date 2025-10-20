@@ -9,11 +9,11 @@ import type { Release } from './types';
 interface ReleaseDetailsDialogProps {
   release: Release | null;
   userRole: string;
-  reviewAction: 'approve' | 'reject' | null;
+  reviewAction: 'approved' | 'rejected_fixable' | 'rejected_final' | null;
   reviewComment: string;
   submitting: boolean;
   onClose: () => void;
-  onReviewActionChange: (action: 'approve' | 'reject' | null) => void;
+  onReviewActionChange: (action: 'approved' | 'rejected_fixable' | 'rejected_final' | null) => void;
   onReviewCommentChange: (comment: string) => void;
   onSubmitReview: () => void;
 }
@@ -75,7 +75,7 @@ export default function ReleaseDetailsDialog({
             <div className="border-t pt-4">
               <label className="text-xs md:text-sm font-medium mb-2 block flex items-center gap-2">
                 <Icon name="MessageSquare" size={14} />
-                Комментарий {reviewAction === 'reject' && <span className="text-red-500">(обязательно)</span>}
+                Комментарий {(reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && <span className="text-red-500">(обязательно)</span>}
               </label>
               <Textarea
                 placeholder="Ваш комментарий..."
@@ -103,36 +103,48 @@ export default function ReleaseDetailsDialog({
               </Button>
               <Button
                 onClick={onSubmitReview}
-                disabled={submitting || (reviewAction === 'reject' && !reviewComment)}
-                variant={reviewAction === 'approve' ? 'default' : 'destructive'}
+                disabled={submitting || ((reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && !reviewComment)}
+                variant={reviewAction === 'approved' ? 'default' : 'destructive'}
                 className="w-full md:w-auto"
               >
                 <Icon 
-                  name={submitting ? 'Loader2' : reviewAction === 'approve' ? 'CheckCircle' : 'XCircle'} 
+                  name={submitting ? 'Loader2' : reviewAction === 'approved' ? 'CheckCircle' : 'XCircle'} 
                   size={16} 
                   className={`mr-2 ${submitting ? 'animate-spin' : ''}`} 
                 />
-                {reviewAction === 'approve' ? 'Одобрить' : 'Отклонить'}
+                {reviewAction === 'approved' ? 'Одобрить' : reviewAction === 'rejected_fixable' ? 'Отклонить (можно исправить)' : 'Отклонить окончательно'}
               </Button>
             </>
           ) : (
-            <div className="flex flex-col md:flex-row gap-2 w-full">
+            <div className="flex flex-col gap-2 w-full">
               <Button
                 variant="default"
-                className="flex-1"
-                onClick={() => onReviewActionChange('approve')}
+                className="w-full"
+                onClick={() => onReviewActionChange('approved')}
               >
                 <Icon name="CheckCircle" size={16} className="mr-2" />
                 Одобрить
               </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={() => onReviewActionChange('reject')}
-              >
-                <Icon name="XCircle" size={16} className="mr-2" />
-                Отклонить
-              </Button>
+              <div className="flex flex-col md:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-orange-500 text-orange-600 hover:bg-orange-50"
+                  onClick={() => onReviewActionChange('rejected_fixable')}
+                >
+                  <Icon name="Edit" size={16} className="mr-2" />
+                  <span className="hidden md:inline">Отклонить (можно исправить)</span>
+                  <span className="md:hidden">Отклонить</span>
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => onReviewActionChange('rejected_final')}
+                >
+                  <Icon name="Ban" size={16} className="mr-2" />
+                  <span className="hidden md:inline">Отклонить окончательно</span>
+                  <span className="md:hidden">Окончательно</span>
+                </Button>
+              </div>
             </div>
           )}
         </DialogFooter>

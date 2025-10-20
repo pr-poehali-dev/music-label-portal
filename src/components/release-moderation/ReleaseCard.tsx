@@ -23,9 +23,11 @@ export default function ReleaseCard({
 }: ReleaseCardProps) {
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string; text: string; icon: string }> = {
-      pending: { className: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40', text: 'На модерации', icon: 'Clock' },
-      approved: { className: 'bg-green-500/20 text-green-300 border-green-500/40', text: 'Одобрен', icon: 'CheckCircle' },
-      rejected: { className: 'bg-red-500/20 text-red-300 border-red-500/40', text: 'Отклонён', icon: 'XCircle' }
+      pending: { className: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40', text: '⏳ На модерации', icon: 'Clock' },
+      approved: { className: 'bg-green-500/20 text-green-300 border-green-500/40', text: '✅ Одобрен', icon: 'CheckCircle' },
+      rejected_fixable: { className: 'bg-orange-500/20 text-orange-300 border-orange-500/40', text: '✏️ Отклонён (можно исправить)', icon: 'Edit' },
+      rejected_final: { className: 'bg-red-500/20 text-red-300 border-red-500/40', text: '🚫 Отклонён окончательно', icon: 'Ban' },
+      rejected: { className: 'bg-orange-500/20 text-orange-300 border-orange-500/40', text: '✏️ Отклонён', icon: 'Edit' }
     };
     const config = variants[status] || variants.pending;
     return (

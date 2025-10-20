@@ -282,6 +282,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body_data = json.loads(event.get('body', '{}'))
             release_id = body_data.get('release_id')
             action = body_data.get('action')
+            print(f"[PUT] Received action: {action}, release_id: {release_id}, user_role: {user.get('role')}")
             
             if action == 'fix_and_resubmit':
                 if user['role'] != 'artist':

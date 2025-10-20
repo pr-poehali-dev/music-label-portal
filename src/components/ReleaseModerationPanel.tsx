@@ -18,7 +18,7 @@ interface ReleaseModerationPanelProps {
 export default function ReleaseModerationPanel({ userId, userRole = 'manager' }: ReleaseModerationPanelProps) {
   const [releases, setReleases] = useState<Release[]>([]);
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
-  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null);
+  const [reviewAction, setReviewAction] = useState<'approved' | 'rejected_fixable' | 'rejected_final' | null>(null);
   const [reviewComment, setReviewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -93,11 +93,20 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
         })
       });
 
-      if (!response.ok) throw new Error('Failed to review release');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to review release');
+      }
+
+      const actionTexts: Record<string, string> = {
+        'approved': 'одобрен',
+        'rejected_fixable': 'отклонён (можно исправить)',
+        'rejected_final': 'отклонён окончательно'
+      };
 
       toast({
         title: 'Успешно',
-        description: `Релиз ${reviewAction === 'approve' ? 'одобрен' : 'отклонён'}`
+        description: `Релиз ${actionTexts[reviewAction] || reviewAction}`
       });
 
       setSelectedRelease(null);
@@ -107,7 +116,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
     } catch (error) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось выполнить действие',
+        description: error instanceof Error ? error.message : 'Не удалось выполнить действие',
         variant: 'destructive'
       });
     } finally {
