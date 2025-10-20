@@ -49,15 +49,18 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
     }
   }, []);
 
-  const { activeTasks, completedTasks } = useMemo(() => ({
-    activeTasks: tasks.filter(t => t.status !== 'completed'),
-    completedTasks: tasks.filter(t => t.status === 'completed')
-  }), [tasks]);
+  const { activeTasks, completedTasks } = useMemo(() => {
+    console.log('ManagerTasksView tasks:', tasks);
+    return {
+      activeTasks: tasks.filter(t => t.status !== 'completed'),
+      completedTasks: tasks.filter(t => t.status === 'completed')
+    };
+  }, [tasks]);
 
   return (
     <div className="space-y-4 md:space-y-6 p-3 md:p-0">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <h2 className="text-xl md:text-2xl font-bold">Мои задачи</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Мои задачи ({tasks.length} всего)</h2>
         <div className="flex gap-2 flex-wrap">
           <Badge variant="secondary">{activeTasks.length} активных</Badge>
           <Badge variant="outline">{completedTasks.length} выполнено</Badge>
