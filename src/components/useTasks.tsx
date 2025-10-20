@@ -162,16 +162,28 @@ export const useTasks = (user: any, ticketId?: number) => {
 
       // Upload file if provided
       if (completionFile) {
-        const formData = new FormData();
-        formData.append('file', completionFile);
-        formData.append('type', 'task_completion');
+        // Convert file to base64
+        const reader = new FileReader();
+        const fileBase64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            resolve(base64.split(',')[1]); // Remove data:mime;base64, prefix
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(completionFile);
+        });
 
         const uploadResponse = await fetch(`${API_URL}/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa`, {
           method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'X-User-Id': user.id.toString(),
           },
-          body: formData,
+          body: JSON.stringify({
+            file: fileBase64,
+            fileName: completionFile.name,
+            fileSize: completionFile.size,
+          }),
         });
 
         if (!uploadResponse.ok) throw new Error('Ошибка загрузки файла');
