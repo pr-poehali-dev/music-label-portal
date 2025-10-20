@@ -68,13 +68,8 @@ export const useReleaseManager = (userId: number) => {
       }
       
       const data = await response.json();
-      
-      // Сортировка по дате создания (новые сверху)
-      const sorted = Array.isArray(data) 
-        ? data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        : data;
-      
-      setReleases(sorted);
+      // Бэкенд уже возвращает отсортированные релизы (ORDER BY created_at DESC)
+      setReleases(data);
     } catch (error: any) {
       console.error('Failed to load releases:', error);
       if (error.name !== 'AbortError') {
