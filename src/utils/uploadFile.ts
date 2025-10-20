@@ -10,7 +10,7 @@ export interface UploadFileResult {
 }
 
 async function uploadLargeFile(file: File): Promise<UploadFileResult> {
-  const chunkSize = 4 * 1024 * 1024; // 4MB chunks - быстрее загрузка, меньше запросов
+  const chunkSize = 1.5 * 1024 * 1024; // 1.5MB chunks -> ~2MB в base64 (безопасно для 3.5MB лимита)
   const chunks: Blob[] = [];
   let offset = 0;
   
