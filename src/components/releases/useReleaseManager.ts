@@ -4,6 +4,7 @@ import { Track, Release, Pitching, API_URL, UPLOAD_URL } from './types';
 import { createNotification } from '@/hooks/useNotifications';
 import { uploadFile as uploadFileUtil } from '@/utils/uploadFile';
 import { API_ENDPOINTS } from '@/config/api';
+import { uploadGuard } from '@/utils/uploadGuard';
 
 const PITCHING_URL = API_ENDPOINTS.PITCHING;
 
@@ -244,13 +245,9 @@ export const useReleaseManager = (userId: number) => {
 
     setUploading(true);
     setUploadProgress(0);
-
-    // Блокируем HMR (hot module reload) на время загрузки
-    if (import.meta.hot) {
-      import.meta.hot.dispose(() => {
-        console.log('[Upload] HMR blocked during upload');
-      });
-    }
+    
+    // Активируем глобальную защиту от перезагрузки
+    uploadGuard.startUpload();
 
     try {
       setCurrentUploadFile('Обложка');
@@ -387,6 +384,7 @@ export const useReleaseManager = (userId: number) => {
       });
     } finally {
       setUploading(false);
+      uploadGuard.endUpload();
     }
   }, [newRelease, coverFile, tracks, userId, editingRelease, toast, loadReleases]);
 
