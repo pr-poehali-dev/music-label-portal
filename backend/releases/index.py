@@ -158,6 +158,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute(query, params_list)
             releases = cur.fetchall()
             
+            # Логируем порядок релизов
+            print(f"[GET /releases] Returning {len(releases)} releases in order:")
+            for r in releases[:5]:  # Первые 5
+                print(f"  ID={r['id']} name='{r['release_name']}' created_at={r['created_at']}")
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

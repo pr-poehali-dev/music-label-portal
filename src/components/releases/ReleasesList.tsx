@@ -29,9 +29,9 @@ const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBad
   }, []);
 
   return (
-    <div className="columns-1 md:columns-2 lg:columns-4 gap-2 md:gap-3 space-y-2 md:space-y-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
       {releases.map((release) => (
-        <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow break-inside-avoid mb-2 md:mb-3">
+        <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow">
           <div className="flex md:flex-col items-start gap-2 md:gap-3 p-2 md:p-3">
             <div className="relative group flex-shrink-0 w-14 md:w-full">
               <div className="w-14 md:w-full aspect-square rounded overflow-hidden bg-muted">
