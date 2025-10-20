@@ -47,9 +47,10 @@ export const useUsers = (user: User | null) => {
         
         // Notify directors about new user registration
         try {
+          const roleLabel = data.role === 'artist' ? 'артист' : data.role === 'manager' ? 'менеджер' : 'пользователь';
           await createNotification({
             title: '🎉 Новый пользователь',
-            message: `Зарегистрирован новый ${newUser.role === 'artist' ? 'артист' : newUser.role === 'manager' ? 'менеджер' : 'пользователь'}: ${newUser.full_name} (@${newUser.username})`,
+            message: `Зарегистрирован новый ${roleLabel}: ${data.full_name} (@${data.username})`,
             type: 'user_registration',
             related_entity_type: 'user',
             related_entity_id: data.user_id
@@ -73,7 +74,6 @@ export const useUsers = (user: User | null) => {
   const updateUser = useCallback(async (userId: number, userData: Partial<User>) => {
     try {
       const payload = { id: userId, ...userData };
-      console.log('updateUser payload:', payload);
       const response = await fetch(API_URLS.users, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

@@ -210,9 +210,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         import bcrypt
         password_hash = bcrypt.hashpw('12345'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
-        # Log hash for debugging
-        print(f"Generated password hash for user {username}: {password_hash}")
-        
         try:
             cur.execute(
                 '''INSERT INTO users (username, password_hash, role, full_name, revenue_share_percent)
@@ -229,7 +226,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
-                'body': json.dumps({'id': user_id, 'message': 'User created', 'username': username})
+                'body': json.dumps({
+                    'user_id': user_id,
+                    'username': username,
+                    'full_name': full_name,
+                    'role': role,
+                    'message': 'User created'
+                })
             }
         except psycopg2.errors.UniqueViolation:
             conn.rollback()
@@ -244,7 +247,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'PUT':
         body_data = json.loads(event.get('body', '{}'))
-        print(f"PUT request body_data: {body_data}")
         user_id = body_data.get('id')
         
         if not user_id:
