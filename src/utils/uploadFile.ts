@@ -88,10 +88,10 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
       
       if (i === 0) {
         s3Key = result.s3Key;
-        finalUrl = result.url;
       }
       
       if (i === totalChunks - 1) {
+        finalUrl = result.url;
         console.log('[Upload] ✅ All chunks uploaded successfully:', finalUrl);
       }
     }
