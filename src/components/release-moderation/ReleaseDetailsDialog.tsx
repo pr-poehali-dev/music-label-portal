@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -80,9 +81,9 @@ export default function ReleaseDetailsDialog({
 }: ReleaseDetailsDialogProps) {
   if (!release) return null;
 
-  const [rejectionType, setRejectionType] = React.useState<'rejected_fixable' | 'rejected_final'>('rejected_fixable');
+  const [rejectionType, setRejectionType] = useState<'rejected_fixable' | 'rejected_final'>('rejected_fixable');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') {
       setRejectionType(reviewAction);
     }
