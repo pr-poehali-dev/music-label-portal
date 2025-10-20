@@ -405,53 +405,64 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
               </Button>
             </div>
           )}
-          <div className="flex gap-1.5 md:gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setSelectedFile(file);
-                }
-              }}
-              className="hidden"
-              id="comment-file-upload"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={sending || uploading}
-              className="h-[60px] w-[40px] md:h-[80px] md:w-[50px] shrink-0"
-            >
-              <Icon name="Paperclip" size={18} className="md:size-5" />
-            </Button>
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Сообщение..."
-              className="min-h-[60px] md:min-h-[80px] resize-none text-sm"
-              disabled={sending || uploading}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendComment();
-                }
-              }}
-            />
-            <Button 
-              onClick={sendComment} 
-              disabled={!newComment.trim() || sending || uploading}
-              className="shrink-0 h-[60px] w-[40px] md:h-[80px] md:w-[50px]"
-              size="icon"
-            >
-              <Icon name={sending || uploading ? "Loader2" : "Send"} size={18} className={`md:size-5 ${sending || uploading ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-          <p className="text-[10px] md:text-xs text-muted-foreground mt-1 md:mt-2">
-            {uploading ? 'Загрузка файла...' : 'Enter — отправить, Shift+Enter — новая строка'}
-          </p>
+          {ticket.status === 'closed' && currentUserRole !== 'director' ? (
+            <div className="bg-muted/50 rounded-lg p-3 md:p-4 text-center">
+              <Icon name="Lock" size={24} className="mx-auto mb-2 text-muted-foreground/50" />
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Тикет закрыт. Только руководитель может вернуть его в работу.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-1.5 md:gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFile(file);
+                    }
+                  }}
+                  className="hidden"
+                  id="comment-file-upload"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={sending || uploading}
+                  className="h-[60px] w-[40px] md:h-[80px] md:w-[50px] shrink-0"
+                >
+                  <Icon name="Paperclip" size={18} className="md:size-5" />
+                </Button>
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Сообщение..."
+                  className="min-h-[60px] md:min-h-[80px] resize-none text-sm"
+                  disabled={sending || uploading}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendComment();
+                    }
+                  }}
+                />
+                <Button 
+                  onClick={sendComment} 
+                  disabled={!newComment.trim() || sending || uploading}
+                  className="shrink-0 h-[60px] w-[40px] md:h-[80px] md:w-[50px]"
+                  size="icon"
+                >
+                  <Icon name={sending || uploading ? "Loader2" : "Send"} size={18} className={`md:size-5 ${sending || uploading ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 md:mt-2">
+                {uploading ? 'Загрузка файла...' : 'Enter — отправить, Shift+Enter — новая строка'}
+              </p>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
