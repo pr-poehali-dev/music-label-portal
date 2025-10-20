@@ -24,7 +24,7 @@ export const useReleaseManager = (userId: number) => {
     preorder_date: '',
     sales_start_date: '',
     genre: '',
-    copyright: '',
+    copyright: '420smm',
     price_category: '0.99',
     title_language: 'Русский'
   });
@@ -173,7 +173,6 @@ export const useReleaseManager = (userId: number) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         track.preview_url = e.target?.result as string;
-        setTracks(prev => [...prev]);
       };
       reader.readAsDataURL(file);
 

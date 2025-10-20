@@ -225,8 +225,9 @@ export default function ReleaseForm({
                 <Input
                   placeholder="© 2024 Artist Name"
                   value={newRelease.copyright}
-                  onChange={(e) => setNewRelease({ ...newRelease, copyright: e.target.value })}
-                  className="h-9"
+                  readOnly
+                  disabled
+                  className="h-9 bg-muted cursor-not-allowed"
                 />
               </div>
               <div>
