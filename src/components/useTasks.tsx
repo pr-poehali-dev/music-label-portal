@@ -35,13 +35,20 @@ export const useTasks = (user: any, ticketId?: number) => {
   const [loading, setLoading] = useState(false);
 
   const loadTasks = useCallback(async () => {
-    if (!user?.token) return;
+    console.log('loadTasks called, user:', user);
+    if (!user?.token) {
+      console.log('No user token, skipping load');
+      return;
+    }
 
     setLoading(true);
     try {
       const url = ticketId 
         ? `${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890?ticket_id=${ticketId}`
         : `${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`;
+
+      console.log('Fetching tasks from:', url);
+      console.log('With headers:', { 'X-User-Id': user.id, 'X-Auth-Token': '***' });
 
       const response = await fetch(url, {
         headers: {
@@ -50,7 +57,13 @@ export const useTasks = (user: any, ticketId?: number) => {
         },
       });
 
-      if (!response.ok) throw new Error('Ошибка загрузки задач');
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error('Ошибка загрузки задач');
+      }
 
       const data = await response.json();
       console.log('useTasks received data:', data);
