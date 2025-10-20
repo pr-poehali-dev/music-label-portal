@@ -67,7 +67,12 @@ export default function ReleasePlayer({ releaseId }: ReleasePlayerProps) {
 
   const loadTracks = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}?release_id=${releaseId}`);
+      const userId = localStorage.getItem('userId');
+      const response = await fetch(`${API_URL}?release_id=${releaseId}`, {
+        headers: {
+          'X-User-Id': userId || ''
+        }
+      });
       const data = await response.json();
       setTracks(Array.isArray(data) ? data : (data.tracks || []));
     } catch (error) {
