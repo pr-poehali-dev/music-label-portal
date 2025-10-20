@@ -50,22 +50,36 @@ async function uploadInChunks(file: File): Promise<UploadFileResult> {
   // Merge chunks
   console.log(`[Upload] Merging ${uploadedChunks.length} chunks...`);
   
-  const mergeResponse = await fetch(UPLOAD_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'merge',
-      chunks: uploadedChunks,
-      fileName: file.name,
-      fileSize: file.size
-    })
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000); // 60 секунд на merge
   
-  if (!mergeResponse.ok) {
-    throw new Error('Не удалось объединить файл');
+  try {
+    const mergeResponse = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'merge',
+        chunks: uploadedChunks,
+        fileName: file.name,
+        fileSize: file.size
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    
+    if (!mergeResponse.ok) {
+      throw new Error('Не удалось объединить файл');
+    }
+    
+    return await mergeResponse.json();
+  } catch (error) {
+    clearTimeout(timeout);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Таймаут при склеивании файла. Попробуйте ещё раз.');
+    }
+    throw error;
   }
-  
-  return await mergeResponse.json();
 }
 
 export async function uploadFile(file: File): Promise<UploadFileResult> {
