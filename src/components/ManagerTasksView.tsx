@@ -8,9 +8,10 @@ import { Task } from '@/components/useTasks';
 interface ManagerTasksViewProps {
   tasks: Task[];
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onDeleteTask: (taskId: number) => Promise<boolean>;
 }
 
-const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus }: ManagerTasksViewProps) {
+const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateTaskStatus, onDeleteTask }: ManagerTasksViewProps) {
   const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case 'urgent': return 'destructive';
@@ -192,6 +193,15 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
                           </div>
                         )}
                       </div>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onDeleteTask(task.id)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Icon name="Trash2" size={14} />
+                      </Button>
                     </div>
                   </Card>
                 ))}

@@ -105,6 +105,7 @@ export default function Index() {
         onLoadTickets={loadTickets}
         onDeleteTicket={deleteTicket}
         onUpdateTaskStatus={updateTaskStatus}
+        onDeleteTask={deleteTask}
         onMessagesOpenChange={setMessagesOpen}
         onUpdateUser={handleUpdateProfile}
         onLogout={logout}

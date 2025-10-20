@@ -28,6 +28,7 @@ interface ManagerViewProps {
   onLoadTickets: () => void;
   onDeleteTicket: (ticketId: number) => void;
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
+  onDeleteTask: (taskId: number) => Promise<boolean>;
   onMessagesOpenChange: (open: boolean) => void;
   onUpdateUser: (updates: Partial<User>) => void;
   onLogout: () => void;
@@ -47,6 +48,7 @@ export default function ManagerView({
   onLoadTickets,
   onDeleteTicket,
   onUpdateTaskStatus,
+  onDeleteTask,
   onMessagesOpenChange,
   onUpdateUser,
   onLogout,
@@ -129,6 +131,7 @@ export default function ManagerView({
             <ManagerTasksView 
               tasks={tasks}
               onUpdateTaskStatus={onUpdateTaskStatus}
+              onDeleteTask={onDeleteTask}
             />
           </TabsContent>
 
