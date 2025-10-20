@@ -116,7 +116,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if ticket_id:
                 query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
-                           t.created_by, t.assigned_to, t.deadline, t.ticket_id,
+                           t.created_by, t.assigned_to, 
+                           CASE WHEN EXTRACT(YEAR FROM t.deadline) > 2100 THEN NULL ELSE t.deadline END as deadline, 
+                           t.ticket_id,
                            t.created_at, t.completed_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
                            tk.title as ticket_title
@@ -130,7 +132,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             elif user_role == 'manager':
                 query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
-                           t.created_by, t.assigned_to, t.deadline, t.ticket_id,
+                           t.created_by, t.assigned_to, 
+                           CASE WHEN EXTRACT(YEAR FROM t.deadline) > 2100 THEN NULL ELSE t.deadline END as deadline, 
+                           t.ticket_id,
                            t.created_at, t.completed_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
                            tk.title as ticket_title
@@ -146,7 +150,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
-                           t.created_by, t.assigned_to, t.deadline, t.ticket_id,
+                           t.created_by, t.assigned_to, 
+                           CASE WHEN EXTRACT(YEAR FROM t.deadline) > 2100 THEN NULL ELSE t.deadline END as deadline, 
+                           t.ticket_id,
                            t.created_at, t.completed_at, t.archived_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
                            tk.title as ticket_title
