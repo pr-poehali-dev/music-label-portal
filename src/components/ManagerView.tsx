@@ -121,7 +121,7 @@ export default function ManagerView({
               </TabsTrigger>
               <TabsTrigger value="submissions" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="ClipboardList" className="w-4 h-4 text-blue-500" />
-                <span>Заявки</span>
+                <span>Питчинг</span>
               </TabsTrigger>
             </TabsList>
           </div>
