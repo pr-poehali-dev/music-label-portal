@@ -239,20 +239,37 @@ export const useReleaseManager = (userId: number) => {
           throw new Error(`Трек ${track.track_number}: файл отсутствует`);
         }
         
-        setCurrentUploadFile(`Трек ${index + 1}/${tracks.length}: ${track.title || track.file.name}`);
-        const trackData = await uploadFile(track.file);
-        
-        if (!trackData) {
-          throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
+        const fileSizeMB = track.file.size / 1024 / 1024;
+        if (fileSizeMB > 100) {
+          toast({
+            title: `❌ Файл слишком большой`,
+            description: `Трек "${track.title || track.file.name}" (${fileSizeMB.toFixed(2)}МБ) превышает лимит 100МБ`,
+            variant: 'destructive'
+          });
+          throw new Error(`Трек ${track.track_number}: превышен лимит размера`);
         }
         
-        uploadedTracks.push({
-          ...track,
-          file_url: trackData.url,
-          file_name: trackData.fileName,
-          file_size: trackData.fileSize,
-          file: undefined
-        });
+        setCurrentUploadFile(`Трек ${index + 1}/${tracks.length}: ${track.title || track.file.name}`);
+        
+        try {
+          const trackData = await uploadFile(track.file);
+          
+          if (!trackData) {
+            throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
+          }
+          
+          uploadedTracks.push({
+            ...track,
+            file_url: trackData.url,
+            file_name: trackData.fileName,
+            file_size: trackData.fileSize,
+            file: undefined
+          });
+        } catch (uploadError: any) {
+          const fileSize = (track.file.size / 1024 / 1024).toFixed(2);
+          console.error(`Track upload failed: ${track.title}, size: ${fileSize}MB`, uploadError);
+          throw new Error(`Трек "${track.title || track.file.name}" (${fileSize}МБ): ${uploadError.message || 'не удалось загрузить'}`);
+        }
       }
 
       const response = await fetch(API_URL, {
