@@ -79,6 +79,9 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
 
 export async function uploadFile(file: File): Promise<UploadFileResult> {
   const maxSize = 100 * 1024 * 1024;
+  const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+  
+  console.log(`[Upload] File: ${file.name}, Size: ${fileSizeMB}MB`);
   
   if (file.size > maxSize) {
     throw new Error('Размер файла превышает 100MB');
@@ -86,8 +89,11 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
   
   // Для файлов больше 4MB используем chunked upload
   if (file.size > 4 * 1024 * 1024) {
+    console.log(`[Upload] Using chunked upload for ${file.name} (${fileSizeMB}MB)`);
     return uploadLargeFile(file);
   }
+  
+  console.log(`[Upload] Using direct upload for ${file.name} (${fileSizeMB}MB)`);
 
   try {
     const base64Data = await new Promise<string>((resolve, reject) => {
