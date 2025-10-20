@@ -22,6 +22,7 @@ interface Task {
   completion_attachment_url?: string;
   completion_attachment_name?: string;
   completion_attachment_size?: number;
+  archived_at?: string | null;
 }
 
 interface TaskListSectionProps {
@@ -62,36 +63,33 @@ export default function TaskListSection({
   getStatusText
 }: TaskListSectionProps) {
   const [filter, setFilter] = useState<FilterType>('all');
-  const [showDeleted, setShowDeleted] = useState(false);
 
   const isOverdue = (task: Task) => {
     if (!task.deadline || task.status === 'completed') return false;
     return new Date(task.deadline) < new Date();
   };
 
-  const allTasks = showDeleted ? tasks : tasks.filter(t => t.status !== 'deleted');
+  const allTasks = tasks.filter(t => !t.archived_at);
 
   const filteredTasks = useMemo(() => {
-    const tasksToFilter = showDeleted ? tasks : allTasks;
-    
     switch (filter) {
       case 'in_progress':
-        return tasksToFilter.filter(t => t.status === 'in_progress');
+        return allTasks.filter(t => t.status === 'in_progress');
       case 'completed':
-        return tasksToFilter.filter(t => t.status === 'completed');
+        return allTasks.filter(t => t.status === 'completed');
       case 'overdue':
-        return tasksToFilter.filter(t => isOverdue(t));
+        return allTasks.filter(t => isOverdue(t));
       case 'deleted':
-        return tasks.filter(t => t.status === 'deleted');
+        return tasks.filter(t => t.archived_at);
       default:
-        return tasksToFilter;
+        return allTasks;
     }
-  }, [tasks, filter, showDeleted, allTasks]);
+  }, [tasks, filter, allTasks]);
 
   const overdueTasks = allTasks.filter(t => isOverdue(t));
   const inProgressTasks = allTasks.filter(t => t.status === 'in_progress');
   const completedTasks = allTasks.filter(t => t.status === 'completed');
-  const deletedTasks = tasks.filter(t => t.status === 'deleted');
+  const deletedTasks = tasks.filter(t => t.archived_at);
 
   return (
     <div className="border-primary/20 bg-card/95 rounded-lg border">
@@ -149,10 +147,7 @@ export default function TaskListSection({
               Просроченные ({overdueTasks.length})
             </button>
             <button
-              onClick={() => {
-                setFilter('deleted');
-                setShowDeleted(true);
-              }}
+              onClick={() => setFilter('deleted')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filter === 'deleted'
                   ? 'bg-gray-500 text-white'
@@ -182,8 +177,8 @@ export default function TaskListSection({
                 onComplete={onComplete}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onRestore={task.status === 'deleted' ? onRestore : undefined}
-                onPermanentDelete={task.status === 'deleted' ? onPermanentDelete : undefined}
+                onRestore={task.archived_at ? onRestore : undefined}
+                onPermanentDelete={task.archived_at ? onPermanentDelete : undefined}
                 getPriorityColor={getPriorityColor}
                 getPriorityText={getPriorityText}
                 getStatusColor={getStatusColor}

@@ -144,18 +144,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         t.deadline ASC NULLS LAST
                 """
             else:
-                status_filter = "t.archived_at IS NOT NULL" if show_deleted else "t.archived_at IS NULL"
                 query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
                            t.created_by, t.assigned_to, t.deadline, t.ticket_id,
-                           t.created_at, t.completed_at,
+                           t.created_at, t.completed_at, t.archived_at,
                            u1.full_name as creator_name, u2.full_name as assignee_name,
                            tk.title as ticket_title
                     FROM tasks t
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
-                    WHERE {status_filter}
                     ORDER BY t.created_at DESC
                     LIMIT 100
                 """
@@ -168,7 +166,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             tasks_list = []
             for task in tasks:
-                tasks_list.append({
+                task_dict = {
                     'id': task[0],
                     'title': task[1],
                     'description': task[2],
@@ -180,10 +178,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'ticket_id': task[8],
                     'created_at': task[9].isoformat() if task[9] else None,
                     'completed_at': task[10].isoformat() if task[10] else None,
-                    'creator_name': task[11],
-                    'assignee_name': task[12],
-                    'ticket_title': task[13]
-                })
+                }
+                
+                # Add archived_at if present (director query)
+                if len(task) > 11:
+                    if len(task) > 13:
+                        task_dict['archived_at'] = task[11].isoformat() if task[11] else None
+                        task_dict['creator_name'] = task[12]
+                        task_dict['assignee_name'] = task[13]
+                        task_dict['ticket_title'] = task[14] if len(task) > 14 else None
+                    else:
+                        task_dict['creator_name'] = task[11]
+                        task_dict['assignee_name'] = task[12]
+                        task_dict['ticket_title'] = task[13] if len(task) > 13 else None
+                
+                tasks_list.append(task_dict)
             
             return {
                 'statusCode': 200,

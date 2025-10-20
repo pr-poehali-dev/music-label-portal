@@ -29,6 +29,7 @@ interface Task {
   completion_attachment_url?: string;
   completion_attachment_name?: string;
   completion_attachment_size?: number;
+  archived_at?: string | null;
 }
 
 export function useTaskManagement(managers: User[]) {
@@ -54,7 +55,6 @@ export function useTaskManagement(managers: User[]) {
   const [completionReport, setCompletionReport] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [showDeleted, setShowDeleted] = useState(false);
   const { toast } = useToast();
 
   const loadTasks = async () => {
@@ -62,8 +62,7 @@ export function useTaskManagement(managers: User[]) {
       const token = localStorage.getItem('auth_token') || 'director-token';
       const userId = localStorage.getItem('user_id') || '1';
       
-      const url = showDeleted ? `${API_URL}?show_deleted=true` : API_URL;
-      const response = await fetch(url, {
+      const response = await fetch(API_URL, {
         headers: {
           'X-User-Id': userId,
           'X-Auth-Token': token
@@ -408,8 +407,6 @@ export function useTaskManagement(managers: User[]) {
     completionReport,
     selectedFile,
     uploading,
-    showDeleted,
-    setShowDeleted,
     setNewTask,
     setEditForm,
     setIsEditDialogOpen,
