@@ -5,93 +5,17 @@ import uuid
 from typing import Dict, Any
 import boto3
 from datetime import datetime
-
-def merge_chunks(body_data: Dict[str, Any]) -> Dict[str, Any]:
-    '''
-    Merge uploaded file chunks into single file
-    '''
-    try:
-        chunks = body_data.get('chunks', [])
-        file_name = body_data.get('fileName')
-        file_size = body_data.get('fileSize', 0)
-        
-        access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
-        secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
-        bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
-        
-        s3_client = boto3.client(
-            's3',
-            endpoint_url='https://storage.yandexcloud.net',
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            region_name='ru-central1'
-        )
-        
-        # Скачиваем и объединяем все части
-        merged_data = b''
-        today_prefix = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/"
-        
-        for chunk_short_key in chunks:
-            # Если пришёл только короткий ключ (имя файла), добавляем путь
-            if not chunk_short_key.startswith('uploads/'):
-                chunk_key = today_prefix + chunk_short_key
-            else:
-                chunk_key = chunk_short_key
-            
-            print(f"Downloading chunk: {chunk_key}")
-            obj = s3_client.get_object(Bucket=bucket_name, Key=chunk_key)
-            merged_data += obj['Body'].read()
-            # Удаляем временный chunk
-            s3_client.delete_object(Bucket=bucket_name, Key=chunk_key)
-        
-        # Загружаем объединённый файл
-        file_ext = file_name.split('.')[-1] if '.' in file_name else ''
-        unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
-        s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
-        
-        content_type = 'audio/wav' if file_ext.lower() == 'wav' else 'application/octet-stream'
-        
-        s3_client.put_object(
-            Bucket=bucket_name,
-            Key=s3_key,
-            Body=merged_data,
-            ContentType=content_type
-        )
-        
-        file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
-        
-        print(f"Merged file uploaded: {file_url}")
-        
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'isBase64Encoded': False,
-            'body': json.dumps({
-                'url': file_url,
-                'fileName': file_name,
-                'fileSize': file_size,
-                's3Key': s3_key
-            })
-        }
-    except Exception as e:
-        print(f"Merge error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'isBase64Encoded': False,
-            'body': json.dumps({'error': f'Merge failed: {str(e)}'})
-        }
+import cgi
+from io import BytesIO
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Upload files to S3 with chunked upload support for large files
-    Args: event - dict with httpMethod, body (base64 encoded file or merge request)
+    Business: Upload files to S3 storage (images, audio, documents)
+    Args: event - dict with httpMethod, body (multipart/form-data), headers
           context - object with request_id
-    Returns: HTTP response with file URL
+    Returns: HTTP response with S3 URL
     '''
-    method: str = event.get('httpMethod', 'POST')
+    method: str = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
         return {
@@ -99,11 +23,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token, X-Session-Id',
+                'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': '',
-            'isBase64Encoded': False
+            'body': ''
         }
     
     if method != 'POST':
@@ -115,120 +38,73 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     try:
-        body_str = event.get('body', '{}')
-        if not body_str or body_str.strip() == '':
-            body_str = '{}'
-        body_data = json.loads(body_str)
+        headers = event.get('headers', {})
+        content_type = headers.get('content-type') or headers.get('Content-Type', '')
         
-        # Проверяем action для merge chunks
-        action = body_data.get('action')
-        
-        if action == 'merge':
-            return merge_chunks(body_data)
-        
-        file_content = body_data.get('file')
-        file_name = body_data.get('fileName')
-        file_size = body_data.get('fileSize', 0)
-        is_chunk = body_data.get('isChunk', False)
-        
-        print(f"Upload request: fileName={file_name}, fileSize={file_size}, isChunk={is_chunk}")
-        
-        if not file_content or not file_name:
-            print(f"Missing data: file_content={bool(file_content)}, file_name={file_name}")
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Missing file or fileName'})
+        # Проверяем тип запроса
+        if 'multipart/form-data' in content_type:
+            # Новый способ: multipart/form-data
+            body = event.get('body', '')
+            is_base64 = event.get('isBase64Encoded', False)
+            
+            if is_base64:
+                body_bytes = base64.b64decode(body)
+            else:
+                body_bytes = body.encode('utf-8') if isinstance(body, str) else body
+            
+            # Парсим multipart
+            boundary = content_type.split('boundary=')[-1]
+            environ = {
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': content_type,
+                'CONTENT_LENGTH': str(len(body_bytes))
             }
-        
-        # Handle chunk upload - store chunk and return s3Key immediately
-        if is_chunk:
-            chunk_index = body_data.get('chunkIndex', 0)
-            total_chunks = body_data.get('totalChunks', 1)
-            original_file_name = body_data.get('originalFileName', file_name)
             
-            print(f"Chunk upload: {chunk_index + 1}/{total_chunks} for {original_file_name}")
+            fp = BytesIO(body_bytes)
+            form = cgi.FieldStorage(fp=fp, environ=environ, headers={'content-type': content_type})
             
-            # Process chunk immediately and return s3Key
-            access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
-            secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
-            bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
-            
-            if not all([access_key, secret_key, bucket_name]):
+            if 'file' not in form:
                 return {
-                    'statusCode': 500,
+                    'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'isBase64Encoded': False,
-                    'body': json.dumps({'error': 'S3 credentials not configured'})
+                    'body': json.dumps({'error': 'No file provided'})
                 }
             
-            s3_client = boto3.client(
-                's3',
-                endpoint_url='https://storage.yandexcloud.net',
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                region_name='ru-central1'
-            )
+            file_item = form['file']
+            file_data = file_item.file.read()
+            file_name = form.getvalue('fileName', file_item.filename)
+            file_size = len(file_data)
             
-            # Decode and upload chunk
-            if file_content.startswith('data:'):
-                file_content = file_content.split(',', 1)[1]
+        else:
+            # Старый способ: JSON с base64
+            body_data = json.loads(event.get('body', '{}'))
             
-            file_bytes = base64.b64decode(file_content)
+            file_b64 = body_data.get('file', '')
+            if not file_b64:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'No file data provided'})
+                }
             
-            file_ext = file_name.split('.')[-1] if '.' in file_name else ''
-            unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
-            s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
+            file_name = body_data.get('fileName', 'unnamed')
             
-            content_type = 'audio/wav' if file_ext.lower() == 'wav' else 'application/octet-stream'
+            # Декодируем base64
+            if ',' in file_b64:
+                file_b64 = file_b64.split(',', 1)[1]
             
-            print(f"Uploading chunk to S3: {s3_key}, size={len(file_bytes)} bytes")
-            
-            s3_client.put_object(
-                Bucket=bucket_name,
-                Key=s3_key,
-                Body=file_bytes,
-                ContentType=content_type
-            )
-            
-            file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
-            print(f"Chunk upload successful: {file_url}")
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({
-                    'url': file_url,
-                    'fileName': file_name,
-                    'fileSize': file_size,
-                    's3Key': s3_key
-                })
-            }
+            file_data = base64.b64decode(file_b64)
+            file_size = len(file_data)
         
-        if file_size > 100 * 1024 * 1024:
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'File size exceeds 100MB limit'})
-            }
+        print(f"Upload request: fileName={file_name}, fileSize={file_size}")
         
-        # Загружаем файл в Yandex Object Storage (S3)
+        # Загружаем в S3
         access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
         secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
         bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
         
-        if not all([access_key, secret_key, bucket_name]):
-            return {
-                'statusCode': 500,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'S3 credentials not configured'})
-            }
-        
-        # Создаём S3 клиент для Yandex Cloud
         s3_client = boto3.client(
             's3',
             endpoint_url='https://storage.yandexcloud.net',
@@ -237,46 +113,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             region_name='ru-central1'
         )
         
-        # Генерируем уникальное имя файла
         file_ext = file_name.split('.')[-1] if '.' in file_name else ''
         unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
         s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
         
-        # Декодируем base64 и загружаем в S3
-        if file_content.startswith('data:'):
-            file_content = file_content.split(',', 1)[1]
+        # Определяем content-type
+        content_type_map = {
+            'wav': 'audio/wav',
+            'mp3': 'audio/mpeg',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'gif': 'image/gif',
+            'pdf': 'application/pdf'
+        }
+        file_content_type = content_type_map.get(file_ext.lower(), 'application/octet-stream')
         
-        file_bytes = base64.b64decode(file_content)
-        
-        # Определяем Content-Type
-        content_type = 'application/octet-stream'
-        if file_ext.lower() in ['jpg', 'jpeg']:
-            content_type = 'image/jpeg'
-        elif file_ext.lower() == 'png':
-            content_type = 'image/png'
-        elif file_ext.lower() == 'gif':
-            content_type = 'image/gif'
-        elif file_ext.lower() == 'pdf':
-            content_type = 'application/pdf'
-        elif file_ext.lower() == 'mp3':
-            content_type = 'audio/mpeg'
-        elif file_ext.lower() == 'wav':
-            content_type = 'audio/wav'
-        elif file_ext.lower() == 'flac':
-            content_type = 'audio/flac'
-        elif file_ext.lower() == 'm4a':
-            content_type = 'audio/mp4'
-        
-        print(f"Uploading to S3: {s3_key}, size={len(file_bytes)} bytes")
+        print(f"Uploading to S3: {s3_key}, size={file_size} bytes, type={file_content_type}")
         
         s3_client.put_object(
             Bucket=bucket_name,
             Key=s3_key,
-            Body=file_bytes,
-            ContentType=content_type
+            Body=file_data,
+            ContentType=file_content_type
         )
         
-        # Формируем публичный URL
         file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
         
         print(f"Upload successful: {file_url}")
@@ -287,16 +148,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False,
             'body': json.dumps({
                 'url': file_url,
+                's3Key': s3_key,
                 'fileName': file_name,
-                'fileSize': file_size,
-                's3Key': s3_key
+                'fileSize': file_size
             })
         }
         
     except Exception as e:
-        print(f"Upload error: {str(e)}")
+        print(f"Upload error: {e}")
         import traceback
         traceback.print_exc()
+        
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

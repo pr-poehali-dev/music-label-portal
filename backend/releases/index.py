@@ -157,7 +157,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Only artists can create releases'})
                 }
             
-            body_data = json.loads(event.get('body', '{}'))
+            try:
+                body_data = json.loads(event.get('body', '{}'))
+            except Exception as e:
+                print(f"Failed to parse body: {e}")
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': f'Invalid JSON: {str(e)}'})
+                }
             
             genre = body_data.get('genre')
             if genre == '' or genre == '0':
