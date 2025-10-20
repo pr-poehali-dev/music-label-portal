@@ -97,6 +97,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         headers = event.get('headers', {})
         content_type = headers.get('content-type') or headers.get('Content-Type', '')
         
+        # Initialize chunking variables
+        chunk_index = None
+        total_chunks = None
+        existing_s3_key = None
+        upload_content_type = None
+        
         # Parse multipart or base64
         if 'multipart/form-data' in content_type:
             body = event.get('body', '')
