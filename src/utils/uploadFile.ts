@@ -10,7 +10,7 @@ export interface UploadFileResult {
 }
 
 async function uploadLargeFile(file: File): Promise<UploadFileResult> {
-  const chunkSize = 3 * 1024 * 1024; // 3MB chunks (will be ~4MB as base64)
+  const chunkSize = 2 * 1024 * 1024; // 2MB chunks (will be ~2.7MB as base64)
   const chunks: Blob[] = [];
   let offset = 0;
   
@@ -48,8 +48,17 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to upload chunk ${i + 1}`);
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error(`[Upload] Chunk ${i + 1}/${chunks.length} failed:`, response.status, errorText);
+      
+      if (response.status === 413) {
+        throw new Error(`Файл слишком большой. Попробуйте сжать WAV или конвертировать в MP3`);
+      }
+      
+      throw new Error(`Ошибка загрузки части ${i + 1}/${chunks.length}`);
     }
+    
+    console.log(`[Upload] Chunk ${i + 1}/${chunks.length} uploaded successfully`);
     
     const data = await response.json();
     uploadedChunks.push(data.s3Key);
