@@ -173,6 +173,7 @@ export default function ArtistView({
                   freezeUntil: user.frozen_until || ''
                 }}
                 onUpdateProfile={onUpdateUser}
+                onClose={() => setShowProfile(false)}
               />
             </div>
           </div>

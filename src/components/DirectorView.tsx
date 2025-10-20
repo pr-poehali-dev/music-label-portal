@@ -135,6 +135,7 @@ export default function DirectorView({
                   freezeUntil: user.frozen_until || ''
                 }}
                 onUpdateProfile={(updates) => onUpdateUser(user.id, updates)}
+                onClose={() => setShowProfile(false)}
               />
             </div>
           </div>

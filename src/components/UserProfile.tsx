@@ -8,13 +8,15 @@ import { PasswordChangeForm } from './UserProfile/PasswordChangeForm';
 import { useToast } from '@/hooks/use-toast';
 import { uploadFile } from '@/utils/uploadFile';
 import { API_ENDPOINTS } from '@/config/api';
+import Icon from '@/components/ui/icon';
 
 interface UserProfileProps {
   user: User;
   onUpdateProfile: (updates: Partial<User>) => void;
+  onClose?: () => void;
 }
 
-const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: UserProfileProps) {
+const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile, onClose }: UserProfileProps) {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user.fullName || user.full_name || '');
@@ -193,7 +195,16 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
+    <div className="min-h-screen bg-background p-4 md:p-6 relative">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-500 transition-all group"
+          aria-label="Закрыть профиль"
+        >
+          <Icon name="X" size={20} className="text-red-500 group-hover:text-red-400" />
+        </button>
+      )}
       <div className="max-w-5xl mx-auto space-y-6">
         <ProfileHeader
           user={user}

@@ -173,6 +173,7 @@ export default function ManagerView({
                   freezeUntil: user.frozen_until || ''
                 }}
                 onUpdateProfile={onUpdateUser}
+                onClose={() => setShowProfile(false)}
               />
             </div>
           </div>
