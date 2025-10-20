@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getPriorityColor, getPriorityText, getStatusColor, getStatusText } from './tasks/taskUtils';
 import TaskCreateSection from './task-assignment/TaskCreateSection';
 import TaskListSection from './task-assignment/TaskListSection';
 import TaskEditDialog from './tasks/TaskEditDialog';
 import TaskCompletionDialog from './tasks/TaskCompletionDialog';
+import TaskViewDialog from './tasks/TaskViewDialog';
 import { useTaskManagement } from './task-assignment/useTaskManagement';
 
 interface User {
@@ -49,6 +50,14 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     getManagerTaskCount
   } = useTaskManagement(managers);
 
+  const [viewingTask, setViewingTask] = useState<any>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+
+  const handleViewTask = (task: any) => {
+    setViewingTask(task);
+    setIsViewDialogOpen(true);
+  };
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -88,6 +97,7 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
           onDelete={deleteTask}
           onRestore={restoreTask}
           onPermanentDelete={permanentDeleteTask}
+          onView={handleViewTask}
           getPriorityColor={getPriorityColor}
           getPriorityText={getPriorityText}
           getStatusColor={getStatusColor}
@@ -111,6 +121,16 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         onOpenChange={setIsCompletionDialogOpen}
         onReportChange={setCompletionReport}
         onSubmit={completeTask}
+      />
+
+      <TaskViewDialog
+        task={viewingTask}
+        isOpen={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        getPriorityColor={getPriorityColor}
+        getPriorityText={getPriorityText}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
       />
     </div>
   );

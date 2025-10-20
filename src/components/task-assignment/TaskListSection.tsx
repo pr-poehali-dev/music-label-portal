@@ -37,6 +37,7 @@ interface TaskListSectionProps {
   onDelete: (taskId: number) => void;
   onRestore?: (taskId: number) => void;
   onPermanentDelete?: (taskId: number) => void;
+  onView?: (task: Task) => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
   getStatusColor: (status: string) => string;
@@ -57,6 +58,7 @@ export default function TaskListSection({
   onDelete,
   onRestore,
   onPermanentDelete,
+  onView,
   getPriorityColor,
   getPriorityText,
   getStatusColor,
@@ -179,6 +181,7 @@ export default function TaskListSection({
                 onDelete={onDelete}
                 onRestore={task.archived_at ? onRestore : undefined}
                 onPermanentDelete={task.archived_at ? onPermanentDelete : undefined}
+                onView={onView}
                 getPriorityColor={getPriorityColor}
                 getPriorityText={getPriorityText}
                 getStatusColor={getStatusColor}

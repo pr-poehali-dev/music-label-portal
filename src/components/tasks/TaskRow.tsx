@@ -32,6 +32,7 @@ interface TaskRowProps {
   onDelete: (taskId: number) => void;
   onRestore?: (taskId: number) => void;
   onPermanentDelete?: (taskId: number) => void;
+  onView?: (task: Task) => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
   getStatusColor: (status: string) => string;
@@ -46,6 +47,7 @@ export default function TaskRow({
   onDelete,
   onRestore,
   onPermanentDelete,
+  onView,
   getPriorityColor,
   getPriorityText,
   getStatusColor,
@@ -85,7 +87,10 @@ export default function TaskRow({
         : 'bg-muted/30 border-border/50 hover:bg-muted/50'
     }`}>
       <div className="flex items-start justify-between gap-2 md:gap-3">
-        <div className="flex-1 min-w-0">
+        <div 
+          className="flex-1 min-w-0 cursor-pointer" 
+          onClick={() => onView?.(task)}
+        >
           <div className="flex items-center gap-1.5 md:gap-2 mb-1">
             <Badge className={`gap-1 border ${getStatusColor(task.status)} flex-shrink-0`}>
               <Icon name={getStatusIcon(task.status)} size={10} />
