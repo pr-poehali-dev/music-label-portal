@@ -58,41 +58,67 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
       
       console.log(`[Upload] 📤 Chunk ${i + 1}/${totalChunks}: ${(chunk.size / 1024 / 1024).toFixed(2)}MB`);
       
-      // Convert chunk to base64
-      const reader = new FileReader();
-      const chunkBase64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(chunk);
-      });
+      // Retry логика: 3 попытки на каждый чанк
+      let retries = 3;
+      let uploaded = false;
       
-      // Send chunk to backend
-      const response = await fetch('https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          file: chunkBase64,
-          fileName: file.name,
-          contentType,
-          chunkIndex: i,
-          totalChunks,
-          s3Key: i > 0 ? s3Key : undefined
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Chunk ${i + 1} upload failed: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (i === 0) {
-        s3Key = result.s3Key;
-      }
-      
-      if (i === totalChunks - 1) {
-        finalUrl = result.url;
-        console.log('[Upload] ✅ All chunks uploaded successfully:', finalUrl);
+      while (retries > 0 && !uploaded) {
+        try {
+          // Convert chunk to base64
+          const reader = new FileReader();
+          const chunkBase64 = await new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(chunk);
+          });
+          
+          // Send chunk to backend с таймаутом 60 секунд
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 60000);
+          
+          const response = await fetch('https://functions.poehali.dev/01922e7e-40ee-4482-9a75-1bf53b8812d9', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: chunkBase64,
+              fileName: file.name,
+              contentType,
+              chunkIndex: i,
+              totalChunks,
+              s3Key: i > 0 ? s3Key : undefined
+            }),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeout);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          const result = await response.json();
+          
+          if (i === 0) {
+            s3Key = result.s3Key;
+          }
+          
+          if (i === totalChunks - 1) {
+            finalUrl = result.url;
+            console.log('[Upload] ✅ All chunks uploaded successfully:', finalUrl);
+          }
+          
+          uploaded = true;
+        } catch (error) {
+          retries--;
+          console.warn(`[Upload] Chunk ${i + 1} failed, retries left: ${retries}`, error);
+          
+          if (retries === 0) {
+            throw new Error(`Чанк ${i + 1}/${totalChunks} не удалось загрузить после 3 попыток`);
+          }
+          
+          // Пауза перед повтором: 1 сек
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
     }
     
