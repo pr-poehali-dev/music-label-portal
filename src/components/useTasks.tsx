@@ -40,6 +40,7 @@ export interface CreateTaskData {
 export const useTasks = (user: any, ticketId?: number) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const loadTasks = useCallback(async () => {
     console.log('loadTasks called, user:', user);
@@ -50,9 +51,13 @@ export const useTasks = (user: any, ticketId?: number) => {
 
     setLoading(true);
     try {
-      const url = ticketId 
+      let url = ticketId 
         ? `${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890?ticket_id=${ticketId}`
         : `${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`;
+      
+      if (showDeleted) {
+        url += ticketId ? '&show_deleted=true' : '?show_deleted=true';
+      }
 
       console.log('Fetching tasks from:', url);
       console.log('With headers:', { 'X-User-Id': user.id });
@@ -81,7 +86,7 @@ export const useTasks = (user: any, ticketId?: number) => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, ticketId]);
+  }, [user?.id, ticketId, showDeleted]);
 
   const createTask = useCallback(async (taskData: CreateTaskData) => {
     if (!user?.id) {
@@ -210,5 +215,7 @@ export const useTasks = (user: any, ticketId?: number) => {
     createTask,
     updateTaskStatus,
     deleteTask,
+    showDeleted,
+    setShowDeleted,
   };
 };

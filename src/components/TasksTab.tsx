@@ -17,6 +17,8 @@ interface TasksTabProps {
   onCreateTask: (task: any) => Promise<boolean>;
   onUpdateTaskStatus: (taskId: number, status: string) => Promise<boolean>;
   onDeleteTask: (taskId: number) => Promise<boolean>;
+  showDeleted?: boolean;
+  onToggleDeleted?: () => void;
 }
 
 const TasksTab = React.memo(function TasksTab({
@@ -25,7 +27,9 @@ const TasksTab = React.memo(function TasksTab({
   managers,
   onCreateTask,
   onUpdateTaskStatus,
-  onDeleteTask
+  onDeleteTask,
+  showDeleted = false,
+  onToggleDeleted
 }: TasksTabProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -98,8 +102,18 @@ const TasksTab = React.memo(function TasksTab({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Задачи менеджеров</h2>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
+        <div className="flex gap-2">
+          {onToggleDeleted && (
+            <Button 
+              variant={showDeleted ? "default" : "outline"}
+              onClick={onToggleDeleted}
+            >
+              <Icon name={showDeleted ? "Eye" : "EyeOff"} size={16} className="mr-2" />
+              {showDeleted ? "Скрыть удалённые" : "Показать удалённые"}
+            </Button>
+          )}
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
             <Button>
               <Icon name="Plus" size={16} className="mr-2" />
               Создать задачу
@@ -206,7 +220,8 @@ const TasksTab = React.memo(function TasksTab({
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4">

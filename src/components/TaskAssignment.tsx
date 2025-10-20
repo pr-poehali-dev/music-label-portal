@@ -29,6 +29,8 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
     completionReport,
     selectedFile,
     uploading,
+    showDeleted,
+    setShowDeleted,
     setNewTask,
     setEditForm,
     setIsEditDialogOpen,
@@ -51,16 +53,25 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [showDeleted]);
 
-  const allTasks = [...tasks].filter(t => t.status !== 'deleted').sort((a, b) => {
+  const allTasks = [...tasks].sort((a, b) => {
     const statusOrder = { pending: 0, in_progress: 1, completed: 2, deleted: 3 };
     return statusOrder[a.status] - statusOrder[b.status];
   });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-1">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowDeleted(!showDeleted)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-accent transition-colors"
+        >
+          <span>{showDeleted ? 'Скрыть архивированные' : 'Показать архивированные'}</span>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-1">
         <TaskCreateSection
           newTask={newTask}
           managers={managers}
@@ -112,6 +123,7 @@ export default function TaskAssignment({ managers }: TaskAssignmentProps) {
         onReportChange={setCompletionReport}
         onSubmit={completeTask}
       />
+      </div>
     </div>
   );
 }
