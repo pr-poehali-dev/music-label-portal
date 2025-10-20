@@ -56,7 +56,9 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
 
   useEffect(() => {
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 100);
     }
   }, [messages]);
 
