@@ -36,6 +36,16 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
     }
   }, []);
 
+  const getPriorityLabel = useCallback((priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'Срочный';
+      case 'high': return 'Высокий';
+      case 'medium': return 'Средний';
+      case 'low': return 'Низкий';
+      default: return priority;
+    }
+  }, []);
+
   const { activeTasks, completedTasks } = useMemo(() => {
     return {
       activeTasks: tasks.filter(t => t.status !== 'completed').sort((a, b) => {
@@ -83,7 +93,7 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm truncate">
-                #{task.id} {task.title}
+                {task.title}
               </h3>
               {task.description && (
                 <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{task.description}</p>
@@ -95,7 +105,7 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
           <div className="flex flex-wrap gap-1.5 items-center text-xs">
             <Badge variant="outline" className="text-xs px-1.5 py-0">
               <Icon name={getPriorityIcon(task.priority)} size={10} className="mr-1" />
-              {task.priority}
+              {getPriorityLabel(task.priority)}
             </Badge>
             
             {timeRemaining && (

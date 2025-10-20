@@ -34,6 +34,25 @@ const getPriorityIcon = (priority: string) => {
   }
 };
 
+const getPriorityLabel = (priority: string) => {
+  switch (priority) {
+    case 'urgent': return 'Срочный';
+    case 'high': return 'Высокий';
+    case 'medium': return 'Средний';
+    case 'low': return 'Низкий';
+    default: return priority;
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'completed': return 'Выполнена';
+    case 'in_progress': return 'В работе';
+    case 'open': return 'Открыта';
+    default: return status;
+  }
+};
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'completed': return 'default';
@@ -91,24 +110,23 @@ export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateSta
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            <span>Задача #{task.id}</span>
+            <span>{task.title}</span>
             <Badge variant={getPriorityColor(task.priority)}>
               <Icon name={getPriorityIcon(task.priority)} size={12} className="mr-1" />
-              {task.priority}
+              {getPriorityLabel(task.priority)}
             </Badge>
             <Badge variant={getStatusColor(task.status)}>
-              {task.status}
+              {getStatusLabel(task.status)}
             </Badge>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          <div>
-            <h3 className="text-xl font-semibold mb-2">{task.title}</h3>
-            {task.description && (
+          {task.description && (
+            <div>
               <p className="text-muted-foreground whitespace-pre-wrap">{task.description}</p>
-            )}
-          </div>
+            </div>
+          )}
 
           {timeRemaining && (
             <div className={`flex items-center gap-2 p-3 rounded-lg ${timeRemaining.isOverdue ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
