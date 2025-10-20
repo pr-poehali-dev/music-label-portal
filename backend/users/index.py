@@ -155,7 +155,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         role_filter = query_params.get('role')
         
         query = '''SELECT id, username, role, full_name, revenue_share_percent, created_at, 
-                          telegram_id, is_blocked, is_frozen, frozen_until, blocked_reason 
+                          telegram_id, is_blocked, is_frozen, frozen_until, blocked_reason,
+                          vk_photo, vk_email 
                    FROM t_p35759334_music_label_portal.users WHERE 1=1'''
         params = []
         
