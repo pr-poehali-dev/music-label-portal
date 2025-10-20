@@ -45,7 +45,6 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
       }
     };
 
-    // Use passive listeners for better scroll performance
     audio.addEventListener('timeupdate', updateTime, { passive: true });
     audio.addEventListener('loadedmetadata', updateDuration, { passive: true });
     audio.addEventListener('ended', handleEnded);
@@ -126,98 +125,122 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
     setCurrentTrack(Math.min(tracks.length - 1, currentTrack + 1));
   }, [currentTrack, tracks.length]);
 
-  // Memoize current track info
   const currentTrackInfo = useMemo(() => tracks[currentTrack], [tracks, currentTrack]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-6 sm:py-8">
-        <Icon name="Loader2" size={20} className="sm:w-6 sm:h-6 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center py-8 bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/5 rounded-xl border border-yellow-500/10">
+        <Icon name="Loader2" size={24} className="animate-spin text-yellow-500" />
       </div>
     );
   }
 
   if (tracks.length === 0) {
     return (
-      <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
-        Треки не найдены
+      <div className="text-center py-8 text-muted-foreground bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/5 rounded-xl border border-yellow-500/10">
+        <Icon name="Music" size={32} className="mx-auto mb-2 text-yellow-500/50" />
+        <p className="text-sm">Треки не найдены</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-muted/20 rounded border p-2 space-y-2">
+    <div className="bg-gradient-to-br from-black via-yellow-950/20 to-black rounded-xl border border-yellow-500/20 p-4 md:p-6 space-y-4 shadow-xl shadow-yellow-500/5">
       <audio ref={audioRef} />
       
-      {/* Compact Controls */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handlePrevTrack}
-          disabled={currentTrack === 0}
-          className="h-7 w-7"
-        >
-          <Icon name="SkipBack" size={14} />
-        </Button>
-        <Button
-          variant="default"
-          size="icon"
-          className="h-8 w-8"
-          onClick={togglePlay}
-        >
-          <Icon name={isPlaying ? 'Pause' : 'Play'} size={16} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleNextTrack}
-          disabled={currentTrack === tracks.length - 1}
-          className="h-7 w-7"
-        >
-          <Icon name="SkipForward" size={14} />
-        </Button>
-        
-        <div className="flex-1 min-w-0">
+      {/* Current Track Info */}
+      {currentTrackInfo && (
+        <div className="flex items-center gap-3 pb-4 border-b border-yellow-500/10">
+          <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
+            <Icon name={isPlaying ? 'Music' : 'Disc'} size={24} className={`text-yellow-500 ${isPlaying ? 'animate-pulse' : ''}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm md:text-base text-foreground truncate">{currentTrackInfo.title}</h4>
+            <p className="text-xs text-muted-foreground truncate">{currentTrackInfo.composer}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-yellow-500 font-medium">Трек {currentTrack + 1} из {tracks.length}</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Player Controls */}
+      <div className="space-y-3">
+        {/* Progress Bar */}
+        <div className="space-y-2">
           <Slider
             value={[currentTime]}
             max={duration || 100}
             step={0.1}
             onValueChange={handleSeek}
-            className="cursor-pointer"
+            className="cursor-pointer [&_[role=slider]]:bg-yellow-500 [&_[role=slider]]:border-yellow-600 [&_.bg-primary]:bg-yellow-500"
           />
+          <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
         </div>
         
-        <span className="text-[10px] text-muted-foreground tabular-nums">
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </span>
+        {/* Control Buttons */}
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handlePrevTrack}
+            disabled={currentTrack === 0}
+            className="h-10 w-10 hover:bg-yellow-500/10 hover:text-yellow-500 disabled:opacity-30"
+          >
+            <Icon name="SkipBack" size={20} />
+          </Button>
+          <Button
+            size="icon"
+            className="h-14 w-14 bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-lg shadow-yellow-500/30 transition-all hover:scale-105"
+            onClick={togglePlay}
+          >
+            <Icon name={isPlaying ? 'Pause' : 'Play'} size={24} className="text-black" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleNextTrack}
+            disabled={currentTrack === tracks.length - 1}
+            className="h-10 w-10 hover:bg-yellow-500/10 hover:text-yellow-500 disabled:opacity-30"
+          >
+            <Icon name="SkipForward" size={20} />
+          </Button>
+        </div>
       </div>
 
       {/* Track List */}
-      <div className="space-y-0.5">
+      <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar">
         {tracks.map((track, index) => (
           <button
             key={track.track_number}
             onClick={() => playTrack(index)}
-            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/50 transition-colors text-left ${
-              currentTrack === index ? 'bg-muted/70' : ''
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left group ${
+              currentTrack === index 
+                ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/10 border border-yellow-500/30 shadow-lg shadow-yellow-500/10' 
+                : 'hover:bg-yellow-500/5 border border-transparent hover:border-yellow-500/20'
             }`}
           >
-            <div className="w-4 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-md bg-yellow-500/10 border border-yellow-500/20">
               {currentTrack === index && isPlaying ? (
-                <Icon name="Volume2" size={12} className="text-primary" />
+                <Icon name="Volume2" size={16} className="text-yellow-500 animate-pulse" />
               ) : (
-                <span className="text-[10px] text-muted-foreground">{track.track_number}</span>
+                <span className="text-xs font-semibold text-yellow-500">{track.track_number}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-xs truncate ${currentTrack === index ? 'font-medium' : ''}`}>
+              <p className={`text-sm truncate ${currentTrack === index ? 'font-semibold text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                 {track.title}
               </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {track.composer}
+              </p>
             </div>
-            <p className="text-[10px] text-muted-foreground truncate max-w-[100px]">
-              {track.composer}
-            </p>
+            {currentTrack === index && (
+              <Icon name="Play" size={14} className="text-yellow-500 flex-shrink-0" />
+            )}
           </button>
         ))}
       </div>
