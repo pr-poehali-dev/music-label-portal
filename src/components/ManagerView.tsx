@@ -98,7 +98,7 @@ export default function ManagerView({
             localStorage.setItem('manager_active_tab', value);
           }}
           className="w-full mt-4">
-          <div className="w-full overflow-x-auto scrollbar-hide mb-4">
+          <div className="w-full overflow-x-auto scrollbar-hide">
             <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
               <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="CheckSquare" className="w-4 h-4 text-green-500" />
