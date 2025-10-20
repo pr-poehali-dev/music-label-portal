@@ -168,70 +168,93 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': f'Invalid JSON: {str(e)}'})
                 }
             
+            print(f"[POST] Creating release for user {user_id}")
+            print(f"[POST] Body data: {json.dumps(body_data, default=str)}")
+            
             genre = body_data.get('genre')
             if genre == '' or genre == '0':
                 genre = None
             
-            # Use simple query protocol
-            release_name = sql_escape(body_data.get('release_name', 'Untitled'))
-            cover_url = sql_escape(body_data.get('cover_url'))
-            release_date = sql_escape(body_data.get('release_date'))
-            preorder_date = sql_escape(body_data.get('preorder_date'))
-            sales_start = sql_escape(body_data.get('sales_start_date'))
-            genre_val = sql_escape(genre)
-            copyright_val = sql_escape(body_data.get('copyright'))
-            price_cat = sql_escape(body_data.get('price_category'))
-            title_lang = sql_escape(body_data.get('title_language'))
-            
-            cur.execute(f"""
-                INSERT INTO {schema}.releases 
-                (artist_id, title, release_name, cover_url, release_date, preorder_date, 
-                 sales_start_date, genre, copyright, price_category, title_language, status)
-                VALUES ({user_id}, {release_name}, {release_name}, {cover_url}, {release_date}, 
-                        {preorder_date}, {sales_start}, {genre_val}, {copyright_val}, {price_cat}, 
-                        {title_lang}, 'pending')
-                RETURNING id, created_at
-            """)
-            
-            release = cur.fetchone()
-            release_id = release['id']
-            
-            tracks = body_data.get('tracks', [])
-            for track in tracks:
-                track_num = sql_escape(track.get('track_number'))
-                title = sql_escape(track.get('title'))
-                file_url = sql_escape(track.get('file_url'))
-                file_name = sql_escape(track.get('file_name'))
-                file_size = sql_escape(track.get('file_size'))
-                composer = sql_escape(track.get('composer'))
-                author_lyrics = sql_escape(track.get('author_lyrics'))
-                lang_audio = sql_escape(track.get('language_audio'))
-                explicit = sql_escape(track.get('explicit_content', False))
-                lyrics = sql_escape(track.get('lyrics_text'))
-                tiktok_start = sql_escape(track.get('tiktok_preview_start'))
-                track_genre = sql_escape(track.get('genre'))
-                description = sql_escape(track.get('description'))
+            try:
+                # Use simple query protocol
+                release_name = sql_escape(body_data.get('release_name', 'Untitled'))
+                cover_url = sql_escape(body_data.get('cover_url'))
+                release_date = sql_escape(body_data.get('release_date'))
+                preorder_date = sql_escape(body_data.get('preorder_date'))
+                sales_start = sql_escape(body_data.get('sales_start_date'))
+                genre_val = sql_escape(genre)
+                copyright_val = sql_escape(body_data.get('copyright'))
+                price_cat = sql_escape(body_data.get('price_category'))
+                title_lang = sql_escape(body_data.get('title_language'))
                 
-                cur.execute(f"""
-                    INSERT INTO {schema}.release_tracks
-                    (release_id, artist_id, track_number, title, file_url, file_name, file_size,
-                     composer, author_lyrics, language_audio, explicit_content, lyrics_text, 
-                     tiktok_preview_start, genre, description)
-                    VALUES ({release_id}, {user_id}, {track_num}, {title}, {file_url}, {file_name}, 
-                            {file_size}, {composer}, {author_lyrics}, {lang_audio}, {explicit}, 
-                            {lyrics}, {tiktok_start}, {track_genre}, {description})
-                """)
-            
-            return {
-                'statusCode': 201,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'isBase64Encoded': False,
-                'body': json.dumps({
-                    'id': release_id,
-                    'created_at': str(release['created_at']),
-                    'message': 'Release created successfully'
-                })
-            }
+                insert_sql = f"""
+                    INSERT INTO {schema}.releases 
+                    (artist_id, title, release_name, cover_url, release_date, preorder_date, 
+                     sales_start_date, genre, copyright, price_category, title_language, status)
+                    VALUES ({user_id}, {release_name}, {release_name}, {cover_url}, {release_date}, 
+                            {preorder_date}, {sales_start}, {genre_val}, {copyright_val}, {price_cat}, 
+                            {title_lang}, 'pending')
+                    RETURNING id, created_at
+                """
+                print(f"[POST] Executing SQL: {insert_sql}")
+                cur.execute(insert_sql)
+                
+                release = cur.fetchone()
+                release_id = release['id']
+                print(f"[POST] Release created with ID: {release_id}")
+                
+                tracks = body_data.get('tracks', [])
+                print(f"[POST] Processing {len(tracks)} tracks")
+                
+                for idx, track in enumerate(tracks):
+                    track_num = sql_escape(track.get('track_number'))
+                    title = sql_escape(track.get('title'))
+                    file_url = sql_escape(track.get('file_url'))
+                    file_name = sql_escape(track.get('file_name'))
+                    file_size = sql_escape(track.get('file_size'))
+                    composer = sql_escape(track.get('composer'))
+                    author_lyrics = sql_escape(track.get('author_lyrics'))
+                    lang_audio = sql_escape(track.get('language_audio'))
+                    explicit = sql_escape(track.get('explicit_content', False))
+                    lyrics = sql_escape(track.get('lyrics_text'))
+                    tiktok_start = sql_escape(track.get('tiktok_preview_start'))
+                    track_genre = sql_escape(track.get('genre'))
+                    description = sql_escape(track.get('description'))
+                    
+                    track_sql = f"""
+                        INSERT INTO {schema}.release_tracks
+                        (release_id, artist_id, track_number, title, file_url, file_name, file_size,
+                         composer, author_lyrics, language_audio, explicit_content, lyrics_text, 
+                         tiktok_preview_start, genre, description)
+                        VALUES ({release_id}, {user_id}, {track_num}, {title}, {file_url}, {file_name}, 
+                                {file_size}, {composer}, {author_lyrics}, {lang_audio}, {explicit}, 
+                                {lyrics}, {tiktok_start}, {track_genre}, {description})
+                    """
+                    print(f"[POST] Track {idx+1}/{len(tracks)}: {track.get('title')}")
+                    cur.execute(track_sql)
+                
+                print(f"[POST] All tracks inserted successfully")
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({
+                        'id': release_id,
+                        'created_at': str(release['created_at']),
+                        'message': 'Release created successfully'
+                    })
+                }
+            except Exception as e:
+                print(f"[POST ERROR] Failed to create release: {type(e).__name__}: {str(e)}")
+                import traceback
+                print(f"[POST ERROR] Traceback: {traceback.format_exc()}")
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': f'Database error: {str(e)}'})
+                }
         
         elif method == 'PUT':
             if user['role'] not in ['director', 'manager']:
