@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { API_URLS } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { createNotification } from '@/hooks/useNotifications';
 
 interface Ticket {
   id: number;
@@ -147,6 +148,23 @@ export default function TicketDialog({ ticket, open, onClose, currentUserId, cur
         }
         await loadComments();
         if (onReload) onReload();
+        
+        // Notify assigned manager about new comment
+        if (ticket.assigned_to && currentUserRole === 'artist') {
+          try {
+            await createNotification({
+              title: `💬 Новый комментарий к тикету #${ticket.id}`,
+              message: `${ticket.creator_name}: "${newComment.trim().slice(0, 100)}${newComment.length > 100 ? '...' : ''}"`,
+              type: 'ticket_comment',
+              related_entity_type: 'ticket',
+              related_entity_id: ticket.id,
+              user_ids: [ticket.assigned_to],
+              notify_directors: false
+            });
+          } catch (notifError) {
+            // Silently fail notification
+          }
+        }
       } else {
         toast({ title: '❌ Ошибка отправки', variant: 'destructive' });
       }
