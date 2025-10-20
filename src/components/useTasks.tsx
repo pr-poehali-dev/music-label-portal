@@ -191,8 +191,12 @@ export const useTasks = (user: any, ticketId?: number) => {
   }, [user, loadTasks]);
 
   useEffect(() => {
+    console.log('[useTasks useEffect] user:', user, 'token:', user?.token);
     if (user?.token) {
+      console.log('[useTasks useEffect] Calling loadTasks');
       loadTasks();
+    } else {
+      console.log('[useTasks useEffect] No token, skipping');
     }
   }, [user?.token, loadTasks]);
 
