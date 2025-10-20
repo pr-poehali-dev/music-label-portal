@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 def sql_escape(value):
     '''Escape value for SQL simple query'''
-    if value is None:
+    if value is None or value == '':
         return 'NULL'
     if isinstance(value, bool):
         return 'TRUE' if value else 'FALSE'
