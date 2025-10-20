@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { createNotification } from '@/hooks/useNotifications';
 
@@ -43,9 +43,7 @@ export const useTasks = (user: any, ticketId?: number) => {
   const [showDeleted, setShowDeleted] = useState(false);
 
   const loadTasks = useCallback(async () => {
-    console.log('loadTasks called, user:', user);
     if (!user?.id) {
-      console.log('No user id, skipping load');
       return;
     }
 
@@ -59,29 +57,21 @@ export const useTasks = (user: any, ticketId?: number) => {
         url += ticketId ? '&show_deleted=true' : '?show_deleted=true';
       }
 
-      console.log('Fetching tasks from:', url);
-      console.log('With headers:', { 'X-User-Id': user.id });
-
       const response = await fetch(url, {
         headers: {
           'X-User-Id': user.id.toString(),
         },
       });
 
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Response error:', errorText);
+
         throw new Error('Ошибка загрузки задач');
       }
 
       const data = await response.json();
-      console.log('useTasks received data:', data);
-      console.log('useTasks user:', { id: user.id, role: user.role });
       setTasks(data.tasks || []);
     } catch (error) {
-      console.error('Error loading tasks:', error);
       toast.error('Не удалось загрузить задачи');
     } finally {
       setLoading(false);
@@ -90,7 +80,6 @@ export const useTasks = (user: any, ticketId?: number) => {
 
   const createTask = useCallback(async (taskData: CreateTaskData) => {
     if (!user?.id) {
-      console.error('No user id available');
       return false;
     }
 
@@ -100,7 +89,7 @@ export const useTasks = (user: any, ticketId?: number) => {
         created_by: user.id,
       };
       
-      console.log('Creating task:', requestBody);
+
 
       const response = await fetch(`${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`, {
         method: 'POST',
@@ -111,11 +100,11 @@ export const useTasks = (user: any, ticketId?: number) => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('Task creation response status:', response.status);
+
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error creating task:', errorData);
+
         toast.error(errorData.error || 'Не удалось создать задачу');
         return false;
       }
@@ -138,14 +127,13 @@ export const useTasks = (user: any, ticketId?: number) => {
             notify_directors: true
           });
         } catch (notifError) {
-          console.error('Failed to create notification:', notifError);
+          // Silently fail notification
         }
       }
       
       await loadTasks();
       return true;
     } catch (error) {
-      console.error('Exception creating task:', error);
       toast.error('Не удалось создать задачу');
       return false;
     }
@@ -223,7 +211,6 @@ export const useTasks = (user: any, ticketId?: number) => {
       await loadTasks();
       return true;
     } catch (error) {
-      console.error('Error updating task status:', error);
       toast.error(error instanceof Error ? error.message : 'Не удалось обновить статус');
       return false;
     }
@@ -246,23 +233,18 @@ export const useTasks = (user: any, ticketId?: number) => {
       await loadTasks();
       return true;
     } catch (error) {
-      console.error('Error deleting task:', error);
       toast.error('Не удалось удалить задачу');
       return false;
     }
   }, [user, loadTasks]);
 
   useEffect(() => {
-    console.log('[useTasks useEffect] user:', user, 'user.id:', user?.id);
     if (user?.id) {
-      console.log('[useTasks useEffect] Calling loadTasks');
       loadTasks();
-    } else {
-      console.log('[useTasks useEffect] No user.id, skipping');
     }
   }, [user?.id, loadTasks]);
 
-  return {
+  const memoizedValue = useMemo(() => ({
     tasks,
     loading,
     loadTasks,
@@ -271,5 +253,7 @@ export const useTasks = (user: any, ticketId?: number) => {
     deleteTask,
     showDeleted,
     setShowDeleted,
-  };
+  }), [tasks, loading, loadTasks, createTask, updateTaskStatus, deleteTask, showDeleted]);
+
+  return memoizedValue;
 };

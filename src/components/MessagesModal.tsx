@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
     if (open) {
       loadDialogsList();
     }
-  }, [open]);
+  }, [open, userId]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -62,7 +62,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
     }
   }, [messages]);
 
-  const loadDialogsList = async () => {
+  const loadDialogsList = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${MESSAGES_API}?list_dialogs=true&user_id=${userId}`);
@@ -79,9 +79,9 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, toast]);
 
-  const loadDialog = async (withUserId?: number) => {
+  const loadDialog = useCallback(async (withUserId?: number) => {
     setLoading(true);
     try {
       const targetUserId = withUserId || selectedUser?.user_id;
@@ -111,7 +111,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, selectedUser, toast]);
 
   const markAsRead = async (messageIds: number[]) => {
     for (const messageId of messageIds) {

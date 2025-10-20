@@ -32,7 +32,8 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000);
+    // Увеличил интервал до 60 секунд для снижения нагрузки
+    const interval = setInterval(loadNotifications, 60000);
     return () => clearInterval(interval);
   }, [userId]);
 
@@ -45,7 +46,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
       setNotifications(data.notifications || []);
       setUnreadCount(data.unread_count || 0);
     } catch (error) {
-      console.error('Failed to load notifications:', error);
+      // Silently fail
     }
   };
 

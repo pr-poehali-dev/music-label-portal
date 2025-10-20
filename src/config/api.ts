@@ -27,3 +27,34 @@ export const API_ENDPOINTS = {
   TICKETS: funcUrls['tickets'],
   AUTH: funcUrls['auth'],
 } as const;
+
+// Оптимизированная функция для fetch с retry и timeout
+export const fetchWithRetry = async (
+  url: string,
+  options: RequestInit = {},
+  retries = 2,
+  timeout = 10000
+): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok && retries > 0) {
+      return fetchWithRetry(url, options, retries - 1, timeout);
+    }
+    
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (retries > 0 && error instanceof Error && error.name !== 'AbortError') {
+      return fetchWithRetry(url, options, retries - 1, timeout);
+    }
+    throw error;
+  }
+};

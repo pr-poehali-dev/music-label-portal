@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useCallback, memo } from 'react';
 import LoginForm from '@/components/LoginForm';
 import { useAuth } from '@/components/useAuth';
 import { useTickets } from '@/components/useTickets';
@@ -23,42 +23,39 @@ export default function Index() {
   const { managers, allUsers, loadAllUsers, createUser, updateUser } = useUsers(user);
   const { tasks, createTask, updateTaskStatus, deleteTask } = useTasks(user);
 
-  const handleCreateTicket = async () => {
+  const handleCreateTicket = useCallback(async () => {
     const success = await createTicket(newTicket, selectedTicketFile, setUploadingTicket);
     if (success) {
       setNewTicket({ title: '', description: '', priority: 'medium' });
       setSelectedTicketFile(null);
     }
-  };
+  }, [createTicket, newTicket, selectedTicketFile]);
 
-  const handleCreateUser = async () => {
+  const handleCreateUser = useCallback(async () => {
     const success = await createUser(newUser);
     if (success) {
       setNewUser({ username: '', full_name: '', role: 'artist' });
     }
-  };
+  }, [createUser, newUser]);
 
-  const handleUpdateProfile = async (userIdOrUpdates: number | Partial<User>, maybeUpdates?: Partial<User>) => {
-    // Если первый параметр — число (userId), то второй параметр — updates
+  const handleUpdateProfile = useCallback(async (userIdOrUpdates: number | Partial<User>, maybeUpdates?: Partial<User>) => {
     const updates = typeof userIdOrUpdates === 'number' ? maybeUpdates! : userIdOrUpdates;
     const userId = typeof userIdOrUpdates === 'number' ? userIdOrUpdates : user!.id;
-    
-    console.log('handleUpdateProfile called with userId:', userId, 'updates:', updates);
     
     const success = await updateUser(userId, updates);
     if (success) {
       updateUserProfile(updates);
     }
-  };
+  }, [updateUser, updateUserProfile, user]);
 
-  const LoadingFallback = () => (
+  const LoadingFallback = memo(() => (
     <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black flex items-center justify-center">
       <div className="text-center space-y-4">
         <Icon name="Loader2" size={48} className="animate-spin text-primary mx-auto" />
         <p className="text-muted-foreground">Загрузка...</p>
       </div>
     </div>
-  );
+  ));
 
   if (!user) {
     return <LoginForm onLogin={login} />;
