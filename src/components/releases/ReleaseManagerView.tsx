@@ -41,14 +41,16 @@ const getStatusBadge = (status: string) => {
   const variants: Record<string, { variant: any; text: string; icon: string }> = {
     pending: { variant: 'secondary', text: 'На модерации', icon: 'Clock' },
     approved: { variant: 'default', text: 'Одобрен', icon: 'CheckCircle' },
-    rejected: { variant: 'destructive', text: 'Отклонён', icon: 'XCircle' }
+    rejected_fixable: { variant: 'outline', text: 'Отклонён (можно исправить)', icon: 'Edit' },
+    rejected_final: { variant: 'destructive', text: 'Отклонён окончательно', icon: 'Ban' },
+    draft: { variant: 'secondary', text: 'Черновик', icon: 'FileEdit' }
   };
   const config = variants[status] || variants.pending;
   return (
     <Badge variant={config.variant} className="gap-0.5 text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">
       <Icon name={config.icon} size={10} className="flex-shrink-0 md:w-3 md:h-3" />
       <span className="truncate hidden md:inline">{config.text}</span>
-      <span className="md:hidden">{status === 'approved' ? '✓' : status === 'rejected' ? '✗' : '⏳'}</span>
+      <span className="md:hidden">{status === 'approved' ? '✓' : status.startsWith('rejected') ? '✗' : status === 'draft' ? '📝' : '⏳'}</span>
     </Badge>
   );
 };
@@ -84,7 +86,14 @@ export default function ReleaseManagerView({
 }: ReleaseManagerViewProps) {
   // Memoize filtered releases to avoid re-filtering on every render
   const filteredReleases = useMemo(() => {
-    const filtered = activeTab === 'all' ? releases : releases.filter(r => r.status === activeTab);
+    let filtered = releases;
+    if (activeTab !== 'all') {
+      if (activeTab === 'rejected') {
+        filtered = releases.filter(r => r.status === 'rejected_fixable' || r.status === 'rejected_final');
+      } else {
+        filtered = releases.filter(r => r.status === activeTab);
+      }
+    }
     // Сортировка по дате создания (новые сверху) - создаём копию чтобы не мутировать оригинал
     return [...filtered].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [activeTab, releases]);

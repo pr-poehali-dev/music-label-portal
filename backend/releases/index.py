@@ -279,6 +279,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
         
         elif method == 'PUT':
+            body_data = json.loads(event.get('body', '{}'))
+            release_id = body_data.get('release_id')
+            action = body_data.get('action')
+            
+            if action == 'fix_and_resubmit':
+                if user['role'] != 'artist':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'error': 'Only artists can fix their releases'})
+                    }
+                
+                cur.execute(f"""
+                    SELECT artist_id, status FROM {schema}.releases WHERE id = %s
+                """, (release_id,))
+                release = cur.fetchone()
+                
+                if not release or release['artist_id'] != int(user_id):
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'error': 'Not authorized to fix this release'})
+                    }
+                
+                if release['status'] != 'rejected_fixable':
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'error': 'Can only fix rejected_fixable releases'})
+                    }
+                
+                cur.execute(f"""
+                    UPDATE {schema}.releases
+                    SET status = 'pending', review_comment = NULL
+                    WHERE id = %s
+                """, (release_id,))
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'message': 'Release submitted for review again'})
+                }
+            
             if user['role'] not in ['director', 'manager']:
                 return {
                     'statusCode': 403,
@@ -286,10 +333,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps({'error': 'Only managers can review releases'})
                 }
-            
-            body_data = json.loads(event.get('body', '{}'))
-            release_id = body_data.get('release_id')
-            action = body_data.get('action')
             
             cur.execute(f"""
                 SELECT artist_id, release_name FROM {schema}.releases WHERE id = %s
@@ -319,7 +362,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     release_id
                 ))
                 
-            elif action == 'rejected':
+            elif action == 'rejected_fixable':
                 comment = body_data.get('comment', '')
                 if not comment:
                     return {
@@ -331,7 +374,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cur.execute(f"""
                     UPDATE {schema}.releases
-                    SET status = 'rejected', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
+                    SET status = 'rejected_fixable', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
                         review_comment = %s
                     WHERE id = %s
                 """, (user_id, comment, release_id))
@@ -342,8 +385,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """, (
                     artist_id,
-                    'Релиз отклонён ❌',
-                    f'Ваш релиз "{release_name}" был отклонён. Причина: {comment}',
+                    'Релиз отклонён ✏️',
+                    f'Ваш релиз "{release_name}" был отклонён. Вы можете исправить и подать повторно. Причина: {comment}',
+                    'warning',
+                    'release',
+                    release_id
+                ))
+            
+            elif action == 'rejected_final':
+                comment = body_data.get('comment', '')
+                if not comment:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'error': 'Comment is required when rejecting finally'})
+                    }
+                
+                cur.execute(f"""
+                    UPDATE {schema}.releases
+                    SET status = 'rejected_final', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
+                        review_comment = %s
+                    WHERE id = %s
+                """, (user_id, comment, release_id))
+                
+                cur.execute(f"""
+                    INSERT INTO {schema}.notifications 
+                    (user_id, title, message, type, related_entity_type, related_entity_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    artist_id,
+                    'Релиз отклонён окончательно 🚫',
+                    f'Ваш релиз "{release_name}" был отклонён окончательно. Причина: {comment}',
                     'error',
                     'release',
                     release_id

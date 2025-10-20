@@ -433,8 +433,10 @@ export const useReleaseManager = (userId: number) => {
       
       const messages: Record<string, string> = {
         'approved': 'Релиз одобрен',
-        'rejected': 'Релиз отклонён',
-        'pending': 'Релиз возвращён на модерацию'
+        'rejected_fixable': 'Релиз отклонён (можно исправить)',
+        'rejected_final': 'Релиз отклонён окончательно',
+        'pending': 'Релиз возвращён на модерацию',
+        'fix_and_resubmit': 'Релиз отправлен на повторную модерацию'
       };
       
       toast({

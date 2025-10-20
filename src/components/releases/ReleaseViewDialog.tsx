@@ -25,7 +25,7 @@ export default function ReleaseViewDialog({
 }: ReleaseViewDialogProps) {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loadingTracks, setLoadingTracks] = useState(false);
-  const [reviewAction, setReviewAction] = useState<'pending' | 'approved' | 'rejected' | null>(null);
+  const [reviewAction, setReviewAction] = useState<'pending' | 'approved' | 'rejected_fixable' | 'rejected_final' | null>(null);
   const [reviewComment, setReviewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -46,7 +46,7 @@ export default function ReleaseViewDialog({
 
   const handleSubmitReview = async () => {
     if (!reviewAction || !onStatusChange) return;
-    if (reviewAction === 'rejected' && !reviewComment.trim()) return;
+    if ((reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && !reviewComment.trim()) return;
 
     setSubmitting(true);
     try {
@@ -189,7 +189,7 @@ export default function ReleaseViewDialog({
             <div className="border-t pt-4">
               <label className="text-sm font-medium mb-2 block flex items-center gap-2">
                 <Icon name="MessageSquare" size={14} />
-                Комментарий {reviewAction === 'rejected' && <span className="text-destructive">(обязательно)</span>}
+                Комментарий {(reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && <span className="text-destructive">(обязательно)</span>}
               </label>
               <Textarea
                 placeholder="Укажите причину изменения статуса..."
@@ -218,16 +218,16 @@ export default function ReleaseViewDialog({
               </Button>
               <Button
                 onClick={handleSubmitReview}
-                disabled={submitting || (reviewAction === 'rejected' && !reviewComment.trim())}
-                variant={reviewAction === 'approved' ? 'default' : reviewAction === 'rejected' ? 'destructive' : 'secondary'}
+                disabled={submitting || ((reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') && !reviewComment.trim())}
+                variant={reviewAction === 'approved' ? 'default' : (reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') ? 'destructive' : 'secondary'}
                 className="w-full md:w-auto"
               >
                 <Icon 
-                  name={submitting ? 'Loader2' : reviewAction === 'approved' ? 'CheckCircle' : reviewAction === 'rejected' ? 'XCircle' : 'Clock'} 
+                  name={submitting ? 'Loader2' : reviewAction === 'approved' ? 'CheckCircle' : (reviewAction === 'rejected_fixable' || reviewAction === 'rejected_final') ? 'XCircle' : 'Clock'} 
                   size={16} 
                   className={`mr-2 ${submitting ? 'animate-spin' : ''}`} 
                 />
-                {reviewAction === 'approved' ? 'Одобрить' : reviewAction === 'rejected' ? 'Отклонить' : 'На модерацию'}
+                {reviewAction === 'approved' ? 'Одобрить' : reviewAction === 'rejected_fixable' ? 'Отклонить (можно исправить)' : reviewAction === 'rejected_final' ? 'Отклонить окончательно' : 'На модерацию'}
               </Button>
             </>
           ) : canChangeStatus && release.status !== 'pending' ? (
@@ -252,16 +252,48 @@ export default function ReleaseViewDialog({
                   Одобрить
                 </Button>
               )}
-              {release.status !== 'rejected' && (
-                <Button
-                  variant="destructive"
-                  className="flex-1"
-                  onClick={() => setReviewAction('rejected')}
-                >
-                  <Icon name="XCircle" size={16} className="mr-2" />
-                  Отклонить
-                </Button>
+              {!release.status.startsWith('rejected') && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setReviewAction('rejected_fixable')}
+                  >
+                    <Icon name="Edit" size={16} className="mr-2" />
+                    Отклонить (можно исправить)
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => setReviewAction('rejected_final')}
+                  >
+                    <Icon name="Ban" size={16} className="mr-2" />
+                    Отклонить окончательно
+                  </Button>
+                </>
               )}
+            </div>
+          ) : !isManager && release.status === 'rejected_fixable' ? (
+            <div className="flex flex-col md:flex-row gap-2 w-full">
+              <Button
+                variant="default"
+                className="flex-1"
+                onClick={async () => {
+                  if (!onStatusChange) return;
+                  try {
+                    await onStatusChange(release.id, 'fix_and_resubmit', '');
+                    onClose();
+                  } catch (error) {
+                    console.error('Failed to resubmit:', error);
+                  }
+                }}
+              >
+                <Icon name="Edit" size={16} className="mr-2" />
+                Исправить и подать снова
+              </Button>
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Закрыть
+              </Button>
             </div>
           ) : (
             <Button variant="outline" onClick={onClose} className="w-full md:w-auto">

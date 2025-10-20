@@ -105,6 +105,24 @@ const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBad
                     {expandedRelease === release.id ? 'Скрыть' : 'Слушать'}
                   </Button>
                 )}
+                {release.status === 'rejected_fixable' && onStatusChange && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={async () => {
+                      try {
+                        await onStatusChange(release.id, 'fix_and_resubmit', '');
+                      } catch (error) {
+                        console.error('Failed to resubmit:', error);
+                      }
+                    }}
+                    className="gap-1 h-7 px-2 text-[10px] md:flex-1"
+                  >
+                    <Icon name="RefreshCw" size={12} className="flex-shrink-0" />
+                    <span className="hidden md:inline">Исправить и подать</span>
+                    <span className="md:hidden">Исправить</span>
+                  </Button>
+                )}
                 {release.status === 'pending' && onEdit && (
                   <>
                     <Button

@@ -58,7 +58,7 @@ export default function ReleaseStatusTabs({ releases, activeTab, onTabChange }: 
         <span className="text-sm md:hidden">✗</span>
         <Icon name="XCircle" size={14} className="hidden md:inline" />
         <span className="hidden md:inline">Отклонённые</span>
-        <Badge variant="outline" className="text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.filter(r => r.status === 'rejected').length}</Badge>
+        <Badge variant="outline" className="text-[9px] md:text-xs h-4 md:h-auto px-1 md:px-2">{releases.filter(r => r.status === 'rejected_fixable' || r.status === 'rejected_final').length}</Badge>
       </button>
     </div>
   );
