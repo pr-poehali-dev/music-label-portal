@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Generate presigned URL",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "fileName": "test.wav",
+        "contentType": "audio/wav"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "uploadUrl": "string",
+        "fileUrl": "string",
+        "s3Key": "string",
+        "fileName": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

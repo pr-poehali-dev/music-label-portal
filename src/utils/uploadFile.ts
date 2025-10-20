@@ -1,7 +1,5 @@
 import { API_ENDPOINTS } from '@/config/api';
 
-const UPLOAD_URL = API_ENDPOINTS.UPLOAD_FILE;
-
 export interface UploadFileResult {
   url: string;
   fileName: string;
@@ -9,79 +7,10 @@ export interface UploadFileResult {
   s3Key?: string;
 }
 
-async function uploadInChunks(file: File): Promise<UploadFileResult> {
-  // 5MB chunks для быстрого merge (меньше частей = быстрее склеивание)
-  const chunkSize = 5 * 1024 * 1024;
-  const totalChunks = Math.ceil(file.size / chunkSize);
-  
-  console.log(`[Upload] Uploading ${file.name} in ${totalChunks} chunks`);
-  
-  const uploadedChunks: string[] = [];
-  
-  for (let i = 0; i < totalChunks; i++) {
-    const start = i * chunkSize;
-    const end = Math.min(start + chunkSize, file.size);
-    const chunk = file.slice(start, end);
-    
-    const formData = new FormData();
-    formData.append('file', chunk);
-    formData.append('fileName', `${file.name}.part${i}`);
-    formData.append('fileSize', String(chunk.size));
-    formData.append('isChunk', 'true');
-    
-    const response = await fetch(UPLOAD_URL, {
-      method: 'POST',
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown');
-      console.error(`[Upload] Chunk ${i+1}/${totalChunks} failed:`, response.status, errorText);
-      throw new Error(`Ошибка загрузки части ${i+1}/${totalChunks}`);
-    }
-    
-    const data = await response.json();
-    const shortKey = data.s3Key.split('/').pop();
-    uploadedChunks.push(shortKey);
-    
-    console.log(`[Upload] Chunk ${i+1}/${totalChunks} uploaded`);
-  }
-  
-  // Merge chunks
-  console.log(`[Upload] Merging ${uploadedChunks.length} chunks...`);
-  
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000); // 60 секунд на merge
-  
-  try {
-    const mergeResponse = await fetch(UPLOAD_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'merge',
-        chunks: uploadedChunks,
-        fileName: file.name,
-        fileSize: file.size
-      }),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeout);
-    
-    if (!mergeResponse.ok) {
-      throw new Error('Не удалось объединить файл');
-    }
-    
-    return await mergeResponse.json();
-  } catch (error) {
-    clearTimeout(timeout);
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('Таймаут при склеивании файла. Попробуйте ещё раз.');
-    }
-    throw error;
-  }
-}
-
+/**
+ * Загрузка файла напрямую в S3 через presigned URL
+ * Решает проблему таймаутов Cloud Functions
+ */
 export async function uploadFile(file: File): Promise<UploadFileResult> {
   const maxSize = 150 * 1024 * 1024;
   const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
@@ -92,27 +21,53 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
     throw new Error('Размер файла превышает 150MB');
   }
   
-  // Файлы > 2MB загружаем по частям
-  if (file.size > 2 * 1024 * 1024) {
-    return uploadInChunks(file);
+  try {
+    // Шаг 1: Получить presigned URL от backend
+    const getUrlResponse = await fetch('https://functions.poehali.dev/187d1243-cb1e-47bb-8241-80d59e0aa345', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type || 'application/octet-stream'
+      })
+    });
+    
+    if (!getUrlResponse.ok) {
+      const errorText = await getUrlResponse.text().catch(() => 'Unknown');
+      console.error(`[Upload] Failed to get presigned URL:`, getUrlResponse.status, errorText);
+      throw new Error(`Не удалось получить URL для загрузки: ${getUrlResponse.status}`);
+    }
+    
+    const { uploadUrl, fileUrl, s3Key, fileName } = await getUrlResponse.json();
+    
+    console.log(`[Upload] Got presigned URL, uploading directly to S3...`);
+    
+    // Шаг 2: Загрузить файл напрямую в S3 (без cloud function)
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream'
+      },
+      body: file
+    });
+    
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text().catch(() => 'Unknown');
+      console.error(`[Upload] S3 upload failed:`, uploadResponse.status, errorText);
+      throw new Error(`Ошибка загрузки в S3: ${uploadResponse.status}`);
+    }
+    
+    console.log(`[Upload] Success! File uploaded to: ${fileUrl}`);
+    
+    return {
+      url: fileUrl,
+      fileName: fileName,
+      fileSize: file.size,
+      s3Key: s3Key
+    };
+    
+  } catch (error) {
+    console.error('[Upload] Fetch error:', error instanceof Error ? error.message : 'Unknown', 'for', file.name);
+    throw error;
   }
-  
-  // Маленькие файлы загружаем целиком
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('fileName', file.name);
-  formData.append('fileSize', String(file.size));
-  
-  const response = await fetch(UPLOAD_URL, {
-    method: 'POST',
-    body: formData
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => '');
-    console.error(`[Upload] Failed: ${response.status}`, errorText);
-    throw new Error(`Ошибка загрузки: ${response.status}`);
-  }
-  
-  return await response.json();
 }
