@@ -31,7 +31,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('update');
   const { toast } = useToast();
   
   const [editingNews, setEditingNews] = useState<News | null>(null);
@@ -209,12 +209,15 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     );
   }
 
-  const filteredNews = selectedType === 'all' ? news : news.filter(n => n.type === selectedType);
+  const updateNews = news.filter(n => n.type === 'update');
+  const faqNews = news.filter(n => n.type === 'faq');
+  const jobNews = news.filter(n => n.type === 'job');
+  
+  const filteredNews = selectedType === 'update' ? updateNews : faqNews;
   const stats = {
-    all: news.length,
-    update: news.filter(n => n.type === 'update').length,
-    faq: news.filter(n => n.type === 'faq').length,
-    job: news.filter(n => n.type === 'job').length
+    update: updateNews.length,
+    faq: faqNews.length,
+    job: jobNews.length
   };
 
   return (
@@ -250,10 +253,8 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
       {/* Фильтры */}
       <div className="flex flex-wrap gap-2">
         {[
-          { key: 'all', label: 'Все', icon: 'LayoutGrid', count: stats.all },
           { key: 'update', label: 'Обновления', icon: 'Zap', count: stats.update },
-          { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq },
-          { key: 'job', label: 'Вакансии', icon: 'Briefcase', count: stats.job }
+          { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq }
         ].map(({ key, label, icon, count }) => (
           <Button
             key={key}
@@ -342,6 +343,68 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
           <Icon name="Inbox" className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
           <p className="text-muted-foreground">Новостей пока нет</p>
         </Card>
+      )}
+
+      {/* Вакансии - отдельный блок */}
+      {jobNews.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Icon name="Briefcase" className="w-5 h-5 text-green-400" />
+            <h2 className="text-xl font-bold text-white">Открытые вакансии</h2>
+            <Badge variant="secondary" className="ml-2">{jobNews.length}</Badge>
+          </div>
+          <div className="grid gap-3">
+            {jobNews.map((item) => {
+              const config = getTypeConfig(item.type);
+              return (
+                <Card 
+                  key={item.id} 
+                  className={`p-4 border ${config.border} ${config.bg} backdrop-blur-sm hover:scale-[1.01] transition-transform group`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${config.bg} shrink-0`}>
+                      <Icon name={config.icon} className={`w-5 h-5 ${config.color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0" onClick={() => userRole === 'director' ? startEdit(item) : null} className={userRole === 'director' ? 'cursor-pointer' : ''}>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-semibold text-white text-base leading-tight">{item.title}</h3>
+                        <Badge variant="outline" className={`${config.color} shrink-0 text-xs`}>
+                          {config.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.content}</p>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Icon name="Clock" className="w-3 h-3" />
+                          {new Date(item.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                        </span>
+                        {userRole === 'director' && (
+                          <span className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Icon name="Edit" className="w-3 h-3" />
+                            Редактировать
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {userRole === 'director' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNews(item.id);
+                        }}
+                        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:text-red-400"
+                      >
+                        <Icon name="Trash2" className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Модальное окно редактирования */}
