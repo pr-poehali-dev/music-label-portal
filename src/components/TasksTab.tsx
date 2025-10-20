@@ -44,7 +44,7 @@ const TasksTab = React.memo(function TasksTab({
   });
 
   const handleCreateTask = async () => {
-    const success = await onCreateTask(newTask);
+    const success = await onCreateTask({ ...newTask, status: 'in_progress' });
     if (success) {
       setNewTask({
         title: '',
