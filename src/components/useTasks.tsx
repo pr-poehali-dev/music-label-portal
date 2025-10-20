@@ -111,12 +111,11 @@ export const useTasks = (user: any, ticketId?: number) => {
 
       toast.success('Задача создана');
       
-      // Notify assigned manager and directors about new task
+      // Notify assigned manager ONLY
       if (taskData.assigned_to) {
         try {
           const priorityEmoji = taskData.priority === 'urgent' ? '🚨' : taskData.priority === 'high' ? '⚡' : '📋';
           
-          // Notify the assigned manager
           await createNotification({
             title: `${priorityEmoji} Вам назначена задача`,
             message: `Задача "${taskData.title}". Дедлайн: ${new Date(taskData.deadline).toLocaleString('ru-RU')}`,
@@ -124,7 +123,7 @@ export const useTasks = (user: any, ticketId?: number) => {
             related_entity_type: 'task',
             related_entity_id: taskData.assigned_to,
             user_ids: [taskData.assigned_to],
-            notify_directors: true
+            notify_directors: false
           });
         } catch (notifError) {
           // Silently fail notification

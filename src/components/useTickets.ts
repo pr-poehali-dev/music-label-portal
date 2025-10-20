@@ -18,7 +18,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
       const data = await response.json();
       setTickets(data.tickets || []);
     } catch (error) {
-      console.error('Failed to load tickets:', error);
+      // Silent fail
     }
   }, [user, statusFilter]);
 
@@ -59,8 +59,6 @@ export const useTickets = (user: User | null, statusFilter: string) => {
         attachment_name: attachmentName,
         attachment_size: attachmentSize
       };
-      
-      console.log('Creating ticket:', requestBody);
 
       const response = await fetch(API_URLS.tickets, {
         method: 'POST',
@@ -68,11 +66,8 @@ export const useTickets = (user: User | null, statusFilter: string) => {
         body: JSON.stringify(requestBody)
       });
       
-      console.log('Response status:', response.status);
-      
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error creating ticket:', errorData);
         toast({ title: '❌ ' + (errorData.error || 'Ошибка создания тикета'), variant: 'destructive' });
         return false;
       }
@@ -92,14 +87,13 @@ export const useTickets = (user: User | null, statusFilter: string) => {
             related_entity_id: user.id
           });
         } catch (notifError) {
-          console.error('Failed to create notification:', notifError);
+          // Silent fail
         }
       }
       
       loadTickets();
       return true;
     } catch (error) {
-      console.error('Exception creating ticket:', error);
       toast({ title: '❌ Ошибка создания тикета', variant: 'destructive' });
     } finally {
       setUploadingTicket(false);
@@ -137,7 +131,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
         logActivity(user.id, 'assign_ticket', `Назначен тикет #${ticketId}`, { ticketId, managerId, deadline });
       }
       
-      // Send notification to assigned manager
+      // Send notification to assigned manager ONLY
       if (managerId && response.ok) {
         try {
           const ticketData = await response.json();
@@ -149,10 +143,10 @@ export const useTickets = (user: User | null, statusFilter: string) => {
             related_entity_type: 'ticket',
             related_entity_id: ticketId,
             user_ids: [managerId],
-            notify_directors: true
+            notify_directors: false
           });
         } catch (notifError) {
-          console.error('Failed to create notification:', notifError);
+          // Silent fail
         }
       }
       
