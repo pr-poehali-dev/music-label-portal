@@ -104,7 +104,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Отвечено заявок</CardTitle>
+          <CardTitle className="text-sm font-medium">Закрыто тикетов</CardTitle>
           <Icon name="MessageSquare" size={20} className="text-blue-600" />
         </CardHeader>
         <CardContent>
@@ -117,7 +117,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
             <>
               <div className="text-3xl font-bold text-blue-600">{stats.answered_tickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Закрытых заявок за всё время
+                Закрытых тикетов за всё время
               </p>
             </>
           )}
