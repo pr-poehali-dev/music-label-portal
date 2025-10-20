@@ -61,10 +61,14 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
     console.log(`[Upload] Chunk ${i + 1}/${chunks.length} uploaded successfully`);
     
     const data = await response.json();
-    uploadedChunks.push(data.s3Key);
+    // Сохраняем только короткий ID вместо полного s3Key
+    const shortKey = data.s3Key.split('/').pop(); // Только имя файла
+    uploadedChunks.push(shortKey);
   }
   
   // Объединяем части на сервере
+  console.log(`[Upload] Merging ${uploadedChunks.length} chunks...`);
+  
   const mergeResponse = await fetch(UPLOAD_URL, {
     method: 'POST',
     headers: {
@@ -77,6 +81,8 @@ async function uploadLargeFile(file: File): Promise<UploadFileResult> {
       fileSize: file.size
     })
   });
+  
+  console.log(`[Upload] Merge response status: ${mergeResponse.status}`);
   
   if (!mergeResponse.ok) {
     throw new Error('Failed to merge file chunks');

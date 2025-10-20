@@ -29,7 +29,16 @@ def merge_chunks(body_data: Dict[str, Any]) -> Dict[str, Any]:
         
         # Скачиваем и объединяем все части
         merged_data = b''
-        for chunk_key in chunks:
+        today_prefix = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/"
+        
+        for chunk_short_key in chunks:
+            # Если пришёл только короткий ключ (имя файла), добавляем путь
+            if not chunk_short_key.startswith('uploads/'):
+                chunk_key = today_prefix + chunk_short_key
+            else:
+                chunk_key = chunk_short_key
+            
+            print(f"Downloading chunk: {chunk_key}")
             obj = s3_client.get_object(Bucket=bucket_name, Key=chunk_key)
             merged_data += obj['Body'].read()
             # Удаляем временный chunk
