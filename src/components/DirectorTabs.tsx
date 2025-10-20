@@ -151,39 +151,39 @@ export default function DirectorTabs({
         localStorage.setItem('director_active_tab', value);
       }} 
       className="w-full">
-      <div className="w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
-        <TabsList className="grid w-full grid-cols-8 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1">
-            <Icon name="BarChart3" className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Аналитика</span>
+      <div className="w-full mt-4">
+        <TabsList className="flex flex-wrap gap-1 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-2">
+          <TabsTrigger value="analytics" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5">
+            <Icon name="BarChart3" className="w-5 h-5 text-primary" />
+            <span className="text-xs sm:text-sm font-medium">Аналитика</span>
           </TabsTrigger>
-          <TabsTrigger value="tickets" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1 relative">
-            <Icon name="Ticket" className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Тикеты</span>
-            <Badge count={unreadCounts.tickets} />
+          <TabsTrigger value="tickets" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5 relative">
+            <Icon name="Ticket" className="w-5 h-5 text-yellow-500" />
+            <span className="text-xs sm:text-sm font-medium">Тикеты</span>
+            {unreadCounts.tickets > 0 && <Badge count={unreadCounts.tickets} />}
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1 relative">
-            <Icon name="CheckSquare" className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Задачи</span>
-            <Badge count={unreadCounts.tasks} />
+          <TabsTrigger value="tasks" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5 relative">
+            <Icon name="CheckSquare" className="w-5 h-5 text-green-500" />
+            <span className="text-xs sm:text-sm font-medium">Задачи</span>
+            {unreadCounts.tasks > 0 && <Badge count={unreadCounts.tasks} />}
           </TabsTrigger>
-          <TabsTrigger value="releases" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1">
-            <Icon name="Music" className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Релизы</span>
+          <TabsTrigger value="releases" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5">
+            <Icon name="Music" className="w-5 h-5 text-purple-500" />
+            <span className="text-xs sm:text-sm font-medium">Релизы</span>
           </TabsTrigger>
-          <TabsTrigger value="submissions" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1 relative">
-            <Icon name="ClipboardList" className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Заявки</span>
-            <Badge count={unreadCounts.submissions} />
+          <TabsTrigger value="submissions" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5 relative">
+            <Icon name="ClipboardList" className="w-5 h-5 text-blue-500" />
+            <span className="text-xs sm:text-sm font-medium">Заявки</span>
+            {unreadCounts.submissions > 0 && <Badge count={unreadCounts.submissions} />}
           </TabsTrigger>
 
-          <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1">
-            <Icon name="FolderOpen" className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 animate-pulse" />
-            <span className="text-[10px] sm:text-sm">Отчёты</span>
+          <TabsTrigger value="reports" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5">
+            <Icon name="FolderOpen" className="w-5 h-5 text-orange-500" />
+            <span className="text-xs sm:text-sm font-medium">Отчёты</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 sm:px-4 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1">
-            <Icon name="Settings" className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 animate-spin-slow" />
-            <span className="text-[10px] sm:text-sm">Настройки</span>
+          <TabsTrigger value="settings" className="flex-1 min-w-[80px] sm:min-w-[120px] px-3 py-2 transition-all duration-200 hover:scale-105 flex flex-col sm:flex-row items-center justify-center gap-1.5">
+            <Icon name="Settings" className="w-5 h-5 text-gray-500" />
+            <span className="text-xs sm:text-sm font-medium">Настройки</span>
           </TabsTrigger>
         </TabsList>
       </div>
