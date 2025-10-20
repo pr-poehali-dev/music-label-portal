@@ -198,6 +198,60 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps(dict(updated_item), default=str)
                 }
         
+        elif method == 'DELETE':
+            # Удаление новости (только для руководителя)
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'})
+                }
+            
+            # Проверка роли
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute('SELECT role FROM t_p35759334_music_label_portal.users WHERE id = %s', (user_id,))
+                user = cur.fetchone()
+                
+                if not user or user['role'] != 'director':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Only director can delete news'})
+                    }
+            
+            params = event.get('queryStringParameters') or {}
+            news_id = params.get('id')
+            
+            if not news_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'News ID is required'})
+                }
+            
+            with conn.cursor() as cur:
+                cur.execute('DELETE FROM t_p35759334_music_label_portal.news WHERE id = %s', (news_id,))
+                conn.commit()
+                
+                if cur.rowcount == 0:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'News not found'})
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'message': 'News deleted successfully'})
+                }
+        
         else:
             return {
                 'statusCode': 405,

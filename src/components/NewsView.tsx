@@ -160,6 +160,34 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     });
   };
 
+  const handleDeleteNews = async (id: number) => {
+    if (!confirm('Вы уверены, что хотите удалить эту новость?')) return;
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/02b8e089-cfba-4460-9cad-479b3d0c5c80?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Id': userId.toString()
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to delete news');
+
+      toast({
+        title: 'Успешно',
+        description: 'Новость удалена'
+      });
+
+      loadNews();
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить новость',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getTypeConfig = (type: string) => {
     switch (type) {
       case 'update': 
@@ -263,14 +291,13 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
           return (
             <Card 
               key={item.id} 
-              className={`p-4 border ${config.border} ${config.bg} backdrop-blur-sm hover:scale-[1.01] transition-transform cursor-pointer group`}
-              onClick={() => userRole === 'director' ? startEdit(item) : null}
+              className={`p-4 border ${config.border} ${config.bg} backdrop-blur-sm hover:scale-[1.01] transition-transform group`}
             >
               <div className="flex items-start gap-3">
                 <div className={`p-2 rounded-lg ${config.bg} shrink-0`}>
                   <Icon name={config.icon} className={`w-5 h-5 ${config.color}`} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0" onClick={() => userRole === 'director' ? startEdit(item) : null} className={userRole === 'director' ? 'cursor-pointer' : ''}>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-semibold text-white text-base leading-tight">{item.title}</h3>
                     <Badge variant="outline" className={`${config.color} shrink-0 text-xs`}>
@@ -291,6 +318,19 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                     )}
                   </div>
                 </div>
+                {userRole === 'director' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteNews(item.id);
+                    }}
+                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:text-red-400"
+                  >
+                    <Icon name="Trash2" className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </Card>
           );
