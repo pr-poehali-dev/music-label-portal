@@ -10,8 +10,8 @@ export interface UploadFileResult {
 }
 
 async function uploadInChunks(file: File): Promise<UploadFileResult> {
-  // 1MB chunks через FormData (безопасно для 3.5MB лимита)
-  const chunkSize = 1 * 1024 * 1024;
+  // 5MB chunks для быстрого merge (меньше частей = быстрее склеивание)
+  const chunkSize = 5 * 1024 * 1024;
   const totalChunks = Math.ceil(file.size / chunkSize);
   
   console.log(`[Upload] Uploading ${file.name} in ${totalChunks} chunks`);
