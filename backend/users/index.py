@@ -159,7 +159,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                    FROM t_p35759334_music_label_portal.users WHERE 1=1'''
         params = []
         
-        if role_filter:
+        if role_filter and role_filter != 'all':
             query += ' AND role = %s'
             params.append(role_filter)
         
