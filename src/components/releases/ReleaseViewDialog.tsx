@@ -1,0 +1,275 @@
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import Icon from '@/components/ui/icon';
+import { Release } from './types';
+
+interface ReleaseViewDialogProps {
+  release: Release | null;
+  userId: number;
+  userRole?: string;
+  onClose: () => void;
+  onStatusChange?: (releaseId: number, status: string, comment?: string) => void;
+  loadTracks?: (releaseId: number) => Promise<any[]>;
+}
+
+export default function ReleaseViewDialog({
+  release,
+  userId,
+  userRole = 'artist',
+  onClose,
+  onStatusChange,
+  loadTracks
+}: ReleaseViewDialogProps) {
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [loadingTracks, setLoadingTracks] = useState(false);
+  const [reviewAction, setReviewAction] = useState<'pending' | 'approved' | 'rejected' | null>(null);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (release && loadTracks) {
+      setLoadingTracks(true);
+      loadTracks(release.id)
+        .then((data) => setTracks(data || []))
+        .catch(() => setTracks([]))
+        .finally(() => setLoadingTracks(false));
+    }
+  }, [release, loadTracks]);
+
+  if (!release) return null;
+
+  const isManager = userRole === 'manager' || userRole === 'director';
+  const canChangeStatus = isManager && onStatusChange;
+
+  const handleSubmitReview = async () => {
+    if (!reviewAction || !onStatusChange) return;
+    if (reviewAction === 'rejected' && !reviewComment.trim()) return;
+
+    setSubmitting(true);
+    try {
+      await onStatusChange(release.id, reviewAction, reviewComment);
+      setReviewAction(null);
+      setReviewComment('');
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  return (
+    <Dialog open={release !== null} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
+        <DialogHeader>
+          <DialogTitle>Информация о релизе</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {release.cover_url && (
+            <div className="flex justify-center">
+              <img 
+                src={release.cover_url} 
+                alt={release.release_name} 
+                className="w-32 h-32 md:w-48 md:h-48 object-cover rounded-lg shadow-2xl" 
+              />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg md:text-xl">{release.release_name}</h3>
+            
+            {release.artist_name && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="User" size={14} />
+                Артист: {release.artist_name}
+              </p>
+            )}
+
+            {release.genre && release.genre !== '0' && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="Disc" size={14} />
+                Жанр: {release.genre}
+              </p>
+            )}
+
+            {release.copyright && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="Shield" size={14} />
+                Копирайт: {release.copyright}
+              </p>
+            )}
+
+            {release.release_date && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="Calendar" size={14} />
+                Дата релиза: {formatDate(release.release_date)}
+              </p>
+            )}
+
+            {release.preorder_date && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="Clock" size={14} />
+                Предзаказ: {formatDate(release.preorder_date)}
+              </p>
+            )}
+
+            {release.title_language && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Icon name="Languages" size={14} />
+                Язык: {release.title_language}
+              </p>
+            )}
+          </div>
+
+          {loadingTracks ? (
+            <div className="flex justify-center py-8">
+              <Icon name="Loader2" size={24} className="animate-spin text-primary" />
+            </div>
+          ) : tracks.length > 0 && (
+            <div>
+              <h4 className="font-semibold mb-3 text-sm md:text-base flex items-center gap-2">
+                <Icon name="Music" size={16} />
+                Треки ({tracks.length})
+              </h4>
+              <div className="space-y-2">
+                {tracks.map((track) => (
+                  <Card key={track.id} className="bg-muted/50">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm md:text-base truncate">
+                            #{track.track_number} - {track.title}
+                          </p>
+                          {track.composer && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              Композитор: {track.composer}
+                            </p>
+                          )}
+                          {track.author_lyrics && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              Автор текста: {track.author_lyrics}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <audio controls className="w-full mt-2 h-8 md:h-10">
+                        <source src={track.file_url} />
+                      </audio>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {release.review_comment && (
+            <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Icon name="AlertCircle" size={16} className="text-destructive mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-destructive mb-1">Комментарий модератора:</p>
+                  <p className="text-sm text-foreground break-words">{release.review_comment}</p>
+                  {release.reviewer_name && (
+                    <p className="text-xs text-muted-foreground mt-2">— {release.reviewer_name}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {canChangeStatus && reviewAction && (
+            <div className="border-t pt-4">
+              <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                <Icon name="MessageSquare" size={14} />
+                Комментарий {reviewAction === 'rejected' && <span className="text-destructive">(обязательно)</span>}
+              </label>
+              <Textarea
+                placeholder="Укажите причину изменения статуса..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                rows={3}
+                className="text-sm"
+              />
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="flex-col md:flex-row gap-2">
+          {canChangeStatus && reviewAction ? (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setReviewAction(null);
+                  setReviewComment('');
+                }} 
+                className="w-full md:w-auto"
+              >
+                <Icon name="X" size={16} className="mr-2" />
+                Отмена
+              </Button>
+              <Button
+                onClick={handleSubmitReview}
+                disabled={submitting || (reviewAction === 'rejected' && !reviewComment.trim())}
+                variant={reviewAction === 'approved' ? 'default' : reviewAction === 'rejected' ? 'destructive' : 'secondary'}
+                className="w-full md:w-auto"
+              >
+                <Icon 
+                  name={submitting ? 'Loader2' : reviewAction === 'approved' ? 'CheckCircle' : reviewAction === 'rejected' ? 'XCircle' : 'Clock'} 
+                  size={16} 
+                  className={`mr-2 ${submitting ? 'animate-spin' : ''}`} 
+                />
+                {reviewAction === 'approved' ? 'Одобрить' : reviewAction === 'rejected' ? 'Отклонить' : 'На модерацию'}
+              </Button>
+            </>
+          ) : canChangeStatus && release.status !== 'pending' ? (
+            <div className="flex flex-col md:flex-row gap-2 w-full">
+              {release.status !== 'pending' && (
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => setReviewAction('pending')}
+                >
+                  <Icon name="Clock" size={16} className="mr-2" />
+                  На модерацию
+                </Button>
+              )}
+              {release.status !== 'approved' && (
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => setReviewAction('approved')}
+                >
+                  <Icon name="CheckCircle" size={16} className="mr-2" />
+                  Одобрить
+                </Button>
+              )}
+              {release.status !== 'rejected' && (
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => setReviewAction('rejected')}
+                >
+                  <Icon name="XCircle" size={16} className="mr-2" />
+                  Отклонить
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button variant="outline" onClick={onClose} className="w-full md:w-auto">
+              Закрыть
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

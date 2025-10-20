@@ -298,7 +298,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             artist_id = release_info['artist_id']
             release_name = release_info['release_name']
             
-            if action == 'approve':
+            if action == 'approved':
                 cur.execute(f"""
                     UPDATE {schema}.releases
                     SET status = 'approved', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
@@ -319,15 +319,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     release_id
                 ))
                 
-            elif action == 'reject':
+            elif action == 'rejected':
+                comment = body_data.get('comment', '')
+                if not comment:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'error': 'Comment is required when rejecting'})
+                    }
+                
                 cur.execute(f"""
                     UPDATE {schema}.releases
                     SET status = 'rejected', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
                         review_comment = %s
                     WHERE id = %s
-                """, (user_id, body_data.get('comment', ''), release_id))
+                """, (user_id, comment, release_id))
                 
-                comment = body_data.get('comment', 'Не указана')
                 cur.execute(f"""
                     INSERT INTO {schema}.notifications 
                     (user_id, title, message, type, related_entity_type, related_entity_id)
@@ -340,6 +348,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'release',
                     release_id
                 ))
+            
+            elif action == 'pending':
+                cur.execute(f"""
+                    UPDATE {schema}.releases
+                    SET status = 'pending', reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
+                        review_comment = %s
+                    WHERE id = %s
+                """, (user_id, body_data.get('comment', ''), release_id))
+                
+                cur.execute(f"""
+                    INSERT INTO {schema}.notifications 
+                    (user_id, title, message, type, related_entity_type, related_entity_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    artist_id,
+                    'Релиз возвращён на модерацию ⏳',
+                    f'Ваш релиз "{release_name}" был возвращён на модерацию.',
+                    'info',
+                    'release',
+                    release_id
+                ))
+            
             else:
                 return {
                     'statusCode': 400,

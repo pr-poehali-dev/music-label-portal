@@ -426,18 +426,27 @@ export const useReleaseManager = (userId: number) => {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to review release');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to review release');
+      }
+      
+      const messages: Record<string, string> = {
+        'approved': 'Релиз одобрен',
+        'rejected': 'Релиз отклонён',
+        'pending': 'Релиз возвращён на модерацию'
+      };
       
       toast({
         title: 'Успешно',
-        description: status === 'approved' ? 'Релиз одобрен' : 'Релиз отклонён'
+        description: messages[status] || 'Статус изменён'
       });
 
       loadReleases();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось обновить статус релиза',
+        description: error.message || 'Не удалось обновить статус релиза',
         variant: 'destructive'
       });
     }

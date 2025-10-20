@@ -24,6 +24,9 @@ interface ReleaseManagerViewProps {
   onEdit: (release: Release) => void;
   onPitching?: (data: Pitching) => Promise<void>;
   onDelete?: (releaseId: number) => void;
+  onStatusChange?: (releaseId: number, status: string, comment?: string) => void;
+  loadTracks?: (releaseId: number) => Promise<any[]>;
+  userRole?: string;
   setNewRelease: (release: any) => void;
   handleCoverChange: (file: File | null) => void;
   addTrack: () => void;
@@ -67,6 +70,9 @@ export default function ReleaseManagerView({
   onEdit,
   onPitching,
   onDelete,
+  onStatusChange,
+  loadTracks,
+  userRole,
   setNewRelease,
   handleCoverChange,
   addTrack,
@@ -141,6 +147,9 @@ export default function ReleaseManagerView({
           onEdit={onEdit}
           onPitching={onPitching}
           onDelete={onDelete}
+          onStatusChange={onStatusChange}
+          loadTracks={loadTracks}
+          userRole={userRole}
         />
       )}
     </div>

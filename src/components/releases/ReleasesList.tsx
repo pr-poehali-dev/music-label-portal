@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { LazyImage } from '@/components/ui/image-lazy';
 import { Release, Pitching } from './types';
 import { Skeleton } from '@/components/ui/skeleton';
+import ReleaseViewDialog from './ReleaseViewDialog';
 
 const ReleasePlayer = lazy(() => import('./ReleasePlayer'));
 const PitchingForm = lazy(() => import('./PitchingForm'));
@@ -17,11 +18,15 @@ interface ReleasesListProps {
   onEdit?: (release: Release) => void;
   onPitching?: (data: Pitching) => Promise<void>;
   onDelete?: (releaseId: number) => void;
+  onStatusChange?: (releaseId: number, status: string, comment?: string) => void;
+  loadTracks?: (releaseId: number) => Promise<any[]>;
+  userRole?: string;
 }
 
-const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBadge, onEdit, onPitching, onDelete }: ReleasesListProps) {
+const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBadge, onEdit, onPitching, onDelete, onStatusChange, loadTracks, userRole }: ReleasesListProps) {
   const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
   const [pitchingRelease, setPitchingRelease] = useState<Release | null>(null);
+  const [detailsRelease, setDetailsRelease] = useState<Release | null>(null);
   
   const formatDate = useMemo(() => (dateStr?: string) => {
     if (!dateStr) return null;
@@ -29,10 +34,17 @@ const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBad
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   }, []);
 
+  const handleCardClick = (release: Release, e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, audio')) {
+      return;
+    }
+    setDetailsRelease(release);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
       {releases.map((release) => (
-        <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow">
+        <Card key={release.id} className="overflow-hidden md:hover:shadow-md transition-shadow cursor-pointer" onClick={(e) => handleCardClick(release, e)}>
           <div className="flex md:flex-col items-start gap-2 md:gap-3 p-2 md:p-3">
             <div className="relative group flex-shrink-0 w-14 md:w-full">
               <div className="w-14 md:w-full aspect-square rounded overflow-hidden bg-muted">
@@ -178,6 +190,17 @@ const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBad
             onSubmit={onPitching}
           />
         </Suspense>
+      )}
+
+      {detailsRelease && (
+        <ReleaseViewDialog
+          release={detailsRelease}
+          userId={userId}
+          userRole={userRole}
+          onClose={() => setDetailsRelease(null)}
+          onStatusChange={onStatusChange}
+          loadTracks={loadTracks}
+        />
       )}
     </div>
   );
