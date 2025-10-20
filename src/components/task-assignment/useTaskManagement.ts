@@ -218,25 +218,26 @@ export function useTaskManagement(managers: User[]) {
   };
 
   const deleteTask = async (taskId: number) => {
-    if (!confirm('Переместить задачу в удалённые?')) return;
+    if (!confirm('Переместить задачу в архив?')) return;
 
     try {
       const token = localStorage.getItem('auth_token') || 'director-token';
       const userId = localStorage.getItem('user_id') || '1';
       
-      const response = await fetch(API_URL, {
-        method: 'PUT',
+      const response = await fetch(`${API_URL}?task_id=${taskId}`, {
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
           'X-User-Id': userId,
           'X-Auth-Token': token
-        },
-        body: JSON.stringify({ task_id: taskId, status: 'deleted' })
+        }
       });
 
       if (response.ok) {
-        toast({ title: '✅ Задача перемещена в удалённые' });
+        toast({ title: '✅ Задача перемещена в архив' });
         loadTasks();
+      } else {
+        const error = await response.json();
+        toast({ title: error.error || '❌ Ошибка удаления задачи', variant: 'destructive' });
       }
     } catch (error) {
       toast({ title: '❌ Ошибка удаления задачи', variant: 'destructive' });
