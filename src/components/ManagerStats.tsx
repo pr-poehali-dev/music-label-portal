@@ -57,19 +57,19 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
   const mergeActivityData = () => {
     const dateMap = new Map<string, { tasks: number; tickets: number; pitching: number }>();
     
-    stats.tasks_activity.forEach(item => {
+    stats.tasks_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
       const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tasks: item.count });
     });
     
-    stats.tickets_activity.forEach(item => {
+    stats.tickets_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
       const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tickets: item.count });
     });
     
-    stats.pitching_activity.forEach(item => {
+    stats.pitching_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
       const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
       dateMap.set(date, { ...existing, pitching: item.count });
