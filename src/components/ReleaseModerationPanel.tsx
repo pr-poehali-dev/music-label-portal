@@ -251,7 +251,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
             />
           </button>
           {!collapsedSections.has('pending') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
               {pendingReleases.map((release) => (
                 <ReleaseCard
                   key={release.id}
@@ -284,7 +284,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
             />
           </button>
           {!collapsedSections.has('approved') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
               {approvedReleases.map((release) => (
                 <ReleaseCard
                   key={release.id}
@@ -315,7 +315,7 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
             />
           </button>
           {!collapsedSections.has('rejected') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
               {rejectedReleases.map((release) => (
                 <ReleaseCard
                   key={release.id}
