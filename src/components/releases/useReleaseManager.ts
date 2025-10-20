@@ -258,12 +258,14 @@ export const useReleaseManager = (userId: number) => {
             throw new Error(`Трек ${track.track_number}: не удалось загрузить`);
           }
           
+          // Удаляем preview_url (base64) и file перед отправкой — они не нужны на бэкенде
+          const { preview_url, file, ...trackWithoutBinary } = track;
+          
           uploadedTracks.push({
-            ...track,
+            ...trackWithoutBinary,
             file_url: trackData.url,
             file_name: trackData.fileName,
-            file_size: trackData.fileSize,
-            file: undefined
+            file_size: trackData.fileSize
           });
         } catch (uploadError: any) {
           const fileSize = (track.file.size / 1024 / 1024).toFixed(2);
