@@ -10,10 +10,10 @@ from io import BytesIO
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Upload files directly to S3 without chunking (simple and fast)
-    Args: event - dict with httpMethod, body (multipart/form-data or base64)
+    Business: Upload files to S3 (POST multipart) or get presigned URL (GET query params)
+    Args: event - dict with httpMethod, body, queryStringParameters
           context - object with request_id
-    Returns: HTTP response with S3 URL
+    Returns: HTTP response with S3 URL or presigned URL
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -22,12 +22,69 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
         }
+    
+    # GET: Generate presigned URL for direct S3 upload
+    if method == 'GET':
+        try:
+            params = event.get('queryStringParameters', {}) or {}
+            file_name = params.get('fileName', 'unnamed')
+            content_type = params.get('contentType', 'application/octet-stream')
+            
+            access_key = os.environ.get('YC_S3_ACCESS_KEY_ID')
+            secret_key = os.environ.get('YC_S3_SECRET_ACCESS_KEY')
+            bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
+            
+            s3_client = boto3.client(
+                's3',
+                endpoint_url='https://storage.yandexcloud.net',
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                region_name='ru-central1'
+            )
+            
+            file_ext = file_name.split('.')[-1] if '.' in file_name else ''
+            unique_filename = f"{uuid.uuid4()}.{file_ext}" if file_ext else str(uuid.uuid4())
+            s3_key = f"uploads/{datetime.now().strftime('%Y/%m/%d')}/{unique_filename}"
+            
+            presigned_url = s3_client.generate_presigned_url(
+                'put_object',
+                Params={
+                    'Bucket': bucket_name,
+                    'Key': s3_key,
+                    'ContentType': content_type
+                },
+                ExpiresIn=3600
+            )
+            
+            file_url = f"https://storage.yandexcloud.net/{bucket_name}/{s3_key}"
+            
+            print(f"Presigned URL generated: {s3_key}")
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'presignedUrl': presigned_url,
+                    'url': file_url,
+                    's3Key': s3_key,
+                    'fileName': file_name
+                })
+            }
+        except Exception as e:
+            print(f"Presigned URL error: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Presigned URL failed: {str(e)}'})
+            }
     
     if method != 'POST':
         return {
