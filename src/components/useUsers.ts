@@ -82,6 +82,33 @@ export const useUsers = (user: User | null) => {
       
       if (response.ok) {
         toast({ title: '✅ Данные обновлены' });
+        
+        // If role was changed, notify the user to refresh their session
+        if (userData.role) {
+          try {
+            const roleLabels = {
+              'artist': 'артиста',
+              'manager': 'менеджера',
+              'director': 'руководителя'
+            };
+            await createNotification({
+              title: '⚡ Ваша роль изменена',
+              message: `Вам назначена роль ${roleLabels[userData.role as keyof typeof roleLabels]}. Обновите страницу для применения изменений.`,
+              type: 'role_change',
+              recipient_user_id: userId,
+              related_entity_type: 'user',
+              related_entity_id: userId
+            });
+            
+            // Trigger a custom event that can be caught by useAuth
+            window.dispatchEvent(new CustomEvent('user-role-changed', { 
+              detail: { userId, newRole: userData.role } 
+            }));
+          } catch (notifError) {
+            console.error('Failed to create role change notification:', notifError);
+          }
+        }
+        
         loadAllUsers();
         return true;
       } else {

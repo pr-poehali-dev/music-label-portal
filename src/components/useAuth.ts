@@ -112,9 +112,26 @@ export const useAuth = () => {
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      
+      // Check if user's role has changed since last login
+      fetch(`${API_URLS.users}?role=all`)
+        .then(res => res.json())
+        .then(data => {
+          const currentUser = data.users.find((u: User) => u.id === userData.id);
+          if (currentUser && currentUser.role !== userData.role) {
+            setUser(currentUser);
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            toast({ 
+              title: '⚡ Ваша роль изменена', 
+              description: 'Права доступа обновлены' 
+            });
+          }
+        })
+        .catch(err => console.error('Failed to verify user role:', err));
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (!user) return;
@@ -123,7 +140,19 @@ export const useAuth = () => {
       refreshUserData();
     }, 30000);
     
-    return () => clearInterval(interval);
+    // Listen for role changes from other tabs or admin actions
+    const handleRoleChange = (event: CustomEvent) => {
+      if (event.detail.userId === user.id) {
+        refreshUserData();
+      }
+    };
+    
+    window.addEventListener('user-role-changed', handleRoleChange as EventListener);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('user-role-changed', handleRoleChange as EventListener);
+    };
   }, [user?.id, refreshUserData]);
 
   return { user, login, logout, updateUserProfile, refreshUserData };
