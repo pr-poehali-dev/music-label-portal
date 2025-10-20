@@ -42,13 +42,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     headers = event.get('headers', {})
     user_id = headers.get('X-User-Id') or headers.get('x-user-id')
-    auth_token = headers.get('X-Auth-Token') or headers.get('x-auth-token')
     
-    if not user_id or not auth_token:
+    if not user_id:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Unauthorized'}),
+            'body': json.dumps({'error': 'Unauthorized - X-User-Id required'}),
             'isBase64Encoded': False
         }
     

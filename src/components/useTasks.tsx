@@ -36,8 +36,8 @@ export const useTasks = (user: any, ticketId?: number) => {
 
   const loadTasks = useCallback(async () => {
     console.log('loadTasks called, user:', user);
-    if (!user?.token) {
-      console.log('No user token, skipping load');
+    if (!user?.id) {
+      console.log('No user id, skipping load');
       return;
     }
 
@@ -48,12 +48,11 @@ export const useTasks = (user: any, ticketId?: number) => {
         : `${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`;
 
       console.log('Fetching tasks from:', url);
-      console.log('With headers:', { 'X-User-Id': user.id, 'X-Auth-Token': '***' });
+      console.log('With headers:', { 'X-User-Id': user.id });
 
       const response = await fetch(url, {
         headers: {
           'X-User-Id': user.id.toString(),
-          'X-Auth-Token': user.token,
         },
       });
 
@@ -75,11 +74,11 @@ export const useTasks = (user: any, ticketId?: number) => {
     } finally {
       setLoading(false);
     }
-  }, [user?.token, user?.id, ticketId]);
+  }, [user?.id, ticketId]);
 
   const createTask = useCallback(async (taskData: CreateTaskData) => {
-    if (!user?.token) {
-      console.error('No user token available');
+    if (!user?.id) {
+      console.error('No user id available');
       return false;
     }
 
@@ -96,7 +95,6 @@ export const useTasks = (user: any, ticketId?: number) => {
         headers: {
           'Content-Type': 'application/json',
           'X-User-Id': user.id.toString(),
-          'X-Auth-Token': user.token,
         },
         body: JSON.stringify(requestBody),
       });
@@ -138,7 +136,7 @@ export const useTasks = (user: any, ticketId?: number) => {
   }, [user, loadTasks]);
 
   const updateTaskStatus = useCallback(async (taskId: number, status: string) => {
-    if (!user?.token) return false;
+    if (!user?.id) return false;
 
     try {
       const response = await fetch(`${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890`, {
@@ -146,7 +144,6 @@ export const useTasks = (user: any, ticketId?: number) => {
         headers: {
           'Content-Type': 'application/json',
           'X-User-Id': user.id.toString(),
-          'X-Auth-Token': user.token,
         },
         body: JSON.stringify({
           task_id: taskId,
@@ -167,14 +164,13 @@ export const useTasks = (user: any, ticketId?: number) => {
   }, [user, loadTasks]);
 
   const deleteTask = useCallback(async (taskId: number) => {
-    if (!user?.token) return false;
+    if (!user?.id) return false;
 
     try {
       const response = await fetch(`${API_URL}/13e06494-4f4d-4854-b126-bbc191bf0890?task_id=${taskId}`, {
         method: 'DELETE',
         headers: {
           'X-User-Id': user.id.toString(),
-          'X-Auth-Token': user.token,
         },
       });
 
@@ -191,14 +187,14 @@ export const useTasks = (user: any, ticketId?: number) => {
   }, [user, loadTasks]);
 
   useEffect(() => {
-    console.log('[useTasks useEffect] user:', user, 'token:', user?.token);
-    if (user?.token) {
+    console.log('[useTasks useEffect] user:', user, 'user.id:', user?.id);
+    if (user?.id) {
       console.log('[useTasks useEffect] Calling loadTasks');
       loadTasks();
     } else {
-      console.log('[useTasks useEffect] No token, skipping');
+      console.log('[useTasks useEffect] No user.id, skipping');
     }
-  }, [user?.token, loadTasks]);
+  }, [user?.id, loadTasks]);
 
   return {
     tasks,
