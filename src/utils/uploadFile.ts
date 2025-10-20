@@ -84,51 +84,42 @@ export async function uploadFile(file: File): Promise<UploadFileResult> {
     throw new Error('Размер файла превышает 100MB');
   }
   
-  // Для файлов больше 10MB используем chunked upload
-  if (file.size > 10 * 1024 * 1024) {
+  // Для файлов больше 5MB используем chunked upload
+  if (file.size > 5 * 1024 * 1024) {
     return uploadLargeFile(file);
   }
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  try {
+    const base64Data = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+      reader.readAsDataURL(file);
+    });
     
-    reader.onloadend = async () => {
-      try {
-        const base64Data = reader.result as string;
-        
-        const response = await fetch(UPLOAD_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            file: base64Data,
-            fileName: file.name,
-            fileSize: file.size
-          })
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          
-          if (response.status === 413) {
-            throw new Error(`Файл слишком большой. Максимальный размер: 100MB`);
-          }
-          
-          throw new Error(`Ошибка загрузки: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        resolve(data);
-      } catch (error) {
-        reject(error);
+    const response = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        file: base64Data,
+        fileName: file.name,
+        fileSize: file.size
+      })
+    });
+    
+    if (!response.ok) {
+      if (response.status === 413) {
+        throw new Error(`Файл слишком большой. Попробуйте файл меньше 5MB`);
       }
-    };
+      
+      throw new Error(`Ошибка загрузки: ${response.status}`);
+    }
     
-    reader.onerror = () => {
-      reject(new Error('Не удалось прочитать файл'));
-    };
-    
-    reader.readAsDataURL(file);
-  });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
 }
