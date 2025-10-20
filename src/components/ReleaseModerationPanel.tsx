@@ -132,12 +132,12 @@ export default function ReleaseModerationPanel({ userId, userRole = 'manager' }:
 
   const handleApprove = (releaseId: number) => {
     loadReleaseDetails(releaseId);
-    setReviewAction('approve');
+    setReviewAction('approved');
   };
 
   const handleReject = (releaseId: number) => {
     loadReleaseDetails(releaseId);
-    setReviewAction('reject');
+    setReviewAction('rejected_fixable');
   };
 
   if (loading) {
