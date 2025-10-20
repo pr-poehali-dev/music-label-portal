@@ -80,7 +80,7 @@ export default function DirectorView({
           open={messagesOpen} 
           onOpenChange={onMessagesOpenChange}
           userId={user.id}
-          userRole="boss"
+          userRole="director"
         />
 
         <div className="sticky top-0 z-30">

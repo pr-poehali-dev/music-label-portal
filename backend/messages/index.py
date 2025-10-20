@@ -76,52 +76,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             list_dialogs = params.get('list_dialogs')
             
             if list_dialogs:
+                # Get all managers and directors (except current user) for dialog list
                 cursor.execute('''
-                    SELECT DISTINCT 
-                        CASE 
-                            WHEN sender_id != %s THEN sender_id 
-                            WHEN receiver_id IS NOT NULL THEN receiver_id
-                            ELSE sender_id
-                        END as user_id
-                    FROM t_p35759334_music_label_portal.messages
-                    WHERE (sender_id = %s OR receiver_id = %s OR (receiver_id IS NULL AND is_from_boss = FALSE))
-                    AND sender_id != %s
-                ''', (user_id, user_id, user_id, user_id))
+                    SELECT id, full_name, role
+                    FROM users
+                    WHERE role IN ('director', 'manager', 'head') AND id != %s
+                    ORDER BY role DESC, full_name ASC
+                ''', (user_id,))
                 
+                all_users = cursor.fetchall()
                 dialog_users = []
-                for row in cursor.fetchall():
-                    other_user_id = row['user_id']
-                    if not other_user_id or other_user_id == user_id:
-                        continue
+                
+                for user_data in all_users:
+                    other_user_id = user_data['id']
                     
-                    cursor.execute('SELECT full_name, role FROM users WHERE id = %s', (other_user_id,))
-                    user_data = cursor.fetchone()
-                    
+                    # Count unread messages from this user
                     cursor.execute('''
                         SELECT COUNT(*) as unread_count
                         FROM t_p35759334_music_label_portal.messages
-                        WHERE sender_id = %s AND (receiver_id = %s OR receiver_id IS NULL) AND is_read = FALSE
+                        WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
                     ''', (other_user_id, user_id))
                     unread = cursor.fetchone()
                     
+                    # Get last message in dialog
                     cursor.execute('''
                         SELECT message, created_at
                         FROM t_p35759334_music_label_portal.messages
-                        WHERE (sender_id = %s AND (receiver_id = %s OR receiver_id IS NULL)) 
+                        WHERE (sender_id = %s AND receiver_id = %s) 
                            OR (sender_id = %s AND receiver_id = %s)
                         ORDER BY created_at DESC LIMIT 1
                     ''', (other_user_id, user_id, user_id, other_user_id))
                     last_msg = cursor.fetchone()
                     
-                    if user_data:
-                        dialog_users.append({
-                            'user_id': other_user_id,
-                            'name': user_data['full_name'],
-                            'role': user_data['role'],
-                            'unread_count': unread['unread_count'] if unread else 0,
-                            'last_message': last_msg['message'] if last_msg else '',
-                            'last_message_time': last_msg['created_at'].isoformat() if last_msg else ''
-                        })
+                    dialog_users.append({
+                        'user_id': other_user_id,
+                        'name': user_data['full_name'],
+                        'role': user_data['role'],
+                        'unread_count': unread['unread_count'] if unread else 0,
+                        'last_message': last_msg['message'] if last_msg else '',
+                        'last_message_time': last_msg['created_at'].isoformat() if last_msg else ''
+                    })
                 
                 return {
                     'statusCode': 200,
@@ -134,7 +128,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT m.id, m.sender_id, m.receiver_id, m.message, m.created_at, m.is_read, m.is_from_boss
                     FROM t_p35759334_music_label_portal.messages m
                     WHERE (m.sender_id = %s AND m.receiver_id = %s) 
-                       OR (m.sender_id = %s AND (m.receiver_id = %s OR m.receiver_id IS NULL))
+                       OR (m.sender_id = %s AND m.receiver_id = %s)
                     ORDER BY m.created_at ASC
                 ''', (user_id, dialog_with, dialog_with, user_id))
             else:

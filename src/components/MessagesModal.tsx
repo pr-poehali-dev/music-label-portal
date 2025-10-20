@@ -32,7 +32,7 @@ interface MessagesModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: number;
-  userRole: 'boss' | 'manager' | 'artist';
+  userRole: 'director' | 'manager' | 'head';
   userName?: string;
 }
 
@@ -49,11 +49,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
 
   useEffect(() => {
     if (open) {
-      if (userRole === 'boss') {
-        loadDialogsList();
-      } else {
-        loadDialog();
-      }
+      loadDialogsList();
     }
   }, [open]);
 
@@ -79,10 +75,13 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
   const loadDialog = async (withUserId?: number) => {
     setLoading(true);
     try {
-      const targetUserId = withUserId || (userRole === 'boss' ? selectedUser?.user_id : undefined);
-      const url = targetUserId 
-        ? `${MESSAGES_API}?user_id=${userId}&dialog_with=${targetUserId}`
-        : `${MESSAGES_API}?user_id=${userId}`;
+      const targetUserId = withUserId || selectedUser?.user_id;
+      if (!targetUserId) {
+        setLoading(false);
+        return;
+      }
+      
+      const url = `${MESSAGES_API}?user_id=${userId}&dialog_with=${targetUserId}`;
       
       const response = await fetch(url);
       if (!response.ok) throw new Error('Ошибка загрузки сообщений');
@@ -120,32 +119,24 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !selectedUser) return;
     
     setSending(true);
     try {
-      const receiverId = userRole === 'boss' ? selectedUser?.user_id : undefined;
-      
       const response = await fetch(MESSAGES_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sender_id: userId,
-          receiver_id: receiverId,
+          receiver_id: selectedUser.user_id,
           message: newMessage.trim(),
-          is_from_boss: userRole === 'boss',
         }),
       });
 
       if (!response.ok) throw new Error('Ошибка отправки');
 
       setNewMessage('');
-      
-      if (userRole === 'boss' && selectedUser) {
-        loadDialog(selectedUser.user_id);
-      } else {
-        loadDialog();
-      }
+      loadDialog(selectedUser.user_id);
     } catch (error) {
       toast({
         title: 'Ошибка',
@@ -187,14 +178,14 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
 
   const totalUnread = dialogUsers.reduce((sum, u) => sum + u.unread_count, 0);
 
-  if (userRole === 'boss' && !selectedUser) {
+  if (!selectedUser) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-md max-h-[600px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon name="MessageSquare" size={24} />
-              Сообщения от команды
+              {userRole === 'director' ? 'Сообщения от команды' : 'Мои диалоги'}
               {totalUnread > 0 && (
                 <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
                   {totalUnread}
@@ -227,12 +218,14 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        user.role === 'manager' 
+                        user.role === 'director' 
+                          ? 'bg-red-600 text-white'
+                          : user.role === 'manager' 
                           ? 'bg-green-600 text-white' 
                           : 'bg-purple-600 text-white'
                       }`}>
                         <Icon 
-                          name={user.role === 'manager' ? 'UserCheck' : 'Music'} 
+                          name={user.role === 'director' ? 'Crown' : user.role === 'manager' ? 'UserCheck' : 'Music'} 
                           size={20} 
                         />
                       </div>
@@ -246,7 +239,7 @@ export function MessagesModal({ open, onOpenChange, userId, userRole, userName }
                           )}
                         </div>
                         <p className="text-xs text-gray-400 mb-1">
-                          {user.role === 'manager' ? 'Менеджер' : 'Артист'}
+                          {user.role === 'director' ? 'Руководитель' : user.role === 'manager' ? 'Менеджер' : 'Артист'}
                         </p>
                         {user.last_message && (
                           <p className="text-sm text-gray-300 truncate">{user.last_message}</p>
