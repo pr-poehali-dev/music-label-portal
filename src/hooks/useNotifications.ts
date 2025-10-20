@@ -113,6 +113,8 @@ export const createNotification = async (data: {
   type: string;
   related_entity_type?: string;
   related_entity_id?: number;
+  user_ids?: number[];
+  notify_directors?: boolean;
 }) => {
   try {
     const response = await fetch(CREATE_NOTIFICATION_URL, {

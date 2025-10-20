@@ -5,8 +5,8 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Create system notification for directors
-    Args: event with POST body containing notification data
+    Business: Create system notification for users
+    Args: event with POST body containing notification data and optional user_ids
     Returns: Created notification confirmation
     '''
     method: str = event.get('httpMethod', 'POST')
@@ -38,6 +38,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         notification_type = body_data.get('type', 'info')
         related_entity_type = body_data.get('related_entity_type')
         related_entity_id = body_data.get('related_entity_id')
+        user_ids = body_data.get('user_ids', [])  # Optional: specific user IDs
+        notify_directors = body_data.get('notify_directors', True)  # Default: notify directors
         
         if not title or not message:
             return {
@@ -53,30 +55,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         with psycopg2.connect(dsn) as conn:
             conn.autocommit = True
             with conn.cursor() as cur:
-                # Get all directors
-                cur.execute(f"""
-                    SELECT id FROM {schema}.users
-                    WHERE role = 'director'
-                """)
+                recipient_ids = set(user_ids) if user_ids else set()
                 
-                directors = cur.fetchall()
+                # Add directors if requested
+                if notify_directors:
+                    cur.execute(f"""
+                        SELECT id FROM {schema}.users
+                        WHERE role = 'director'
+                    """)
+                    directors = cur.fetchall()
+                    recipient_ids.update(d[0] for d in directors)
                 
-                if not directors:
+                if not recipient_ids:
                     return {
                         'statusCode': 404,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'isBase64Encoded': False,
-                        'body': json.dumps({'error': 'No directors found'})
+                        'body': json.dumps({'error': 'No recipients found'})
                     }
                 
-                # Create notification for each director
-                for director in directors:
-                    director_id = director[0]
+                # Create notification for each recipient
+                for user_id in recipient_ids:
                     cur.execute(f"""
                         INSERT INTO {schema}.notifications 
                         (user_id, title, message, type, related_entity_type, related_entity_id)
                         VALUES (%s, %s, %s, %s, %s, %s)
-                    """, (director_id, title, message, notification_type, related_entity_type, related_entity_id))
+                    """, (user_id, title, message, notification_type, related_entity_type, related_entity_id))
                 
                 return {
                     'statusCode': 200,
@@ -84,7 +88,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False,
                     'body': json.dumps({
                         'message': 'Notifications created',
-                        'count': len(directors)
+                        'count': len(recipient_ids)
                     })
                 }
         

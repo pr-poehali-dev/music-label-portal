@@ -127,7 +127,7 @@ export const useTickets = (user: User | null, statusFilter: string) => {
 
   const assignTicket = useCallback(async (ticketId: number, managerId: number | null, deadline?: string) => {
     try {
-      await fetch(API_URLS.tickets, {
+      const response = await fetch(API_URLS.tickets, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: ticketId, assigned_to: managerId, deadline })
@@ -136,6 +136,26 @@ export const useTickets = (user: User | null, statusFilter: string) => {
       if (user) {
         logActivity(user.id, 'assign_ticket', `Назначен тикет #${ticketId}`, { ticketId, managerId, deadline });
       }
+      
+      // Send notification to assigned manager
+      if (managerId && response.ok) {
+        try {
+          const ticketData = await response.json();
+          const { createNotification } = await import('@/hooks/useNotifications');
+          await createNotification({
+            title: '📋 Вам назначен тикет',
+            message: `Тикет #${ticketId}${deadline ? '. Дедлайн: ' + new Date(deadline).toLocaleString('ru-RU') : ''}`,
+            type: 'ticket_assigned',
+            related_entity_type: 'ticket',
+            related_entity_id: ticketId,
+            user_ids: [managerId],
+            notify_directors: true
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+      }
+      
       toast({ title: '✅ Тикет назначен' });
       loadTickets();
     } catch (error) {
