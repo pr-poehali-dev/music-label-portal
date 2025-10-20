@@ -36,7 +36,7 @@ export const useReleaseManager = (userId: number) => {
 
   useEffect(() => {
     loadReleases();
-  }, [userId]);
+  }, [userId, loadReleases]);
 
   // Защита от случайного закрытия страницы во время загрузки
   useEffect(() => {
@@ -82,7 +82,7 @@ export const useReleaseManager = (userId: number) => {
     } finally {
       setLoading(false);
     }
-  }, [userId, toast]);
+  }, [userId]); // toast не должен быть в зависимостях - он стабильный
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
     if (!file) {
@@ -400,12 +400,9 @@ export const useReleaseManager = (userId: number) => {
       }
       
       const data = await response.json();
-      console.log('[loadTracks] Response:', data);
-      
       // Бэкенд возвращает {release_data, tracks: [...]}
       return Array.isArray(data) ? data : (data.tracks || []);
     } catch (error) {
-      console.error('[loadTracks] Error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось загрузить треки',

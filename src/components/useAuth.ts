@@ -94,11 +94,16 @@ export const useAuth = () => {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        const updatedUser = data.users.find((u: User) => u.id === user.id);
-        
-        if (updatedUser) {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const updatedUser = data.users.find((u: User) => u.id === user.id);
+      
+      if (updatedUser) {
+        // Проверяем, действительно ли данные изменились
+        if (JSON.stringify(updatedUser) !== JSON.stringify(user)) {
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
           toast({ title: '✅ Данные обновлены', description: 'Ваши права доступа изменены' });
@@ -117,7 +122,10 @@ export const useAuth = () => {
       
       // Check if user's role has changed since last login
       fetch(`${API_URLS.users}?role=all`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then(data => {
           const currentUser = data.users.find((u: User) => u.id === userData.id);
           if (currentUser && currentUser.role !== userData.role) {
@@ -131,7 +139,7 @@ export const useAuth = () => {
         })
         .catch(err => console.error('Failed to verify user role:', err));
     }
-  }, [toast]);
+  }, []); // Пустой массив - запускается только один раз при монтировании
 
   useEffect(() => {
     if (!user) return;

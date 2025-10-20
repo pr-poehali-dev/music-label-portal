@@ -68,7 +68,6 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
 
   const loadTracks = useCallback(async () => {
     try {
-      console.log('Loading tracks with userId:', userId, 'releaseId:', releaseId);
       const response = await fetch(`${API_URL}?release_id=${releaseId}`, {
         headers: {
           'X-User-Id': String(userId)
@@ -76,17 +75,12 @@ export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps)
       });
       
       if (!response.ok) {
-        console.error('HTTP', response.status, ':', `${API_URL}?release_id=${releaseId}`);
         setTracks([]);
         return;
       }
       
       const data = await response.json();
-      console.log('[ReleasePlayer] Loaded data:', data);
-      
       const tracksArray = Array.isArray(data) ? data : (data.tracks || []);
-      console.log('[ReleasePlayer] Extracted tracks:', tracksArray, 'count:', tracksArray.length);
-      
       setTracks(tracksArray);
     } catch (error) {
       console.error('Failed to load tracks:', error);
