@@ -146,7 +146,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <Card className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-96 max-h-[70vh] sm:max-h-[500px] overflow-hidden z-50 shadow-xl">
+          <Card className="fixed left-1/2 -translate-x-1/2 top-16 sm:absolute sm:right-0 sm:left-auto sm:translate-x-0 w-[calc(100vw-2rem)] sm:w-96 max-h-[70vh] sm:max-h-[500px] overflow-hidden z-50 shadow-xl">
             <div className="flex items-center justify-between p-3 sm:p-4 border-b">
               <h3 className="font-semibold text-sm sm:text-base">Уведомления</h3>
               {unreadCount > 0 && (
