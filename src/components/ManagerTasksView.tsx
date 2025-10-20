@@ -128,20 +128,6 @@ const ManagerTasksView = React.memo(function ManagerTasksView({ tasks, onUpdateT
 
           {task.status !== 'completed' && (
             <div className="flex gap-1.5 pt-1" onClick={(e) => e.stopPropagation()}>
-              {(task.status === 'open' || task.status === 'pending') && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs flex-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onUpdateTaskStatus(task.id, 'in_progress');
-                  }}
-                >
-                  <Icon name="Play" size={12} className="mr-1" />
-                  Начать
-                </Button>
-              )}
               <Button
                 size="sm"
                 className="h-7 text-xs flex-1"

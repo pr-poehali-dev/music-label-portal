@@ -259,22 +259,6 @@ export default function TaskDetailDialog({ task, open, onOpenChange, onUpdateSta
           )}
 
           <div className="flex gap-2 pt-4 border-t">
-            {onUpdateStatus && task.status !== 'completed' && (
-              <>
-                {task.status === 'open' && (
-                  <Button
-                    onClick={() => {
-                      handleUpdateStatus(task.id, 'in_progress');
-                      onOpenChange(false);
-                    }}
-                    className="flex-1"
-                  >
-                    <Icon name="Play" size={16} className="mr-2" />
-                    Начать работу
-                  </Button>
-                )}
-              </>
-            )}
             
             {userRole === 'director' && onDeleteTask && (
               <Button
