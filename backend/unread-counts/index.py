@@ -41,8 +41,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
+        schema = 't_p35759334_music_label_portal'
+        
         # Получаем роль пользователя
-        cur.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+        cur.execute(f"SELECT role FROM {schema}.users WHERE id = %s", (user_id,))
         user_role_row = cur.fetchone()
         
         if not user_role_row:
@@ -66,37 +68,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if user_role == 'director':
             # Непрочитанные тикеты (новые открытые)
-            cur.execute("SELECT COUNT(*) FROM tickets WHERE status = 'open'")
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.tickets WHERE status = 'open'")
             counts['tickets'] = cur.fetchone()[0]
             
             # Непрочитанные задачи (новые pending)
-            cur.execute("SELECT COUNT(*) FROM tasks WHERE status = 'pending'")
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.tasks WHERE status = 'pending'")
             counts['tasks'] = cur.fetchone()[0]
             
             # Непрочитанные заявки артистов
-            cur.execute("SELECT COUNT(*) FROM submissions WHERE status = 'pending'")
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.submissions WHERE status = 'pending'")
             counts['submissions'] = cur.fetchone()[0]
             
         elif user_role == 'manager':
             # Тикеты назначенные менеджеру
-            cur.execute("SELECT COUNT(*) FROM tickets WHERE assigned_to = %s AND status != 'resolved' AND status != 'closed'", (user_id,))
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.tickets WHERE assigned_to = %s AND status != 'resolved' AND status != 'closed'", (user_id,))
             counts['tickets'] = cur.fetchone()[0]
             
             # Задачи назначенные менеджеру (непрочитанные)
-            cur.execute("SELECT COUNT(*) FROM tasks WHERE assigned_to = %s AND is_read = FALSE", (user_id,))
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.tasks WHERE assigned_to = %s AND is_read = FALSE", (user_id,))
             counts['tasks'] = cur.fetchone()[0]
             
         elif user_role == 'artist':
             # Тикеты созданные артистом (ответы)
-            cur.execute("SELECT COUNT(*) FROM tickets WHERE created_by = %s AND status != 'open'", (user_id,))
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.tickets WHERE created_by = %s AND status != 'open'", (user_id,))
             counts['tickets'] = cur.fetchone()[0]
         
         # Непрочитанные сообщения (для всех)
         try:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT COUNT(DISTINCT sender_id) 
-                FROM messages 
-                WHERE recipient_id = %s AND is_read = FALSE
+                FROM {schema}.messages 
+                WHERE receiver_id = %s AND is_read = FALSE
             """, (user_id,))
             counts['messages'] = cur.fetchone()[0]
         except:

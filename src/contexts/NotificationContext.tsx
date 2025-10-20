@@ -119,7 +119,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         setUnreadCounts(newCounts);
       }
     } catch (error) {
-      console.error('Failed to fetch unread counts:', error);
+      // Silently fail
     } finally {
       setLoading(false);
     }
