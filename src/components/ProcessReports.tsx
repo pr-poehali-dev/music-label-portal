@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface ArtistFile {
   id: number;
@@ -35,8 +36,8 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
   const loadFiles = async () => {
     try {
       const url = uploadedReportId
-        ? `https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264?uploaded_report_id=${uploadedReportId}`
-        : 'https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264';
+        ? `${API_ENDPOINTS.UPLOAD_REPORTS}?uploaded_report_id=${uploadedReportId}`
+        : API_ENDPOINTS.UPLOAD_REPORTS;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -64,7 +65,7 @@ export default function ProcessReports({ uploadedReportId, onClose }: ProcessRep
         description: `Скачиваем отчёт для ${performerName}...`,
       });
 
-      const response = await fetch(`https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264?file_id=${file.id}`);
+      const response = await fetch(`${API_ENDPOINTS.UPLOAD_REPORTS}?file_id=${file.id}`);
       
       if (!response.ok) {
         throw new Error(`Ошибка ${response.status}`);

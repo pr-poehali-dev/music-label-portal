@@ -7,6 +7,7 @@ import { ProfileInfo } from './UserProfile/ProfileInfo';
 import { PasswordChangeForm } from './UserProfile/PasswordChangeForm';
 import { useToast } from '@/hooks/use-toast';
 import { uploadFile } from '@/utils/uploadFile';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface UserProfileProps {
   user: User;
@@ -123,7 +124,7 @@ const UserProfile = React.memo(function UserProfile({ user, onUpdateProfile }: U
     }
 
     try {
-      const response = await fetch('https://functions.poehali.dev/fc19a64b-eb76-4cdf-bf49-f7ed121edba7', {
+      const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

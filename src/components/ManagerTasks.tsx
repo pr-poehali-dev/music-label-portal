@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Task {
   id: number;
@@ -27,7 +28,7 @@ interface ManagerTasksProps {
   userId: number;
 }
 
-const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
+const API_URL = API_ENDPOINTS.TICKETS;
 
 export default function ManagerTasks({ userId }: ManagerTasksProps) {
   const [tasks, setTasks] = useState<Task[]>([]);

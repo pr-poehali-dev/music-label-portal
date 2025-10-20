@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Report {
   id: number;
@@ -46,7 +47,7 @@ export default function ArtistReports({ userId, userName }: ArtistReportsProps) 
   const loadReports = async () => {
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264?artist_id=${userId}`
+        `${API_ENDPOINTS.UPLOAD_REPORTS}?artist_id=${userId}`
       );
       const data = await response.json();
       setReports(data.reports || []);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface VKPost {
   id: number;
@@ -31,7 +32,7 @@ export default function VKPosts() {
   const loadPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://functions.poehali.dev/2a44eeac-eb38-454b-a031-3713ae83a3d2?count=6&_=${Date.now()}`);
+      const response = await fetch(`${API_ENDPOINTS.VK_POSTS}?count=6&_=${Date.now()}`);
       const data = await response.json();
       
       if (data.error) {

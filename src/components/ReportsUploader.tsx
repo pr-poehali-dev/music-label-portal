@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import ProcessReports from './ProcessReports';
 import { createNotification } from '@/hooks/useNotifications';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface ReportsUploaderProps {
   userId: number;
@@ -48,7 +49,7 @@ export default function ReportsUploader({ userId }: ReportsUploaderProps) {
       formData.append('file', file);
       formData.append('uploaded_by', String(userId));
 
-      const response = await fetch('https://functions.poehali.dev/be12d7b5-90f6-4a13-992e-204cd8f0a264', {
+      const response = await fetch(API_ENDPOINTS.UPLOAD_REPORTS, {
         method: 'POST',
         body: formData,
         signal: AbortSignal.timeout(120000)

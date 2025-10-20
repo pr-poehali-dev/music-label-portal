@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { API_ENDPOINTS } from '@/config/api';
 
-const API_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
+const API_URL = API_ENDPOINTS.PITCHING;
 
 interface Pitching {
   id: number;

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Task {
   id: number;
@@ -37,7 +38,7 @@ interface DailyStats {
   tasks_by_manager: { [key: string]: number };
 }
 
-const API_URL = 'https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890';
+const API_URL = API_ENDPOINTS.TASKS;
 
 export default function TaskAnalyticsDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);

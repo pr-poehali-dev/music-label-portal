@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Message {
   id: number;
@@ -35,7 +36,7 @@ interface MessagesModalProps {
   userName?: string;
 }
 
-const MESSAGES_API = 'https://functions.poehali.dev/7bcbbe5a-cae2-4cbe-94c1-ca6a0152ce3a';
+const MESSAGES_API = API_ENDPOINTS.MESSAGES;
 
 export function MessagesModal({ open, onOpenChange, userId, userRole, userName }: MessagesModalProps) {
   const [dialogUsers, setDialogUsers] = useState<DialogUser[]>([]);

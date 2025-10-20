@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import NotificationBell from '@/components/NotificationBell';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface AppHeaderProps {
   onMessagesClick: () => void;
@@ -25,7 +26,7 @@ export default function AppHeader({ onMessagesClick, onProfileClick, onLogout, o
 
   const loadUnreadCount = async () => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7?user_id=${userId}&list_dialogs=true`);
+      const response = await fetch(`${API_ENDPOINTS.MESSAGES}?user_id=${userId}&list_dialogs=true`);
       if (response.ok) {
         const dialogs = await response.json();
         const total = Array.isArray(dialogs) 

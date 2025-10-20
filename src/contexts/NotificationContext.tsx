@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface UnreadCounts {
   tickets: number;
@@ -75,7 +76,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         return;
       }
 
-      const response = await fetch('https://functions.poehali.dev/87d13cda-05ed-4e45-9232-344fe2c026d7', {
+      const response = await fetch(API_ENDPOINTS.UNREAD_COUNTS, {
         headers: {
           'X-User-Id': userId,
           'X-Auth-Token': token

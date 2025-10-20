@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface ReleaseStats {
   total_releases: number;
@@ -28,7 +29,7 @@ export default function ReleaseAnalyticsDashboard() {
     try {
       setLoading(true);
       
-      const response = await fetch('https://functions.poehali.dev/5f67ae5e-fa40-4b8a-ba1e-d66a28d27c18');
+      const response = await fetch(API_ENDPOINTS.RELEASE_ANALYTICS);
       
       if (!response.ok) {
         throw new Error('Failed to fetch analytics');

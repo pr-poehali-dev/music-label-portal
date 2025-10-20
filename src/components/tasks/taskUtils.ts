@@ -1,7 +1,8 @@
 import { uploadFile as uploadFileUtil } from '@/utils/uploadFile';
+import { API_ENDPOINTS } from '@/config/api';
 
-export const API_URL = 'https://functions.poehali.dev/13e06494-4f4d-4854-b126-bbc191bf0890';
-export const UPLOAD_URL = 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa';
+export const API_URL = API_ENDPOINTS.TASKS;
+export const UPLOAD_URL = API_ENDPOINTS.UPLOAD_FILE;
 
 export const getPriorityColor = (priority: string) => {
   const colors = {

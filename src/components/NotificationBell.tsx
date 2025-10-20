@@ -4,8 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
-const NOTIFICATIONS_URL = 'https://functions.poehali.dev/fa0a6c5c-aba5-449b-aead-2f2e0bb0e01a';
+const NOTIFICATIONS_URL = API_ENDPOINTS.NOTIFICATIONS;
 
 interface Notification {
   id: number;

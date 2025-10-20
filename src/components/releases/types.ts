@@ -33,6 +33,8 @@ export interface Release {
   reviewer_name?: string;
 }
 
+import { API_ENDPOINTS } from '@/config/api';
+
 export const GENRES = ['Pop', 'Rock', 'Hip-Hop', 'Electronic', 'Jazz', 'Classical', 'R&B', 'Country', 'Alternative'];
 export const LANGUAGES = ['Русский', 'Английский', 'Испанский', 'Французский', 'Немецкий', 'Итальянский', 'Японский', 'Корейский'];
 
@@ -53,5 +55,5 @@ export interface Pitching {
   created_at?: string;
 }
 
-export const API_URL = 'https://functions.poehali.dev/05d2ddf9-772f-40cb-bcef-0d70fa96e059';
-export const UPLOAD_URL = 'https://functions.poehali.dev/b71db925-35e3-4b17-8c1a-bb12f7db8f85';
+export const API_URL = API_ENDPOINTS.RELEASES;
+export const UPLOAD_URL = API_ENDPOINTS.UPLOAD_FILE;

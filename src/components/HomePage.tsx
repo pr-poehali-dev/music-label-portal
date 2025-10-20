@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function HomePage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/40a44285-32b8-4e3e-8f8f-b77f16293727', {
+      const response = await fetch(API_ENDPOINTS.SUBMISSIONS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

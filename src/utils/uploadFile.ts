@@ -1,4 +1,6 @@
-const UPLOAD_URL = 'https://functions.poehali.dev/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa';
+import { API_ENDPOINTS } from '@/config/api';
+
+const UPLOAD_URL = API_ENDPOINTS.UPLOAD_FILE;
 
 export interface UploadFileResult {
   url: string;

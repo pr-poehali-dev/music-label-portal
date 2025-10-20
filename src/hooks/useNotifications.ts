@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/config/api';
 
-const NOTIFICATIONS_URL = 'https://functions.poehali.dev/fa0a6c5c-aba5-449b-aead-2f2e0bb0e01a';
-const CREATE_NOTIFICATION_URL = 'https://functions.poehali.dev/c93b4bbd-7c4a-4d8f-9f8b-c6c0a9984216';
+const NOTIFICATIONS_URL = API_ENDPOINTS.NOTIFICATIONS;
+const CREATE_NOTIFICATION_URL = API_ENDPOINTS.CREATE_NOTIFICATION;
 
 export interface Notification {
   id: number;

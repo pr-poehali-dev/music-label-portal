@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { API_URL, UPLOAD_URL, uploadFile } from '../tasks/taskUtils';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface User {
   id: number;
@@ -155,7 +156,7 @@ export function useTaskManagement(managers: User[]) {
               
               if (newTask.deadline) {
                 try {
-                  await fetch('https://functions.poehali.dev/9e9a7f27-c25d-45a8-aa64-3dd7fef5ffb7', {
+                  await fetch(API_ENDPOINTS.MESSAGES, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

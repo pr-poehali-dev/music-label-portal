@@ -2,8 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
-const REMINDER_URL = 'https://functions.poehali.dev/7b917e9b-349b-4e00-91f6-933aaff43d85';
+const REMINDER_URL = API_ENDPOINTS.DEADLINE_REMINDER;
 
 export default function ReminderSetup() {
   const { toast } = useToast();

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface ManagerStatsProps {
   userId: number;
@@ -19,7 +20,7 @@ interface Stats {
   tickets_activity: ActivityData[];
 }
 
-const API_URL = 'https://functions.poehali.dev/cdcd7646-5a98-477f-8464-d1aa48319296';
+const API_URL = API_ENDPOINTS.TICKETS;
 
 export default function ManagerStats({ userId }: ManagerStatsProps) {
   const [stats, setStats] = useState<Stats>({ 

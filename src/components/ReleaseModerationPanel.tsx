@@ -5,9 +5,10 @@ import Icon from '@/components/ui/icon';
 import ReleaseCard from './release-moderation/ReleaseCard';
 import ReleaseDetailsDialog from './release-moderation/ReleaseDetailsDialog';
 import type { Release } from './release-moderation/types';
+import { API_ENDPOINTS } from '@/config/api';
 
-const API_URL = 'https://functions.poehali.dev/05d2ddf9-772f-40cb-bcef-0d70fa96e059';
-const PITCHING_API_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
+const API_URL = API_ENDPOINTS.RELEASES;
+const PITCHING_API_URL = API_ENDPOINTS.PITCHING;
 
 interface ReleaseModerationPanelProps {
   userId: number;

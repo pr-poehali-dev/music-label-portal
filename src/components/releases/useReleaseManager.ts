@@ -3,8 +3,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Track, Release, Pitching, API_URL, UPLOAD_URL } from './types';
 import { createNotification } from '@/hooks/useNotifications';
 import { uploadFile as uploadFileUtil } from '@/utils/uploadFile';
+import { API_ENDPOINTS } from '@/config/api';
 
-const PITCHING_URL = 'https://functions.poehali.dev/da292f4e-1263-4ad9-878e-0349a94d0480';
+const PITCHING_URL = API_ENDPOINTS.PITCHING;
 
 export const useReleaseManager = (userId: number) => {
   const [releases, setReleases] = useState<Release[]>([]);

@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
-const BOT_API_URL = 'https://functions.poehali.dev/ae7c32d8-5b08-4870-9606-e750de3c31a9';
+const BOT_API_URL = API_ENDPOINTS.TELEGRAM_BOT;
 
 export default function TelegramBotSettings() {
   const [webhookUrl, setWebhookUrl] = useState(BOT_API_URL);

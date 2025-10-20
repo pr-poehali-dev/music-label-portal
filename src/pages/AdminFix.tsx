@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function AdminFix() {
   const [result, setResult] = useState<any>(null);
@@ -9,7 +10,7 @@ export default function AdminFix() {
   const fixPasswords = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/05c06730-31f5-43a6-a240-50721bb848c6', {
+      const response = await fetch(API_ENDPOINTS.MIGRATE_DB, {
         method: 'POST'
       });
       const data = await response.json();

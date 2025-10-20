@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
-const API_URL = 'https://functions.poehali.dev/57dc847b-266a-4258-af20-68e634b98ec7';
+const API_URL = API_ENDPOINTS.WEEKLY_REPORT;
 
 interface WeeklyReportData {
   period: {

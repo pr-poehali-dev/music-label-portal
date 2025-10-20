@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface DailyStats {
   date: string;
@@ -28,7 +29,7 @@ interface Summary {
   avg_resolution_hours: number | null;
 }
 
-const API_URL = 'https://functions.poehali.dev/831a484a-c7b9-4607-b683-19d813dc77e5';
+const API_URL = API_ENDPOINTS.TICKET_ANALYTICS;
 
 export default function TicketAnalyticsDashboard() {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);

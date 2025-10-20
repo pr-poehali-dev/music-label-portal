@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface LoginFormProps {
   onLogin: (username: string, password: string, vkData?: any, telegramData?: any) => void;
@@ -30,7 +31,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
       try {
         console.log('Telegram auth data:', user);
         
-        const response = await fetch('https://functions.poehali.dev/e15fe44b-1976-42f1-aa0d-ff37aca2fd10', {
+        const response = await fetch(API_ENDPOINTS.TELEGRAM_AUTH, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(user)
@@ -89,7 +90,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     setIsLoading(true);
     
     try {
-      const response = await fetch('https://functions.poehali.dev/d2601eec-1d55-4956-b655-187431987ed9', {
+      const response = await fetch(API_ENDPOINTS.AUTH, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
