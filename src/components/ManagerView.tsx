@@ -105,14 +105,14 @@ export default function ManagerView({
                 <span>Задачи</span>
                 {unreadCounts.tasks > 0 && <Badge count={unreadCounts.tasks} />}
               </TabsTrigger>
-              <TabsTrigger value="releases" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
-                <Icon name="Music" className="w-4 h-4 text-purple-500" />
-                <span>Релизы</span>
-              </TabsTrigger>
               <TabsTrigger value="tickets" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="Ticket" className="w-4 h-4 text-yellow-500" />
                 <span>Тикеты</span>
                 {unreadCounts.tickets > 0 && <Badge count={unreadCounts.tickets} />}
+              </TabsTrigger>
+              <TabsTrigger value="releases" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="Music" className="w-4 h-4 text-purple-500" />
+                <span>Релизы</span>
               </TabsTrigger>
               <TabsTrigger value="submissions" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
                 <Icon name="ClipboardList" className="w-4 h-4 text-blue-500" />
