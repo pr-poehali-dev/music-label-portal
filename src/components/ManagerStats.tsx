@@ -16,9 +16,11 @@ interface ActivityData {
 interface Stats {
   completed_tasks: number;
   answered_tickets: number;
+  reviewed_releases: number;
   pitching_tracks: number;
   tasks_activity: ActivityData[];
   tickets_activity: ActivityData[];
+  releases_activity: ActivityData[];
   pitching_activity: ActivityData[];
 }
 
@@ -28,9 +30,11 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
   const [stats, setStats] = useState<Stats>({ 
     completed_tasks: 0, 
     answered_tickets: 0,
+    reviewed_releases: 0,
     pitching_tracks: 0,
     tasks_activity: [],
     tickets_activity: [],
+    releases_activity: [],
     pitching_activity: []
   });
   const [loading, setLoading] = useState(true);
@@ -55,23 +59,29 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
   };
 
   const mergeActivityData = () => {
-    const dateMap = new Map<string, { tasks: number; tickets: number; pitching: number }>();
+    const dateMap = new Map<string, { tasks: number; tickets: number; releases: number; pitching: number }>();
     
     stats.tasks_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, releases: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tasks: item.count });
     });
     
     stats.tickets_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, releases: 0, pitching: 0 };
       dateMap.set(date, { ...existing, tickets: item.count });
+    });
+    
+    stats.releases_activity?.forEach(item => {
+      const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, releases: 0, pitching: 0 };
+      dateMap.set(date, { ...existing, releases: item.count });
     });
     
     stats.pitching_activity?.forEach(item => {
       const date = new Date(item.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, pitching: 0 };
+      const existing = dateMap.get(date) || { tasks: 0, tickets: 0, releases: 0, pitching: 0 };
       dateMap.set(date, { ...existing, pitching: item.count });
     });
     
@@ -89,7 +99,7 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
 
   return (
     <div className="space-y-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Выполнено задач</CardTitle>
@@ -128,6 +138,28 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
               <div className="text-3xl font-bold text-blue-600">{stats.answered_tickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Закрытых тикетов за всё время
+              </p>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Проверено релизов</CardTitle>
+          <Icon name="Music" size={20} className="text-yellow-600" />
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <Icon name="Loader2" size={20} className="animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Загрузка...</span>
+            </div>
+          ) : (
+            <>
+              <div className="text-3xl font-bold text-yellow-600">{stats.reviewed_releases}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Проверенных релизов за всё время
               </p>
             </>
           )}
@@ -199,6 +231,14 @@ export default function ManagerStats({ userId }: ManagerStatsProps) {
                   strokeWidth={2}
                   name="Тикеты"
                   dot={{ fill: '#2563eb', r: 4 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="releases" 
+                  stroke="#ca8a04" 
+                  strokeWidth={2}
+                  name="Релизы"
+                  dot={{ fill: '#ca8a04', r: 4 }}
                 />
                 <Line 
                   type="monotone" 

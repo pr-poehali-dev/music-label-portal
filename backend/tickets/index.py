@@ -82,6 +82,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ''', (int(user_id),))
             tickets_activity = cur.fetchall()
             
+            cur.execute('''
+                SELECT COUNT(*) as reviewed_releases 
+                FROM t_p35759334_music_label_portal.releases 
+                WHERE reviewed_by = %s AND status IN ('approved', 'rejected')
+            ''', (int(user_id),))
+            releases_result = cur.fetchone()
+            
+            cur.execute('''
+                SELECT DATE(reviewed_at) as date, COUNT(*) as count 
+                FROM t_p35759334_music_label_portal.releases 
+                WHERE reviewed_by = %s AND status IN ('approved', 'rejected')
+                AND reviewed_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(reviewed_at) 
+                ORDER BY date ASC
+            ''', (int(user_id),))
+            releases_activity = cur.fetchall()
+            
             cur.close()
             conn.close()
             
@@ -92,8 +109,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'completed_tasks': tasks_result['completed_tasks'] if tasks_result else 0,
                     'answered_tickets': tickets_result['answered_tickets'] if tickets_result else 0,
+                    'reviewed_releases': releases_result['reviewed_releases'] if releases_result else 0,
                     'tasks_activity': [dict(r) for r in tasks_activity],
-                    'tickets_activity': [dict(r) for r in tickets_activity]
+                    'tickets_activity': [dict(r) for r in tickets_activity],
+                    'releases_activity': [dict(r) for r in releases_activity]
                 }, default=str)
             }
         
