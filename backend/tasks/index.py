@@ -257,10 +257,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ticket_id_val = ticket_id if ticket_id else 'NULL'
             
             status = body_data.get('status', 'in_progress')
+            status_escaped = escape_sql(status)
+            priority_escaped = escape_sql(priority)
             
             query = f"""
                 INSERT INTO tasks (title, description, priority, status, created_by, assigned_to, deadline, ticket_id, created_at)
-                VALUES ('{title_escaped}', '{desc_escaped}', '{priority}', '{status}', {user_id}, {assigned_to}, '{deadline}', {ticket_id_val}, NOW())
+                VALUES ('{title_escaped}', '{desc_escaped}', '{priority_escaped}', '{status_escaped}', {user_id}, {assigned_to}, '{deadline}', {ticket_id_val}, NOW())
                 RETURNING id
             """
             cur.execute(query)
