@@ -57,6 +57,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
 
   return (
     <ReleaseManagerView
+      userId={userId}
       releases={releases}
       showForm={showForm}
       activeTab={activeTab}

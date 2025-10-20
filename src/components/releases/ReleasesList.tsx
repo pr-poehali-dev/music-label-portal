@@ -11,13 +11,14 @@ const ReleasePlayer = lazy(() => import('./ReleasePlayer'));
 const PitchingForm = lazy(() => import('./PitchingForm'));
 
 interface ReleasesListProps {
+  userId: number;
   releases: Release[];
   getStatusBadge: (status: string) => JSX.Element;
   onEdit?: (release: Release) => void;
   onPitching?: (data: Pitching) => Promise<void>;
 }
 
-const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
+const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
   const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
   const [pitchingRelease, setPitchingRelease] = useState<Release | null>(null);
   
@@ -118,7 +119,7 @@ const ReleasesList = memo(function ReleasesList({ releases, getStatusBadge, onEd
               {expandedRelease === release.id && (
                 <div className="mt-2">
                   <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                    <ReleasePlayer releaseId={release.id} />
+                    <ReleasePlayer userId={userId} releaseId={release.id} />
                   </Suspense>
                 </div>
               )}

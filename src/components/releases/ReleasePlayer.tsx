@@ -13,10 +13,11 @@ interface Track {
 }
 
 interface ReleasePlayerProps {
+  userId: number;
   releaseId: number;
 }
 
-export default function ReleasePlayer({ releaseId }: ReleasePlayerProps) {
+export default function ReleasePlayer({ userId, releaseId }: ReleasePlayerProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [currentTrack, setCurrentTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -67,11 +68,10 @@ export default function ReleasePlayer({ releaseId }: ReleasePlayerProps) {
 
   const loadTracks = useCallback(async () => {
     try {
-      const userId = localStorage.getItem('userId');
-      console.log('Loading tracks with userId:', userId);
+      console.log('Loading tracks with userId:', userId, 'releaseId:', releaseId);
       const response = await fetch(`${API_URL}?release_id=${releaseId}`, {
         headers: {
-          'X-User-Id': userId || ''
+          'X-User-Id': String(userId)
         }
       });
       
@@ -90,7 +90,7 @@ export default function ReleasePlayer({ releaseId }: ReleasePlayerProps) {
     } finally {
       setLoading(false);
     }
-  }, [releaseId]);
+  }, [userId, releaseId]);
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;

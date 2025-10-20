@@ -8,6 +8,7 @@ import ReleaseStatusTabs from './ReleaseStatusTabs';
 import { Release, Pitching } from './types';
 
 interface ReleaseManagerViewProps {
+  userId: number;
   releases: Release[];
   showForm: boolean;
   activeTab: 'all' | 'approved' | 'pending' | 'rejected';
@@ -49,6 +50,7 @@ const getStatusBadge = (status: string) => {
 };
 
 export default function ReleaseManagerView({
+  userId,
   releases,
   showForm,
   activeTab,
@@ -129,7 +131,8 @@ export default function ReleaseManagerView({
       )}
 
       {!showForm && (
-        <ReleasesList 
+        <ReleasesList
+          userId={userId}
           releases={filteredReleases} 
           getStatusBadge={getStatusBadge}
           onEdit={onEdit}
