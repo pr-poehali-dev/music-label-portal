@@ -166,7 +166,7 @@ export const useTasks = (user: any, ticketId?: number) => {
         formData.append('file', completionFile);
         formData.append('type', 'task_completion');
 
-        const uploadResponse = await fetch(`${API_URL}/c10e6a49-c959-4f4c-862c-f0e4e1f3c9f6`, {
+        const uploadResponse = await fetch(`${API_URL}/08bf9d4e-6ddc-4b6b-91a0-84187cbd89fa`, {
           method: 'POST',
           headers: {
             'X-User-Id': user.id.toString(),

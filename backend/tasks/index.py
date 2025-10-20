@@ -314,15 +314,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             completion_attachment_name = body_data.get('completion_attachment_name')
             completion_attachment_size = body_data.get('completion_attachment_size')
             
-            # Validate required report for completion
-            if status == 'completed' and not completion_report:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Completion report is required'}),
-                    'isBase64Encoded': False
-                }
-            
             completed_at = "NOW()" if status == 'completed' else "NULL"
             
             # Build update query
