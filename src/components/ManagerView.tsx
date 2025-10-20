@@ -10,7 +10,6 @@ import ReleaseModerationPanel from '@/components/ReleaseModerationPanel';
 import MessagesModal from '@/components/MessagesModal';
 import AppHeader from '@/components/AppHeader';
 import UserProfile from '@/components/UserProfile';
-import MobileNav from '@/components/MobileNav';
 import { User, Ticket } from '@/types';
 import { Task } from '@/components/useTasks';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -66,22 +65,14 @@ export default function ManagerView({
   const Badge = ({ count }: { count: number }) => {
     if (count === 0) return null;
     return (
-      <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
+      <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
         {count > 99 ? '99+' : count}
       </span>
     );
   };
 
-  const mobileNavItems = [
-    { value: 'tasks', icon: 'CheckSquare', label: 'Задачи', badge: unreadCounts.tasks },
-    { value: 'releases', icon: 'Music', label: 'Релизы', badge: 0 },
-    { value: 'tickets', icon: 'Ticket', label: 'Тикеты', badge: unreadCounts.tickets },
-    { value: 'submissions', icon: 'FileText', label: 'Заявки', badge: 0 },
-    { value: 'old-tasks', icon: 'Archive', label: 'Архив', badge: 0 }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern pb-20 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-br from-black via-yellow-950/30 to-black bg-grid-pattern">
       <div className="container mx-auto p-4 animate-fadeIn">
         <div className="sticky top-0 z-30">
           <AppHeader 
@@ -110,29 +101,29 @@ export default function ManagerView({
             localStorage.setItem('manager_active_tab', value);
           }}
           className="w-full">
-          <div className="hidden md:block w-full overflow-x-auto pb-2 scrollbar-hide mt-4">
-            <TabsList className="grid w-full grid-cols-5 min-w-[800px] md:min-w-0 bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1">
-              <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="CheckSquare" className="w-4 h-4 md:w-5 md:h-5 text-green-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Мои задачи</span>
-                <Badge count={unreadCounts.tasks} />
+          <div className="w-full overflow-x-auto scrollbar-hide mt-4">
+            <TabsList className="inline-flex min-w-full bg-card/60 backdrop-blur-sm border border-border rounded-xl p-1.5 gap-1">
+              <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="CheckSquare" className="w-4 h-4 text-green-500" />
+                <span>Мои задачи</span>
+                {unreadCounts.tasks > 0 && <Badge count={unreadCounts.tasks} />}
               </TabsTrigger>
-              <TabsTrigger value="old-tasks" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="Archive" className="w-4 h-4 md:w-5 md:h-5 text-gray-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Архив задач</span>
+              <TabsTrigger value="old-tasks" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="Archive" className="w-4 h-4 text-gray-500" />
+                <span>Архив задач</span>
               </TabsTrigger>
-              <TabsTrigger value="releases" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="Music" className="w-4 h-4 md:w-5 md:h-5 text-purple-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Релизы</span>
+              <TabsTrigger value="releases" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="Music" className="w-4 h-4 text-purple-500" />
+                <span>Релизы</span>
               </TabsTrigger>
-              <TabsTrigger value="tickets" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="Ticket" className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Тикеты</span>
-                <Badge count={unreadCounts.tickets} />
+              <TabsTrigger value="tickets" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="Ticket" className="w-4 h-4 text-yellow-500" />
+                <span>Тикеты</span>
+                {unreadCounts.tickets > 0 && <Badge count={unreadCounts.tickets} />}
               </TabsTrigger>
-              <TabsTrigger value="submissions" className="text-xs md:text-sm px-2 md:px-4 transition-all duration-200 hover:scale-105">
-                <Icon name="ClipboardList" className="w-4 h-4 md:w-5 md:h-5 text-blue-500 animate-pulse" />
-                <span className="hidden md:inline ml-2">Заявки</span>
+              <TabsTrigger value="submissions" className="flex items-center gap-2 px-4 py-2.5 whitespace-nowrap">
+                <Icon name="ClipboardList" className="w-4 h-4 text-blue-500" />
+                <span>Заявки</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -191,15 +182,7 @@ export default function ManagerView({
         )}
       </div>
 
-      <MobileNav 
-        items={mobileNavItems}
-        activeTab={activeTab}
-        onTabChange={(value) => {
-          console.log('Manager tab change:', value);
-          setActiveTab(value);
-          localStorage.setItem('manager_active_tab', value);
-        }}
-      />
+
     </div>
   );
 }
