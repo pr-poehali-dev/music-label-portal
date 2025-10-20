@@ -133,6 +133,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing file or fileName'})
             }
         
+        # Handle chunk upload
+        if is_chunk:
+            chunk_index = body_data.get('chunkIndex', 0)
+            total_chunks = body_data.get('totalChunks', 1)
+            original_file_name = body_data.get('originalFileName', file_name)
+            
+            print(f"Chunk upload: {chunk_index + 1}/{total_chunks} for {original_file_name}")
+        
         if file_size > 100 * 1024 * 1024:
             return {
                 'statusCode': 400,
