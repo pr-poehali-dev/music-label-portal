@@ -111,6 +111,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Regular task listing
             ticket_id = params.get('ticket_id')
+            show_deleted = params.get('show_deleted') == 'true'
             
             if ticket_id:
                 query = f"""
@@ -123,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
-                    WHERE t.ticket_id = {ticket_id}
+                    WHERE t.ticket_id = {ticket_id} AND t.status != 'deleted'
                     ORDER BY t.created_at DESC
                 """
             elif user_role == 'manager':
@@ -137,13 +138,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
-                    WHERE t.assigned_to = {user_id}
+                    WHERE t.assigned_to = {user_id} AND t.status != 'deleted'
                     ORDER BY 
                         CASE WHEN t.status = 'completed' THEN 2 ELSE 1 END,
                         t.deadline ASC NULLS LAST
                 """
             else:
-                query = """
+                status_filter = "t.status = 'deleted'" if show_deleted else "t.status != 'deleted'"
+                query = f"""
                     SELECT t.id, t.title, t.description, t.priority, t.status, 
                            t.created_by, t.assigned_to, t.deadline, t.ticket_id,
                            t.created_at, t.completed_at,
@@ -153,6 +155,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     LEFT JOIN users u1 ON t.created_by = u1.id
                     LEFT JOIN users u2 ON t.assigned_to = u2.id
                     LEFT JOIN tickets tk ON t.ticket_id = tk.id
+                    WHERE {status_filter}
                     ORDER BY t.created_at DESC
                     LIMIT 100
                 """
@@ -295,7 +298,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(f"DELETE FROM tasks WHERE id = {task_id}")
+            cur.execute(f"UPDATE tasks SET status = 'deleted' WHERE id = {task_id}")
             conn.commit()
             
             return {
