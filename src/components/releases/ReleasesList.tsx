@@ -16,9 +16,10 @@ interface ReleasesListProps {
   getStatusBadge: (status: string) => JSX.Element;
   onEdit?: (release: Release) => void;
   onPitching?: (data: Pitching) => Promise<void>;
+  onDelete?: (releaseId: number) => void;
 }
 
-const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBadge, onEdit, onPitching }: ReleasesListProps) {
+const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBadge, onEdit, onPitching, onDelete }: ReleasesListProps) {
   const [expandedRelease, setExpandedRelease] = useState<number | null>(null);
   const [pitchingRelease, setPitchingRelease] = useState<Release | null>(null);
   
@@ -93,15 +94,32 @@ const ReleasesList = memo(function ReleasesList({ userId, releases, getStatusBad
                   </Button>
                 )}
                 {release.status === 'pending' && onEdit && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onEdit(release)}
-                    className="gap-1 h-7 px-2 text-[10px] md:flex-1"
-                  >
-                    <Icon name="Edit" size={12} className="flex-shrink-0" />
-                    <span className="hidden md:inline">Изменить</span>
-                  </Button>
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEdit(release)}
+                      className="gap-1 h-7 px-2 text-[10px] md:flex-1"
+                    >
+                      <Icon name="Edit" size={12} className="flex-shrink-0" />
+                      <span className="hidden md:inline">Изменить</span>
+                    </Button>
+                    {onDelete && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (window.confirm('Вы уверены, что хотите удалить этот релиз? Все файлы будут удалены безвозвратно.')) {
+                            onDelete(release.id);
+                          }
+                        }}
+                        className="gap-1 h-7 px-2 text-[10px] text-destructive hover:bg-destructive/10 border-destructive/30"
+                      >
+                        <Icon name="Trash2" size={12} className="flex-shrink-0" />
+                        <span className="hidden md:inline">Удалить</span>
+                      </Button>
+                    )}
+                  </>
                 )}
                 {release.status === 'approved' && onPitching && (
                   <Button

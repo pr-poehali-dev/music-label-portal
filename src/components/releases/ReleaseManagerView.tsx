@@ -23,6 +23,7 @@ interface ReleaseManagerViewProps {
   onCancelForm: () => void;
   onEdit: (release: Release) => void;
   onPitching?: (data: Pitching) => Promise<void>;
+  onDelete?: (releaseId: number) => void;
   setNewRelease: (release: any) => void;
   handleCoverChange: (file: File | null) => void;
   addTrack: () => void;
@@ -65,6 +66,7 @@ export default function ReleaseManagerView({
   onCancelForm,
   onEdit,
   onPitching,
+  onDelete,
   setNewRelease,
   handleCoverChange,
   addTrack,
@@ -138,6 +140,7 @@ export default function ReleaseManagerView({
           getStatusBadge={getStatusBadge}
           onEdit={onEdit}
           onPitching={onPitching}
+          onDelete={onDelete}
         />
       )}
     </div>

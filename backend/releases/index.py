@@ -29,7 +29,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -353,6 +353,104 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
                 'body': json.dumps({'message': f'Release {action}d successfully'})
+            }
+        
+        elif method == 'DELETE':
+            params = event.get('queryStringParameters') or {}
+            release_id = params.get('release_id')
+            
+            if not release_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'release_id required'})
+                }
+            
+            cur.execute(f"""
+                SELECT r.*, u.role as user_role
+                FROM {schema}.releases r
+                JOIN {schema}.users u ON r.artist_id = u.id
+                WHERE r.id = %s
+            """, (release_id,))
+            release = cur.fetchone()
+            
+            if not release:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'Release not found'})
+                }
+            
+            if release['artist_id'] != int(user_id):
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'Only release owner can delete it'})
+                }
+            
+            if release['status'] not in ['pending', 'draft']:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'Can only delete releases in pending or draft status'})
+                }
+            
+            import boto3
+            from urllib.parse import urlparse
+            
+            s3_client = boto3.client(
+                's3',
+                endpoint_url='https://storage.yandexcloud.net',
+                aws_access_key_id=os.environ.get('YC_S3_ACCESS_KEY_ID'),
+                aws_secret_access_key=os.environ.get('YC_S3_SECRET_ACCESS_KEY'),
+                region_name='ru-central1'
+            )
+            bucket_name = os.environ.get('YC_S3_BUCKET_NAME')
+            
+            files_to_delete = []
+            
+            if release.get('cover_url'):
+                try:
+                    cover_key = urlparse(release['cover_url']).path.lstrip('/')
+                    if cover_key:
+                        files_to_delete.append(cover_key)
+                except Exception as e:
+                    print(f"Error parsing cover URL: {e}")
+            
+            cur.execute(f"""
+                SELECT file_url FROM {schema}.release_tracks
+                WHERE release_id = %s
+            """, (release_id,))
+            tracks = cur.fetchall()
+            
+            for track in tracks:
+                if track.get('file_url'):
+                    try:
+                        track_key = urlparse(track['file_url']).path.lstrip('/')
+                        if track_key:
+                            files_to_delete.append(track_key)
+                    except Exception as e:
+                        print(f"Error parsing track URL: {e}")
+            
+            for file_key in files_to_delete:
+                try:
+                    s3_client.delete_object(Bucket=bucket_name, Key=file_key)
+                    print(f"Deleted file: {file_key}")
+                except Exception as e:
+                    print(f"Error deleting file {file_key}: {e}")
+            
+            cur.execute(f"DELETE FROM {schema}.release_tracks WHERE release_id = %s", (release_id,))
+            cur.execute(f"DELETE FROM {schema}.releases WHERE id = %s", (release_id,))
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'message': 'Release deleted successfully', 'deleted_files': len(files_to_delete)})
             }
         
         return {

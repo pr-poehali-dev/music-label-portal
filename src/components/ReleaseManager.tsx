@@ -33,7 +33,8 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
     loadTracks,
     handleReview,
     handleEdit,
-    handlePitching
+    handlePitching,
+    deleteRelease
   } = useReleaseManager(userId);
 
   if (loading) {
@@ -72,6 +73,7 @@ export default function ReleaseManager({ userId, userRole = 'artist' }: ReleaseM
       onCancelForm={() => setShowForm(false)}
       onEdit={handleEdit}
       onPitching={handlePitching}
+      onDelete={deleteRelease}
       setNewRelease={setNewRelease}
       handleCoverChange={handleCoverChange}
       addTrack={addTrack}

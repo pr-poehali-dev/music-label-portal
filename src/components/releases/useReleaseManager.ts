@@ -34,23 +34,6 @@ export const useReleaseManager = (userId: number) => {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
 
-  useEffect(() => {
-    loadReleases();
-  }, [userId, loadReleases]);
-
-  // Защита от случайного закрытия страницы во время загрузки
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (uploading) {
-        e.preventDefault();
-        e.returnValue = 'Идёт загрузка релиза. Вы уверены что хотите закрыть страницу?';
-      }
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [uploading]);
-
   const loadReleases = useCallback(async () => {
     try {
       const controller = new AbortController();
@@ -82,7 +65,23 @@ export const useReleaseManager = (userId: number) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]); // toast не должен быть в зависимостях - он стабильный
+  }, [userId]);
+
+  useEffect(() => {
+    loadReleases();
+  }, [loadReleases]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (uploading) {
+        e.preventDefault();
+        e.returnValue = 'Идёт загрузка релиза. Вы уверены что хотите закрыть страницу?';
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [uploading]);
 
   const uploadFile = async (file: File): Promise<{ url: string; fileName: string; fileSize: number } | null> => {
     if (!file) {
@@ -444,6 +443,35 @@ export const useReleaseManager = (userId: number) => {
     }
   };
 
+  const deleteRelease = async (releaseId: number) => {
+    try {
+      const response = await fetch(`${API_URL}?release_id=${releaseId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Id': userId.toString()
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete release');
+      }
+
+      toast({
+        title: 'Удалено',
+        description: 'Релиз успешно удалён'
+      });
+
+      loadReleases();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось удалить релиз',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleEdit = async (release: Release) => {
     setEditingRelease(release);
     setNewRelease({
@@ -531,6 +559,7 @@ export const useReleaseManager = (userId: number) => {
     loadTracks,
     handleReview,
     handleEdit,
-    handlePitching
+    handlePitching,
+    deleteRelease
   };
 };
