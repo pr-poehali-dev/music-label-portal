@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import NewsCard from '@/components/NewsCard';
+import JobCard from '@/components/JobCard';
+import NewsDialog from '@/components/NewsDialog';
+import JobDialog from '@/components/JobDialog';
 
 interface News {
   id: number;
@@ -290,7 +288,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     }
   };
 
-  const startEditJob = (job: Job) => {
+  const startJobEdit = (job: Job) => {
     setEditingJob(job);
     setJobFormData({
       position: job.position,
@@ -303,457 +301,148 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
     });
   };
 
-  const getTypeConfig = (type: string) => {
-    switch (type) {
-      case 'update': 
-        return { icon: 'Zap', label: 'Обновление', color: 'text-primary' };
-      case 'faq': 
-        return { icon: 'HelpCircle', label: 'FAQ', color: 'text-secondary' };
-      default: 
-        return { icon: 'Info', label: type, color: 'text-muted-foreground' };
-    }
-  };
+  const filteredNews = news.filter(item => item.type === selectedType);
+  const canManage = userRole === 'director' || userRole === 'manager';
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Icon name="Loader2" className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center h-64">
+        <div className="text-white/50">Загрузка...</div>
       </div>
     );
   }
 
-  const updateNews = news.filter(n => n.type === 'update');
-  const faqNews = news.filter(n => n.type === 'faq');
-  
-  const filteredNews = selectedType === 'update' ? updateNews : faqNews;
-  const stats = {
-    update: updateNews.length,
-    faq: faqNews.length
-  };
-
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        
-        {/* Hero Header */}
-        <Card className="relative overflow-hidden border-border bg-card">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5" />
-          <div className="relative p-8 md:p-12">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 rounded-2xl bg-primary/10">
-                    <Icon name="Radio" className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                      Центр новостей
-                    </h1>
-                    <p className="text-muted-foreground mt-1">Будьте в курсе всех обновлений лейбла</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Countdown */}
-              <div className="flex flex-col items-end">
-                <p className="text-sm text-muted-foreground mb-2">До следующего отчёта</p>
-                <div className="flex gap-2">
-                  {[
-                    { label: 'дн', value: countdown.days },
-                    { label: 'ч', value: countdown.hours },
-                    { label: 'мин', value: countdown.minutes }
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex flex-col items-center bg-card border border-border rounded-xl p-3 min-w-[60px]">
-                      <div className="text-2xl font-bold text-primary tabular-nums">
-                        {String(value).padStart(2, '0')}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+    <div className="space-y-6 p-6">
+      <Card className="p-8 bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-white/20">
+        <h2 className="text-2xl font-bold mb-4 text-center">Отчетность</h2>
+        <div className="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+          {[
+            { label: 'Дней', value: countdown.days },
+            { label: 'Часов', value: countdown.hours },
+            { label: 'Минут', value: countdown.minutes },
+            { label: 'Секунд', value: countdown.seconds }
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <div className="text-4xl font-bold text-white mb-2">{item.value}</div>
+              <div className="text-sm text-white/70">{item.label}</div>
             </div>
-          </div>
-        </Card>
+          ))}
+        </div>
+      </Card>
 
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex gap-2 flex-1">
-            {[
-              { key: 'update', label: 'Обновления', icon: 'Zap', count: stats.update },
-              { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq }
-            ].map(({ key, label, icon, count }) => (
-              <Button
-                key={key}
-                variant={selectedType === key ? 'default' : 'outline'}
-                onClick={() => setSelectedType(key)}
-                className="gap-2"
-              >
-                <Icon name={icon} className="w-4 h-4" />
-                {label}
-                <Badge variant="secondary" className="ml-1">
-                  {count}
-                </Badge>
-              </Button>
-            ))}
-          </div>
-          
-          {userRole === 'director' && (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
             <Button
-              onClick={() => {
-                setIsCreating(true);
-                setEditingNews(null);
-                setFormData({ title: '', content: '', type: 'update', priority: 0, is_active: true });
-              }}
-              className="gap-2"
+              variant={selectedType === 'update' ? 'default' : 'outline'}
+              onClick={() => setSelectedType('update')}
             >
-              <Icon name="Plus" className="w-4 h-4" />
-              Создать новость
+              Обновления
             </Button>
-          )}
-        </div>
-
-        {/* News Grid */}
-        <div className="grid md:grid-cols-2 gap-4">
-          {filteredNews.map((item) => {
-            const config = getTypeConfig(item.type);
-            return (
-              <Card 
-                key={item.id} 
-                className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                
-                <div className="relative p-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className={`p-3 rounded-2xl ${item.type === 'update' ? 'bg-primary/10' : 'bg-secondary/10'}`}>
-                      <Icon name={config.icon} className={`w-6 h-6 ${config.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 
-                          className="text-xl font-bold text-foreground leading-tight cursor-pointer hover:text-primary transition-colors"
-                          onClick={() => userRole === 'director' ? startEdit(item) : null}
-                        >
-                          {item.title}
-                        </h3>
-                        {userRole === 'director' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteNews(item.id);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive shrink-0"
-                          >
-                            <Icon name="Trash2" className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <Badge variant="outline" className={`${config.color} border-current/30 bg-current/10 text-xs mb-3`}>
-                        {config.label}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <p className="text-muted-foreground leading-relaxed mb-4">{item.content}</p>
-                  
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Icon name="Clock" className="w-4 h-4" />
-                      {new Date(item.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </span>
-                    {userRole === 'director' && (
-                      <button
-                        onClick={() => startEdit(item)}
-                        className="flex items-center gap-1 text-primary hover:text-primary/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Icon name="Edit" className="w-4 h-4" />
-                        Редактировать
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {filteredNews.length === 0 && (
-          <Card className="p-16 text-center border-dashed">
-            <div className="inline-flex p-6 rounded-full bg-muted mb-4">
-              <Icon name="Inbox" className="w-12 h-12 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground text-lg">Новостей пока нет</p>
-          </Card>
-        )}
-
-        {/* Вакансии Section */}
-        <div className="mt-12">
-          <Card className="relative overflow-hidden border-border bg-card mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5" />
-            <div className="relative p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-secondary/10">
-                    <Icon name="Briefcase" className="w-6 h-6 text-secondary" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">
-                      Открытые вакансии
-                    </h2>
-                    <p className="text-muted-foreground text-sm">Присоединяйтесь к нашей команде</p>
-                  </div>
-                  <Badge variant="secondary" className="ml-2">
-                    {jobs.length}
-                  </Badge>
-                </div>
-                {userRole === 'director' && (
-                  <Button
-                    onClick={() => {
-                      setIsCreatingJob(true);
-                      setEditingJob(null);
-                      setJobFormData({ position: '', schedule: '', workplace: '', duties: '', salary: '', contact: '', is_active: true });
-                    }}
-                    variant="secondary"
-                    className="gap-2"
-                  >
-                    <Icon name="Plus" className="w-4 h-4" />
-                    Добавить вакансию
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          <div className="grid gap-6">
-            {jobs.map((job) => (
-              <Card 
-                key={job.id} 
-                className="group relative overflow-hidden border-border bg-card hover:border-secondary/50 transition-all duration-300 hover:shadow-lg hover:shadow-secondary/10"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                
-                <div className="relative p-8">
-                  <div className="flex gap-6">
-                    <div className="p-4 rounded-2xl bg-secondary/10 shrink-0 h-fit">
-                      <Icon name="Briefcase" className="w-8 h-8 text-secondary" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="text-2xl font-bold text-foreground">{job.position}</h3>
-                        {userRole === 'director' && (
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => startEditJob(job)}
-                              className="hover:bg-secondary/20 hover:text-secondary"
-                            >
-                              <Icon name="Edit" className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteJob(job.id)}
-                              className="hover:bg-destructive/20 hover:text-destructive"
-                            >
-                              <Icon name="Trash2" className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center gap-3 bg-muted rounded-xl p-3">
-                          <Icon name="Calendar" className="w-5 h-5 text-secondary" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">График</p>
-                            <p className="text-foreground font-medium">{job.schedule}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 bg-muted rounded-xl p-3">
-                          <Icon name="MapPin" className="w-5 h-5 text-secondary" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Место работы</p>
-                            <p className="text-foreground font-medium">{job.workplace}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <p className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                          <Icon name="ListChecks" className="w-4 h-4" />
-                          Обязанности:
-                        </p>
-                        <p className="text-foreground leading-relaxed pl-6">{job.duties}</p>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-border">
-                        <div className="flex items-center gap-3 bg-secondary/10 rounded-xl px-4 py-2">
-                          <Icon name="Wallet" className="w-5 h-5 text-secondary" />
-                          <span className="text-xl font-bold text-secondary">{job.salary}</span>
-                        </div>
-                        <a
-                          href={job.contact}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-auto"
-                        >
-                          <Button variant="secondary" className="gap-2">
-                            <Icon name="Send" className="w-4 h-4" />
-                            Откликнуться
-                          </Button>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            <Button
+              variant={selectedType === 'faq' ? 'default' : 'outline'}
+              onClick={() => setSelectedType('faq')}
+            >
+              FAQ
+            </Button>
+            <Button
+              variant={selectedType === 'job' ? 'default' : 'outline'}
+              onClick={() => setSelectedType('job')}
+            >
+              Вакансии
+            </Button>
           </div>
-          
-          {jobs.length === 0 && (
-            <Card className="p-16 text-center border-dashed">
-              <div className="inline-flex p-6 rounded-full bg-muted mb-4">
-                <Icon name="Briefcase" className="w-12 h-12 text-muted-foreground opacity-50" />
-              </div>
-              <p className="text-muted-foreground text-lg">Вакансий пока нет</p>
-            </Card>
+          {canManage && (
+            <div className="flex gap-2">
+              {selectedType !== 'job' && (
+                <Button onClick={() => setIsCreating(true)}>
+                  <Icon name="Plus" className="w-4 h-4 mr-2" />
+                  Создать новость
+                </Button>
+              )}
+              {selectedType === 'job' && (
+                <Button onClick={() => setIsCreatingJob(true)} variant="secondary">
+                  <Icon name="Plus" className="w-4 h-4 mr-2" />
+                  Создать вакансию
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
-      {/* Модальное окно редактирования новостей */}
-      <Dialog open={isCreating || !!editingNews} onOpenChange={(open) => {
-        if (!open) {
+        <div className="space-y-4">
+          {selectedType === 'job' ? (
+            jobs.length === 0 ? (
+              <Card className="p-8 text-center text-white/50 bg-white/5 border-white/10">
+                Нет активных вакансий
+              </Card>
+            ) : (
+              jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  userRole={userRole}
+                  onEdit={startJobEdit}
+                  onDelete={handleDeleteJob}
+                />
+              ))
+            )
+          ) : (
+            filteredNews.length === 0 ? (
+              <Card className="p-8 text-center text-white/50 bg-white/5 border-white/10">
+                Нет новостей
+              </Card>
+            ) : (
+              filteredNews.map((item) => (
+                <NewsCard
+                  key={item.id}
+                  item={item}
+                  userRole={userRole}
+                  onEdit={startEdit}
+                  onDelete={handleDeleteNews}
+                />
+              ))
+            )
+          )}
+        </div>
+      </div>
+
+      <NewsDialog
+        open={isCreating || !!editingNews}
+        editingNews={editingNews}
+        formData={formData}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsCreating(false);
+            setEditingNews(null);
+          }
+        }}
+        onFormDataChange={setFormData}
+        onSave={editingNews ? handleUpdateNews : handleCreateNews}
+        onCancel={() => {
           setIsCreating(false);
           setEditingNews(null);
-        }
-      }}>
-        <DialogContent className="max-w-2xl bg-gradient-to-br from-gray-900 to-black border-white/10">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">{editingNews ? 'Редактировать новость' : 'Создать новость'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Заголовок"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            />
-            <Textarea
-              placeholder="Содержание"
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              rows={6}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
-                <SelectTrigger className="bg-white/5 border-white/10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="update">Обновление</SelectItem>
-                  <SelectItem value="faq">FAQ</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                type="number"
-                placeholder="Приоритет (0-100)"
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-              />
-              <span className="text-sm">Активна</span>
-            </div>
-            <div className="flex gap-2 pt-4">
-              <Button onClick={editingNews ? handleUpdateNews : handleCreateNews} className="flex-1">
-                <Icon name="Save" className="w-4 h-4 mr-2" />
-                {editingNews ? 'Сохранить' : 'Создать'}
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setIsCreating(false);
-                setEditingNews(null);
-              }>
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        }}
+      />
 
-      {/* Модальное окно для вакансий */}
-      <Dialog open={isCreatingJob || !!editingJob} onOpenChange={(open) => {
-        if (!open) {
+      <JobDialog
+        open={isCreatingJob || !!editingJob}
+        editingJob={editingJob}
+        jobFormData={jobFormData}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsCreatingJob(false);
+            setEditingJob(null);
+          }
+        }}
+        onJobFormDataChange={setJobFormData}
+        onSave={handleSaveJob}
+        onCancel={() => {
           setIsCreatingJob(false);
           setEditingJob(null);
-        }
-      }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">{editingJob ? 'Редактировать вакансию' : 'Создать вакансию'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Должность"
-              value={jobFormData.position}
-              onChange={(e) => setJobFormData({ ...jobFormData, position: e.target.value })}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                placeholder="График (например, 5/2)"
-                value={jobFormData.schedule}
-                onChange={(e) => setJobFormData({ ...jobFormData, schedule: e.target.value })}
-              />
-              <Input
-                placeholder="Место работы"
-                value={jobFormData.workplace}
-                onChange={(e) => setJobFormData({ ...jobFormData, workplace: e.target.value })}
-              />
-            </div>
-            <Textarea
-              placeholder="Обязанности"
-              value={jobFormData.duties}
-              onChange={(e) => setJobFormData({ ...jobFormData, duties: e.target.value })}
-              rows={4}
-            />
-            <Input
-              placeholder="Зарплата (например, 15000₽ в месяц)"
-              value={jobFormData.salary}
-              onChange={(e) => setJobFormData({ ...jobFormData, salary: e.target.value })}
-            />
-            <Input
-              placeholder="Контакт для отклика (например, https://t.me/username)"
-              value={jobFormData.contact}
-              onChange={(e) => setJobFormData({ ...jobFormData, contact: e.target.value })}
-            />
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={jobFormData.is_active}
-                onCheckedChange={(checked) => setJobFormData({ ...jobFormData, is_active: checked })}
-              />
-              <span className="text-sm">Активна</span>
-            </div>
-            <div className="flex gap-2 pt-4">
-              <Button onClick={handleSaveJob} variant="secondary" className="flex-1">
-                <Icon name="Save" className="w-4 h-4 mr-2" />
-                {editingJob ? 'Сохранить' : 'Создать'}
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setIsCreatingJob(false);
-                setEditingJob(null);
-              }>
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        }}
+      />
     </div>
   );
 }
