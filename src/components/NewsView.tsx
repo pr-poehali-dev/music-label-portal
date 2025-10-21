@@ -640,14 +640,12 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               placeholder="Заголовок"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-
             />
             <Textarea
               placeholder="Содержание"
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               rows={6}
-
             />
             <div className="grid grid-cols-2 gap-4">
               <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
@@ -664,7 +662,6 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                 placeholder="Приоритет (0-100)"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-  
               />
             </div>
             <div className="flex items-center gap-2">
@@ -706,20 +703,17 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               placeholder="Должность"
               value={jobFormData.position}
               onChange={(e) => setJobFormData({ ...jobFormData, position: e.target.value })}
-
             />
             <div className="grid grid-cols-2 gap-4">
               <Input
                 placeholder="График (например, 5/2)"
                 value={jobFormData.schedule}
                 onChange={(e) => setJobFormData({ ...jobFormData, schedule: e.target.value })}
-  
               />
               <Input
                 placeholder="Место работы"
                 value={jobFormData.workplace}
                 onChange={(e) => setJobFormData({ ...jobFormData, workplace: e.target.value })}
-  
               />
             </div>
             <Textarea
@@ -727,19 +721,16 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               value={jobFormData.duties}
               onChange={(e) => setJobFormData({ ...jobFormData, duties: e.target.value })}
               rows={4}
-
             />
             <Input
               placeholder="Зарплата (например, 15000₽ в месяц)"
               value={jobFormData.salary}
               onChange={(e) => setJobFormData({ ...jobFormData, salary: e.target.value })}
-
             />
             <Input
               placeholder="Контакт для отклика (например, https://t.me/username)"
               value={jobFormData.contact}
               onChange={(e) => setJobFormData({ ...jobFormData, contact: e.target.value })}
-
             />
             <div className="flex items-center gap-2">
               <Switch
