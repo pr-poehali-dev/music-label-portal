@@ -306,13 +306,11 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
   const getTypeConfig = (type: string) => {
     switch (type) {
       case 'update': 
-        return { icon: 'Zap', label: 'Обновление', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' };
+        return { icon: 'Zap', label: 'Обновление', color: 'text-primary' };
       case 'faq': 
-        return { icon: 'HelpCircle', label: 'FAQ', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' };
-      case 'job': 
-        return { icon: 'Briefcase', label: 'Вакансия', color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/30' };
+        return { icon: 'HelpCircle', label: 'FAQ', color: 'text-secondary' };
       default: 
-        return { icon: 'Info', label: type, color: 'text-gray-400', bg: 'bg-gray-500/10', border: 'border-gray-500/30' };
+        return { icon: 'Info', label: type, color: 'text-muted-foreground' };
     }
   };
 
@@ -334,20 +332,20 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-950/20 to-black">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 p-[2px]">
-          <div className="bg-black/90 backdrop-blur-xl rounded-3xl p-8 md:p-12">
+        <Card className="relative overflow-hidden border-border bg-card">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5" />
+          <div className="relative p-8 md:p-12">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm">
-                    <Icon name="Radio" className="w-8 h-8 text-purple-400" />
+                  <div className="p-3 rounded-2xl bg-primary/10">
+                    <Icon name="Radio" className="w-8 h-8 text-primary" />
                   </div>
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">
                       Центр новостей
                     </h1>
                     <p className="text-muted-foreground mt-1">Будьте в курсе всех обновлений лейбла</p>
@@ -364,8 +362,8 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                     { label: 'ч', value: countdown.hours },
                     { label: 'мин', value: countdown.minutes }
                   ].map(({ label, value }) => (
-                    <div key={label} className="flex flex-col items-center bg-white/5 backdrop-blur-sm rounded-xl p-3 min-w-[60px]">
-                      <div className="text-2xl font-bold bg-gradient-to-br from-purple-400 to-pink-400 bg-clip-text text-transparent tabular-nums">
+                    <div key={label} className="flex flex-col items-center bg-card border border-border rounded-xl p-3 min-w-[60px]">
+                      <div className="text-2xl font-bold text-primary tabular-nums">
                         {String(value).padStart(2, '0')}
                       </div>
                       <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
@@ -375,28 +373,24 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-2 flex-1">
             {[
-              { key: 'update', label: 'Обновления', icon: 'Zap', count: stats.update, gradient: 'from-yellow-500 to-orange-500' },
-              { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq, gradient: 'from-blue-500 to-cyan-500' }
-            ].map(({ key, label, icon, count, gradient }) => (
+              { key: 'update', label: 'Обновления', icon: 'Zap', count: stats.update },
+              { key: 'faq', label: 'FAQ', icon: 'HelpCircle', count: stats.faq }
+            ].map(({ key, label, icon, count }) => (
               <Button
                 key={key}
                 variant={selectedType === key ? 'default' : 'outline'}
                 onClick={() => setSelectedType(key)}
-                className={`gap-2 ${
-                  selectedType === key 
-                    ? `bg-gradient-to-r ${gradient} text-white border-0 shadow-lg` 
-                    : 'bg-white/5 border-white/10 hover:bg-white/10'
-                }`}
+                className="gap-2"
               >
                 <Icon name={icon} className="w-4 h-4" />
                 {label}
-                <Badge variant="secondary" className={selectedType === key ? 'bg-white/20 text-white' : ''}>
+                <Badge variant="secondary" className="ml-1">
                   {count}
                 </Badge>
               </Button>
@@ -410,7 +404,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                 setEditingNews(null);
                 setFormData({ title: '', content: '', type: 'update', priority: 0, is_active: true });
               }}
-              className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg"
+              className="gap-2"
             >
               <Icon name="Plus" className="w-4 h-4" />
               Создать новость
@@ -425,19 +419,19 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
             return (
               <Card 
                 key={item.id} 
-                className="group relative overflow-hidden border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1"
+                className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${config.color === 'text-yellow-400' ? 'from-yellow-500/5 to-orange-500/5' : 'from-blue-500/5 to-cyan-500/5'} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="relative p-6">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${config.color === 'text-yellow-400' ? 'from-yellow-500/20 to-orange-500/20' : 'from-blue-500/20 to-cyan-500/20'} backdrop-blur-sm`}>
+                    <div className={`p-3 rounded-2xl ${item.type === 'update' ? 'bg-primary/10' : 'bg-secondary/10'}`}>
                       <Icon name={config.icon} className={`w-6 h-6 ${config.color}`} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <h3 
-                          className="text-xl font-bold text-white leading-tight cursor-pointer hover:text-purple-400 transition-colors"
+                          className="text-xl font-bold text-foreground leading-tight cursor-pointer hover:text-primary transition-colors"
                           onClick={() => userRole === 'director' ? startEdit(item) : null}
                         >
                           {item.title}
@@ -450,7 +444,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                               e.stopPropagation();
                               handleDeleteNews(item.id);
                             }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:text-red-400 shrink-0"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive shrink-0"
                           >
                             <Icon name="Trash2" className="w-4 h-4" />
                           </Button>
@@ -472,7 +466,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                     {userRole === 'director' && (
                       <button
                         onClick={() => startEdit(item)}
-                        className="flex items-center gap-1 text-purple-400 hover:text-purple-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="flex items-center gap-1 text-primary hover:text-primary/80 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Icon name="Edit" className="w-4 h-4" />
                         Редактировать
@@ -486,30 +480,31 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
         </div>
 
         {filteredNews.length === 0 && (
-          <div className="text-center py-16">
-            <div className="inline-flex p-6 rounded-full bg-white/5 backdrop-blur-sm mb-4">
+          <Card className="p-16 text-center border-dashed">
+            <div className="inline-flex p-6 rounded-full bg-muted mb-4">
               <Icon name="Inbox" className="w-12 h-12 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-lg">Новостей пока нет</p>
-          </div>
+          </Card>
         )}
 
         {/* Вакансии Section */}
         <div className="mt-12">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 p-[2px] mb-6">
-            <div className="bg-black/90 backdrop-blur-xl rounded-3xl p-6">
+          <Card className="relative overflow-hidden border-border bg-card mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5" />
+            <div className="relative p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-green-500/20 backdrop-blur-sm">
-                    <Icon name="Briefcase" className="w-6 h-6 text-green-400" />
+                  <div className="p-3 rounded-2xl bg-secondary/10">
+                    <Icon name="Briefcase" className="w-6 h-6 text-secondary" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold text-foreground">
                       Открытые вакансии
                     </h2>
                     <p className="text-muted-foreground text-sm">Присоединяйтесь к нашей команде</p>
                   </div>
-                  <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                  <Badge variant="secondary" className="ml-2">
                     {jobs.length}
                   </Badge>
                 </div>
@@ -520,7 +515,8 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                       setEditingJob(null);
                       setJobFormData({ position: '', schedule: '', workplace: '', duties: '', salary: '', contact: '', is_active: true });
                     }}
-                    className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg"
+                    variant="secondary"
+                    className="gap-2"
                   >
                     <Icon name="Plus" className="w-4 h-4" />
                     Добавить вакансию
@@ -528,32 +524,32 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                 )}
               </div>
             </div>
-          </div>
+          </Card>
 
           <div className="grid gap-6">
             {jobs.map((job) => (
               <Card 
                 key={job.id} 
-                className="group relative overflow-hidden border-green-500/20 bg-gradient-to-br from-green-900/10 via-emerald-900/5 to-transparent backdrop-blur-xl hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300"
+                className="group relative overflow-hidden border-border bg-card hover:border-secondary/50 transition-all duration-300 hover:shadow-lg hover:shadow-secondary/10"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="relative p-8">
                   <div className="flex gap-6">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-sm shrink-0 h-fit">
-                      <Icon name="Briefcase" className="w-8 h-8 text-green-400" />
+                    <div className="p-4 rounded-2xl bg-secondary/10 shrink-0 h-fit">
+                      <Icon name="Briefcase" className="w-8 h-8 text-secondary" />
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="text-2xl font-bold text-white">{job.position}</h3>
+                        <h3 className="text-2xl font-bold text-foreground">{job.position}</h3>
                         {userRole === 'director' && (
                           <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => startEditJob(job)}
-                              className="hover:bg-green-500/20 hover:text-green-400"
+                              className="hover:bg-secondary/20 hover:text-secondary"
                             >
                               <Icon name="Edit" className="w-4 h-4" />
                             </Button>
@@ -561,7 +557,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteJob(job.id)}
-                              className="hover:bg-red-500/20 hover:text-red-400"
+                              className="hover:bg-destructive/20 hover:text-destructive"
                             >
                               <Icon name="Trash2" className="w-4 h-4" />
                             </Button>
@@ -570,18 +566,18 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                       </div>
                       
                       <div className="grid md:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
-                          <Icon name="Calendar" className="w-5 h-5 text-green-400" />
+                        <div className="flex items-center gap-3 bg-muted rounded-xl p-3">
+                          <Icon name="Calendar" className="w-5 h-5 text-secondary" />
                           <div>
                             <p className="text-xs text-muted-foreground">График</p>
-                            <p className="text-white font-medium">{job.schedule}</p>
+                            <p className="text-foreground font-medium">{job.schedule}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
-                          <Icon name="MapPin" className="w-5 h-5 text-green-400" />
+                        <div className="flex items-center gap-3 bg-muted rounded-xl p-3">
+                          <Icon name="MapPin" className="w-5 h-5 text-secondary" />
                           <div>
                             <p className="text-xs text-muted-foreground">Место работы</p>
-                            <p className="text-white font-medium">{job.workplace}</p>
+                            <p className="text-foreground font-medium">{job.workplace}</p>
                           </div>
                         </div>
                       </div>
@@ -591,13 +587,13 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                           <Icon name="ListChecks" className="w-4 h-4" />
                           Обязанности:
                         </p>
-                        <p className="text-white leading-relaxed pl-6">{job.duties}</p>
+                        <p className="text-foreground leading-relaxed pl-6">{job.duties}</p>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-green-500/20">
-                        <div className="flex items-center gap-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl px-4 py-2">
-                          <Icon name="Wallet" className="w-5 h-5 text-green-400" />
-                          <span className="text-xl font-bold text-green-400">{job.salary}</span>
+                      <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-border">
+                        <div className="flex items-center gap-3 bg-secondary/10 rounded-xl px-4 py-2">
+                          <Icon name="Wallet" className="w-5 h-5 text-secondary" />
+                          <span className="text-xl font-bold text-secondary">{job.salary}</span>
                         </div>
                         <a
                           href={job.contact}
@@ -605,7 +601,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                           rel="noopener noreferrer"
                           className="ml-auto"
                         >
-                          <Button className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg">
+                          <Button variant="secondary" className="gap-2">
                             <Icon name="Send" className="w-4 h-4" />
                             Откликнуться
                           </Button>
@@ -619,16 +615,14 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
           </div>
           
           {jobs.length === 0 && (
-            <div className="text-center py-16">
-              <div className="inline-flex p-6 rounded-full bg-green-500/10 backdrop-blur-sm mb-4">
-                <Icon name="Briefcase" className="w-12 h-12 text-green-400 opacity-50" />
+            <Card className="p-16 text-center border-dashed">
+              <div className="inline-flex p-6 rounded-full bg-muted mb-4">
+                <Icon name="Briefcase" className="w-12 h-12 text-muted-foreground opacity-50" />
               </div>
               <p className="text-muted-foreground text-lg">Вакансий пока нет</p>
-            </div>
+            </Card>
           )}
         </div>
-
-      </div>
 
       {/* Модальное окно редактирования новостей */}
       <Dialog open={isCreating || !!editingNews} onOpenChange={(open) => {
@@ -646,14 +640,14 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               placeholder="Заголовок"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="bg-white/5 border-white/10"
+
             />
             <Textarea
               placeholder="Содержание"
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               rows={6}
-              className="bg-white/5 border-white/10"
+
             />
             <div className="grid grid-cols-2 gap-4">
               <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
@@ -670,7 +664,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
                 placeholder="Приоритет (0-100)"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-                className="bg-white/5 border-white/10"
+  
               />
             </div>
             <div className="flex items-center gap-2">
@@ -681,14 +675,14 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               <span className="text-sm">Активна</span>
             </div>
             <div className="flex gap-2 pt-4">
-              <Button onClick={editingNews ? handleUpdateNews : handleCreateNews} className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500">
+              <Button onClick={editingNews ? handleUpdateNews : handleCreateNews} className="flex-1">
                 <Icon name="Save" className="w-4 h-4 mr-2" />
                 {editingNews ? 'Сохранить' : 'Создать'}
               </Button>
               <Button variant="outline" onClick={() => {
                 setIsCreating(false);
                 setEditingNews(null);
-              }} className="border-white/10">
+              }>
                 Отмена
               </Button>
             </div>
@@ -703,7 +697,7 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
           setEditingJob(null);
         }
       }}>
-        <DialogContent className="max-w-2xl bg-gradient-to-br from-gray-900 to-black border-white/10">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl">{editingJob ? 'Редактировать вакансию' : 'Создать вакансию'}</DialogTitle>
           </DialogHeader>
@@ -712,20 +706,20 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               placeholder="Должность"
               value={jobFormData.position}
               onChange={(e) => setJobFormData({ ...jobFormData, position: e.target.value })}
-              className="bg-white/5 border-white/10"
+
             />
             <div className="grid grid-cols-2 gap-4">
               <Input
                 placeholder="График (например, 5/2)"
                 value={jobFormData.schedule}
                 onChange={(e) => setJobFormData({ ...jobFormData, schedule: e.target.value })}
-                className="bg-white/5 border-white/10"
+  
               />
               <Input
                 placeholder="Место работы"
                 value={jobFormData.workplace}
                 onChange={(e) => setJobFormData({ ...jobFormData, workplace: e.target.value })}
-                className="bg-white/5 border-white/10"
+  
               />
             </div>
             <Textarea
@@ -733,19 +727,19 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               value={jobFormData.duties}
               onChange={(e) => setJobFormData({ ...jobFormData, duties: e.target.value })}
               rows={4}
-              className="bg-white/5 border-white/10"
+
             />
             <Input
               placeholder="Зарплата (например, 15000₽ в месяц)"
               value={jobFormData.salary}
               onChange={(e) => setJobFormData({ ...jobFormData, salary: e.target.value })}
-              className="bg-white/5 border-white/10"
+
             />
             <Input
               placeholder="Контакт для отклика (например, https://t.me/username)"
               value={jobFormData.contact}
               onChange={(e) => setJobFormData({ ...jobFormData, contact: e.target.value })}
-              className="bg-white/5 border-white/10"
+
             />
             <div className="flex items-center gap-2">
               <Switch
@@ -755,14 +749,14 @@ export default function NewsView({ userRole, userId }: NewsViewProps) {
               <span className="text-sm">Активна</span>
             </div>
             <div className="flex gap-2 pt-4">
-              <Button onClick={handleSaveJob} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500">
+              <Button onClick={handleSaveJob} variant="secondary" className="flex-1">
                 <Icon name="Save" className="w-4 h-4 mr-2" />
                 {editingJob ? 'Сохранить' : 'Создать'}
               </Button>
               <Button variant="outline" onClick={() => {
                 setIsCreatingJob(false);
                 setEditingJob(null);
-              }} className="border-white/10">
+              }>
                 Отмена
               </Button>
             </div>
